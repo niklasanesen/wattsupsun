@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import no.uio.ifi.in2000.niklaa.team_43.ui.home.HomeScreen
 import no.uio.ifi.in2000.niklaa.team_43.ui.theme.Team_43Theme
 
 class MainActivity : ComponentActivity() {
@@ -20,10 +21,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             Team_43Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+
+                    HomeScreen()
+
+                    /*
                     Greeting(
                         name = "team 43",
                         modifier = Modifier.padding(innerPadding)
                     )
+                     */
                 }
             }
         }
