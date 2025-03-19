@@ -1,4 +1,4 @@
-package no.uio.ifi.in2000.niklaa.team_43.ui.theme
+package no.uio.ifi.in2000.team_43.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

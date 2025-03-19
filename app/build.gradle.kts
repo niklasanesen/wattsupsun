@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "no.uio.ifi.in2000.niklaa.team_43"
+    namespace = "no.uio.ifi.in2000.team_43"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "no.uio.ifi.in2000.niklaa.team_43"
+        applicationId = "no.uio.ifi.in2000.team_43"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -56,4 +56,18 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    //Ktor
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.gson)
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.logging)
+
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
+
+    // Async Images
+    implementation(libs.coil3.coil.compose)
+    implementation(libs.coil.network.okhttp)
 }
