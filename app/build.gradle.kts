@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    // serialization
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0"
 }
 
 android {
@@ -70,4 +73,7 @@ dependencies {
     // Async Images
     implementation(libs.coil3.coil.compose)
     implementation(libs.coil.network.okhttp)
+
+    // Serialization
+    implementation(libs.kotlinx.serialization.json)
 }

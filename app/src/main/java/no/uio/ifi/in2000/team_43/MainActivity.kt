@@ -15,8 +15,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
+import kotlinx.serialization.json.Json
+
+
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import no.uio.ifi.in2000.team_43.model.PVGIS.PVGISRes
+import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
 import no.uio.ifi.in2000.team_43.ui.home.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.theme.Team_43Theme
@@ -29,12 +37,29 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         // test met api
-        val viewModel = MetViewModel()
+        val metViewModel = MetViewModel()
         lifecycleScope.launch {
-            viewModel.data.collect { res ->
-                Log.d("MainActivity", "Met data: $res")
-            }
+            val res = metViewModel.data.first()
+            Log.d("MainActivity", "Met data: $res")
         }
+
+        // test PVGIS api
+        val pVGISViewModel = PVGISViewModel()
+
+        lifecycleScope.launch {
+            Log.d("MainActivity", "PVGIS Start")
+
+            pVGISViewModel.data.collect { res ->
+                Log.d("MainActivity", "PVGIS Data: $res")
+            }
+
+            val res: PVGISRes? = pVGISViewModel.data.first() // Antar at dette ikke er null
+            val jsonString = Json.encodeToString(res) // Serialiser til JSON-streng
+            Log.d("MainActivity", jsonString)
+
+        }
+
+        // test
         setContent {
             Team_43Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
