@@ -49,7 +49,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     text = "Velkommen til Verdens BESTE app!",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.paddingFromBaseline(top = 40.dp),
+                    modifier = Modifier.paddingFromBaseline(top = 48.dp),
                 )
             }
         }
