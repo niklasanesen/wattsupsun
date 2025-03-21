@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import no.uio.ifi.in2000.team_43.ui.home.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.theme.Team_43Theme
 
