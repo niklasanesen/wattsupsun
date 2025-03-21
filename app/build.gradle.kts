@@ -70,4 +70,8 @@ dependencies {
     // Async Images
     implementation(libs.coil3.coil.compose)
     implementation(libs.coil.network.okhttp)
+
+    //mapbox
+    implementation("com.mapbox.maps:android:11.10.2")
+    implementation("com.mapbox.extension:maps-compose:11.10.2")
 }
