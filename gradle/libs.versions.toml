@@ -1,5 +1,6 @@
 [versions]
 agp = "8.8.2"
+android = "11.10.2"
 coilCompose = "2.0.0"
 coilComposeVersion = "3.1.0"
 kotlin = "2.0.0"
@@ -15,9 +16,16 @@ ktorSerializationGson = "3.0.3"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.1"
 composeBom = "2025.03.00"
+mapboxSearchAndroidUi = "2.8.0-rc.1"
+mapboxSearchAndroidUiVersion = "2.7.0"
+mapsCompose = "11.10.2"
 navigationCompose = "2.8.9"
+placeAutocomplete = "2.8.0-rc.1"
+appcompat = "1.7.0"
+placeAutocompleteVersion = "2.7.0"
 
 [libraries]
+android = { module = "com.mapbox.maps:android", version.ref = "android" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
@@ -41,6 +49,12 @@ ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negoti
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorClientCore" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktorClientLogging" }
 ktor-serialization-gson = { module = "io.ktor:ktor-serialization-gson", version.ref = "ktorSerializationGson" }
+mapbox-search-android-ui = { module = "com.mapbox.search:mapbox-search-android-ui", version.ref = "mapboxSearchAndroidUi" }
+mapbox-search-android-ui-v270 = { module = "com.mapbox.search:mapbox-search-android-ui", version.ref = "mapboxSearchAndroidUiVersion" }
+maps-compose = { module = "com.mapbox.extension:maps-compose", version.ref = "mapsCompose" }
+place-autocomplete = { module = "com.mapbox.search:place-autocomplete", version.ref = "placeAutocomplete" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+place-autocomplete-v270 = { module = "com.mapbox.search:place-autocomplete", version.ref = "placeAutocompleteVersion" }
 
 
 [plugins]

@@ -14,10 +14,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-
+import no.uio.ifi.in2000.team_43.ui.map.MapActivity
 import androidx.lifecycle.lifecycleScope
+import com.mapbox.search.result.SearchAddress
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.team_43.ui.home.HomeScreen
+import no.uio.ifi.in2000.team_43.ui.map.MapScreen
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.theme.Team_43Theme
 
@@ -27,6 +29,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
 
         // test met api
         val viewModel = MetViewModel()
@@ -39,7 +42,11 @@ class MainActivity : ComponentActivity() {
             Team_43Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
-                    HomeScreen()
+                    // HomeScreen()
+
+                    // val mapActivity = MapActivity()
+                    MapScreen()
+
 
                     /*
                     Greeting(
