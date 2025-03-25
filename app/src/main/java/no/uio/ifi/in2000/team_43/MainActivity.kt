@@ -42,10 +42,12 @@ class MainActivity : ComponentActivity() {
             Team_43Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
-                    // HomeScreen()
+                    HomeScreen()
 
-                    // val mapActivity = MapActivity()
-                    MapScreen()
+                    val mapActivity = MapActivity()
+                    mapActivity.test()
+                    Log.i("mapActivity", mapActivity.toString())
+                    // MapScreen()
 
 
                     /*
