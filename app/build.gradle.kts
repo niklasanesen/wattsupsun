@@ -36,6 +36,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 }
 
@@ -82,4 +83,6 @@ dependencies {
     implementation("com.mapbox.search:offline:2.8.0-rc.1")
     implementation("com.mapbox.search:mapbox-search-android:2.8.0-rc.1")
     implementation("com.mapbox.search:mapbox-search-android-ui:2.8.0-rc.1")
+    implementation("com.google.android.gms:play-services-location:20.0.0")
+    implementation("com.mapbox.mapboxsdk:mapbox-android-core:5.0.0")
 }
