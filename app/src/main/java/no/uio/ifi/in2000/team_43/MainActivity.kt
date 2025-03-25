@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
             pVGISViewModel.data.collect { res ->
                 Log.d("MainActivity", "PVGIS Data: $res")
             }
-
+d
             val res: PVGISRes? = pVGISViewModel.data.first() // Antar at dette ikke er null
             val jsonString = Json.encodeToString(res) // Serialiser til JSON-streng
             Log.d("MainActivity", jsonString)
