@@ -23,12 +23,9 @@ class PVGISViewModel() : ViewModel() {
     private val _data = MutableStateFlow<PVGISRes?>(null);
     val data: StateFlow<PVGISRes?> = _data.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            Log.d("PVGISViewModel", "Fetching PVGIS data...")
-            val res = PVGISRepo.getPVGISdata()
-            Log.d("PVGISViewModel", "PVGIS Response: $res")
-            _data.value = res
-        }
+    suspend fun getPVGISData(): PVGISRes? {
+        Log.i("TestPVGIS", "Henter data via funksjon i PVGISviewModelet")
+        val dataene: PVGISRes? = PVGISRepo.getPVGISdata()
+        return dataene
     }
 }

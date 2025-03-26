@@ -16,6 +16,9 @@ class PVGISDatasource {
         try {
 
             // Testdata:
+
+            // Et av verktøyene som kan brukes:
+            val tool_name = "PVcalc"
             // posisjonen til Oslo
             val lat: String = "59"
             val lon: String = "10"
@@ -24,14 +27,20 @@ class PVGISDatasource {
             val loss: String = "2.0"
 
 
+
             var url = "https://re.jrc.ec.europa.eu/api/v5_2/"
+            url += "${tool_name}?"
             url += "lat=" + lat
             url += "&lon=" + lon
             url += "&peakpower=" + peakpower // Beskriver "Nominal power of the PV system, in kW"
             url += "&loss=" + loss // Beskriver "Sum of system losses, in percent."
 
+            url += "&outputformat=json" // Spesifiserer at man ønsker json
+
+            Log.i("TestPVGIS", "Prøver å hente data fra $url")
             return APIClient.client.get(url).body()
         } catch (e: Exception) {
+            Log.e("TestPVGIS", "Error i Datasource: msg; ${e.message}")
             return null
         }
     }
