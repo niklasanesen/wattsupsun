@@ -17,8 +17,11 @@ import androidx.compose.ui.tooling.preview.Preview
 
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import no.uio.ifi.in2000.team_43.model.stromPris.StromprisRes
+import no.uio.ifi.in2000.team_43.model.stromPris.toFormattedString
 import no.uio.ifi.in2000.team_43.ui.home.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
+import no.uio.ifi.in2000.team_43.ui.strompris.StromprisViewModel
 import no.uio.ifi.in2000.team_43.ui.theme.Team_43Theme
 
 
@@ -35,6 +38,37 @@ class MainActivity : ComponentActivity() {
                 Log.d("MainActivity", "Met data: $res")
             }
         }
+
+        // test strompris API
+        val stromprisViewModel = StromprisViewModel()
+
+        lifecycleScope.launch {
+            Log.i("TestStrom", "Henter stromprisdata Start")
+            val dataene: List<StromprisRes>? = stromprisViewModel.getStromData()
+
+            dataene?.forEach { data ->
+                Log.d("TestStrom", "Strompris data: $data")
+            }
+
+
+
+        }
+
+//        // ny test:
+//        lifecycleScope.launch {
+//            Log.i("TestStrom","stromtest nr 2 start")
+//
+//            val dataHentet = stromprisViewModel.getStromListe()
+//
+//            Log.i("TestStrom", "Hentet data: ${dataHentet.size} elementer")
+//            Log.d("TestStrom", "Data: $dataHentet")
+//
+//        }
+
+
+
+
+
         setContent {
             Team_43Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
