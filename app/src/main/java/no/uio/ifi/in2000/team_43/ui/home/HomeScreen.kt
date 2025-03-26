@@ -1,6 +1,7 @@
 package no.uio.ifi.in2000.team_43.ui.home
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Menu
@@ -26,8 +27,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         topBar =  { TopAppBar() },
         bottomBar = { BottomAppBar() },
     ) { innerPadding ->
-        MapScreen()
-    }
+        MapScreen(modifier = Modifier.padding(innerPadding))    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

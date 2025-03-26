@@ -76,13 +76,11 @@ dependencies {
     //mapbox
     implementation(libs.android)
     implementation(libs.maps.compose)
-
     implementation("com.mapbox.search:autofill:2.8.0-rc.1")
     implementation("com.mapbox.search:discover:2.8.0-rc.1")
     implementation("com.mapbox.search:place-autocomplete:2.8.0-rc.1")
     implementation("com.mapbox.search:offline:2.8.0-rc.1")
     implementation("com.mapbox.search:mapbox-search-android:2.8.0-rc.1")
     implementation("com.mapbox.search:mapbox-search-android-ui:2.8.0-rc.1")
-    implementation("com.google.android.gms:play-services-location:20.0.0")
-    implementation("com.mapbox.mapboxsdk:mapbox-android-core:5.0.0")
+
 }
