@@ -52,6 +52,7 @@ class MainActivity : ComponentActivity() {
             Log.d("TestPVGIS", "Average annual energy production: ${dataene?.outputs?.totals?.fixed?.E_y} kWh ")
         }
 
+
         setContent {
             Team_43Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
