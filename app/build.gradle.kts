@@ -36,6 +36,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 }
 
@@ -49,6 +50,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -72,6 +74,13 @@ dependencies {
     implementation(libs.coil.network.okhttp)
 
     //mapbox
-    implementation("com.mapbox.maps:android:11.10.2")
-    implementation("com.mapbox.extension:maps-compose:11.10.2")
+    implementation(libs.android)
+    implementation(libs.maps.compose)
+    implementation("com.mapbox.search:autofill:2.8.0-rc.1")
+    implementation("com.mapbox.search:discover:2.8.0-rc.1")
+    implementation("com.mapbox.search:place-autocomplete:2.8.0-rc.1")
+    implementation("com.mapbox.search:offline:2.8.0-rc.1")
+    implementation("com.mapbox.search:mapbox-search-android:2.8.0-rc.1")
+    implementation("com.mapbox.search:mapbox-search-android-ui:2.8.0-rc.1")
+
 }

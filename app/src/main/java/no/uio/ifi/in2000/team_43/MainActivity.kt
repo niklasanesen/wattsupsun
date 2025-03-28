@@ -19,6 +19,8 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.team_43.model.stromPris.StromprisRes
 import no.uio.ifi.in2000.team_43.model.stromPris.toFormattedString
+import no.uio.ifi.in2000.team_43.model.PVGIS.PVGISRes
+import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
 import no.uio.ifi.in2000.team_43.ui.home.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.strompris.StromprisViewModel
@@ -67,6 +69,22 @@ class MainActivity : ComponentActivity() {
 
 
 
+
+
+
+        val pvgisViewModel = PVGISViewModel()
+
+        lifecycleScope.launch {
+            val dataene: PVGISRes? = pvgisViewModel.getPVGISData()
+
+            Log.d("TestPVGIS", "testytesty ikke skrevet test enda")
+
+            // Skriver ut datene mottak til log:
+            Log.d("TestPVGIS", "Tester med data fra pos Oslo. Hele input: ${dataene?.inputs}")
+            Log.d("TestPVGIS", "Average daily energy production: ${dataene?.outputs?.totals?.fixed?.E_d} kWh ")
+            Log.d("TestPVGIS", "Average monthly energy production: ${dataene?.outputs?.totals?.fixed?.E_m} kWh ")
+            Log.d("TestPVGIS", "Average annual energy production: ${dataene?.outputs?.totals?.fixed?.E_y} kWh ")
+        }
 
 
         setContent {
