@@ -1,4 +1,4 @@
-package no.uio.ifi.in2000.team_43.ui.map
+package no.uio.ifi.in2000.team_43.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,7 +44,7 @@ fun MapScreen(modifier: Modifier = Modifier, viewModel: MapViewModel = viewModel
 
     val mapViewportState = rememberMapViewportState {
         setCameraOptions {
-            zoom(10.0)
+            zoom(16.0)
             center(coords)
             pitch(0.0)
             bearing(0.0)
@@ -56,7 +56,7 @@ fun MapScreen(modifier: Modifier = Modifier, viewModel: MapViewModel = viewModel
             mapViewportState.flyTo(
                 CameraOptions.Builder()
                     .center(it)
-                    .zoom(10.0)
+                    .zoom(16.0)
                     .build()
             )
         }
