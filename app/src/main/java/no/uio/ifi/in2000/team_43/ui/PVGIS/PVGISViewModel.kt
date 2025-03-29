@@ -19,22 +19,60 @@ import no.uio.ifi.in2000.team_43.model.PVGIS.PVGISRes
 import no.uio.ifi.in2000.team_43.model.met.MetRes
 
 @RequiresApi(Build.VERSION_CODES.O)
-class PVGISViewModel() : ViewModel() {
-    val PVGISRepo = PVGISRepository(pvgisDatasource = PVGISDatasource())
+class PVGISViewModel : ViewModel() {
 
-    private val _data = MutableStateFlow<PVGISRes?>(null);
+    private val PVGISRepo = PVGISRepository(pvgisDatasource = PVGISDatasource())
+
+    // Bruker StateFlow for å holde på data
+    private val _data = MutableStateFlow<PVGISRes?>(null)
     val data: StateFlow<PVGISRes?> = _data.asStateFlow()
 
-    suspend fun getPVGISData(): PVGISRes? {
-        Log.i("TestPVGIS", "Henter data via funksjon i PVGISviewModelet")
-        val dataene: PVGISRes? = PVGISRepo.getPVGISdata()
-        return dataene
+    // Henter DRcalc-data
+    private val _drCalcData = MutableStateFlow<List<DailyProfile>?>(null)
+    val drCalcData: StateFlow<List<DailyProfile>?> = _drCalcData.asStateFlow()
+    var drCalcDataTotalSum: Double = 0.0;
+
+    // Laster data når ViewModel opprettes
+    init {
+        fetchPVGISData()
+        fetchDRcalcData()
+
+        //bergegner totalsum
+
+        val listeMedData: List<DailyProfile>?  = drCalcData.value
+        var totalSum: Double = 0.0
+
+        listeMedData?.forEach { data ->
+            totalSum += data.G_i
+        }
+        drCalcDataTotalSum = totalSum
     }
 
-    suspend fun getDRcalcData(): List<DailyProfile>? {
-        Log.i("TestDRcalc", "Henter DRcalc data via funksjon i PVGISviewModelet")
-        val dataene: List<DailyProfile>? = PVGISRepo.getDRcalcData()
-        return dataene
+    // Henter PVGIS-data og lagrer det i StateFlow
+    private fun fetchPVGISData() {
+        viewModelScope.launch {
+            try {
+                Log.i("TestPVGIS", "Henter data via PVGISViewModel")
+                val response = PVGISRepo.getPVGISdata()
+                _data.value = response // Setter data slik at UI kan observere det
+            } catch (e: Exception) {
+                Log.e("TestPVGIS", "Feil ved henting av data: ${e.message}")
+            }
+        }
+    }
+
+
+
+    fun fetchDRcalcData() {
+        viewModelScope.launch {
+            try {
+                Log.i("TestDRcalc", "Henter DRcalc data via PVGISViewModel")
+                val response = PVGISRepo.getDRcalcData()
+                _drCalcData.value = response
+            } catch (e: Exception) {
+                Log.e("TestDRcalc", "Feil ved henting av DRcalc-data: ${e.message}")
+            }
+        }
     }
 
     suspend fun getDRcalcTotalSum(): Double {
