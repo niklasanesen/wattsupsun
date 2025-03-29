@@ -13,6 +13,8 @@ import no.uio.ifi.in2000.team_43.data.PVGIS.PVGISDatasource
 import no.uio.ifi.in2000.team_43.data.PVGIS.PVGISRepository
 import no.uio.ifi.in2000.team_43.data.met.MetDataSource
 import no.uio.ifi.in2000.team_43.data.met.MetRepository
+import no.uio.ifi.in2000.team_43.model.DRcalcRes.DRcalcRes
+import no.uio.ifi.in2000.team_43.model.DRcalcRes.DailyProfile
 import no.uio.ifi.in2000.team_43.model.PVGIS.PVGISRes
 import no.uio.ifi.in2000.team_43.model.met.MetRes
 
@@ -27,5 +29,15 @@ class PVGISViewModel() : ViewModel() {
         Log.i("TestPVGIS", "Henter data via funksjon i PVGISviewModelet")
         val dataene: PVGISRes? = PVGISRepo.getPVGISdata()
         return dataene
+    }
+
+    suspend fun getDRcalcData(): List<DailyProfile>? {
+        Log.i("TestDRcalc", "Henter DRcalc data via funksjon i PVGISviewModelet")
+        val dataene: List<DailyProfile>? = PVGISRepo.getDRcalcData()
+        return dataene
+    }
+
+    suspend fun getDRcalcTotalSum(): Double {
+        return PVGISRepo.getDRcalcDataTotal()
     }
 }

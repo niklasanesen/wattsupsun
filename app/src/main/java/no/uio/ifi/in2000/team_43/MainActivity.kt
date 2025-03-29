@@ -17,6 +17,8 @@ import androidx.compose.ui.tooling.preview.Preview
 
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import no.uio.ifi.in2000.team_43.model.DRcalcRes.DRcalcRes
+import no.uio.ifi.in2000.team_43.model.DRcalcRes.DailyProfile
 import no.uio.ifi.in2000.team_43.model.stromPris.StromprisRes
 import no.uio.ifi.in2000.team_43.model.stromPris.toFormattedString
 import no.uio.ifi.in2000.team_43.model.PVGIS.PVGISRes
@@ -74,6 +76,7 @@ class MainActivity : ComponentActivity() {
 
         val pvgisViewModel = PVGISViewModel()
 
+        // Test å hente kWh energiproduksjonsdata
         lifecycleScope.launch {
             val dataene: PVGISRes? = pvgisViewModel.getPVGISData()
 
@@ -84,6 +87,24 @@ class MainActivity : ComponentActivity() {
             Log.d("TestPVGIS", "Average daily energy production: ${dataene?.outputs?.totals?.fixed?.E_d} kWh ")
             Log.d("TestPVGIS", "Average monthly energy production: ${dataene?.outputs?.totals?.fixed?.E_m} kWh ")
             Log.d("TestPVGIS", "Average annual energy production: ${dataene?.outputs?.totals?.fixed?.E_y} kWh ")
+        }
+
+        // Test å hente pvgis solenergi/influx/solar radiation data
+        lifecycleScope.launch {
+            Log.d("TestDRcalc", "Starter å hente data fra PVGISviewmodel fra mainactivity")
+            val drcalcData: List<DailyProfile>? = pvgisViewModel.getDRcalcData()
+
+            Log.d("TestDRcalc", "Tester med data fra pos Oslo, mnd Juli")
+
+            drcalcData?.forEach { data ->
+                Log.d("TestDRcalc", "solinnstråling kl:${data.time} = ${data.G_i} W/m2")
+            }
+
+            // Sjekker om den beregner totalt for dagen
+            val drcalcTotal = pvgisViewModel.getDRcalcTotalSum()
+            Log.d("TestDRcalc", "Totalt for hele dagen: ${drcalcTotal} W/m2")
+
+
         }
 
 
