@@ -4,10 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,8 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -107,49 +103,37 @@ fun MapScreen(
                     }
                 }
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                TextField(
-                    value = searchQuery,
-                    onValueChange = {
-                        searchQuery = it
-                        viewModel.search(it)
-                        isSearchActive = it.isNotEmpty()
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .clip(
-                            if (isSearchActive && suggestions.isNotEmpty())
-                                RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)
-                            else
-                                RoundedCornerShape(8.dp)
-                        ),
-                    placeholder = { Text("Search location...") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color.White,
-                        focusedContainerColor = Color.White
+            TextField(
+                value = searchQuery,
+                onValueChange = {
+                    searchQuery = it
+                    viewModel.search(it)
+                    isSearchActive = it.isNotEmpty()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(
+                        if (isSearchActive && suggestions.isNotEmpty())
+                            RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)
+                        else
+                            RoundedCornerShape(8.dp)
                     ),
-                    singleLine = true
-                )
-                Button(
-                    onClick = { onNextBtnClicked(coords) },
-                    modifier = Modifier
-                        .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
+                placeholder = { Text("Search location...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                trailingIcon = {
                     Icon(
                         imageVector = Icons.Default.ArrowForward,
-                        contentDescription = "Navigate to Input"
+                        contentDescription = "Navigate to Input",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable { onNextBtnClicked(coords) }
                     )
-                }
-            }
+                },
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.White,
+                    focusedContainerColor = Color.White
+                ),
+                singleLine = true
+            )
         }
     }
 }
