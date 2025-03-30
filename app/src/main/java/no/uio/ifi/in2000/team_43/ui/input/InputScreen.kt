@@ -40,33 +40,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import no.uio.ifi.in2000.team_43.model.input.Input
 import no.uio.ifi.in2000.team_43.ui.home.BottomAppBar
 import no.uio.ifi.in2000.team_43.ui.home.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.home.TopAppBar
-
-/*
-@Composable
-fun InputScreen(
-    ctx: Ctx,
-    onNextBtnClicked: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Box(modifier = modifier.fillMaxSize()) {
-        Column {
-            Text("coords: ${ctx.coords?.coordinates()}")
-            Button(
-                onClick = { onNextBtnClicked() },
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "Navigate to Info"
-                )
-            }
-        }
-    }
-}
-
- */
 
 
 // Vil ha en sånn ?hjelp knapp som gir bruker en guide med hva som menes med de forskjellige input-feltene
@@ -75,7 +52,7 @@ fun InputScreen(
 @Composable
 fun InputScreen(
     ctx: Ctx,
-    onNextBtnClicked: () -> Unit,
+    onNextBtnClicked: (input: Input) -> Unit,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController()
 ) {
@@ -212,7 +189,7 @@ fun InputScreen(
             Button(
                 onClick = {
                     if (length != "" && width != "" && angle != "" && direction != "") {
-                        onNextBtnClicked()
+                        onNextBtnClicked(Input(length.toInt(), width.toInt(), angle.toInt(), direction.toInt()))
                     } else {
                         error = "Vennligst fyll ut alle feltene"
                     }

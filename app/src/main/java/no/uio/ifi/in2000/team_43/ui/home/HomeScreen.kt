@@ -87,6 +87,7 @@ fun HomeScreen(
                 InputScreen(
                     ctx = ctx,
                     onNextBtnClicked = {
+                        viewModel.setInput(it)
                         navController.navigate(HomeScreen.Info.name)
                     },
                     modifier = Modifier.padding(innerPadding)
