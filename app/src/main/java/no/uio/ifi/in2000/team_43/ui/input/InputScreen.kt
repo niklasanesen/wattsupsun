@@ -11,7 +11,40 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import no.uio.ifi.in2000.team_43.ui.home.BottomAppBar
+import no.uio.ifi.in2000.team_43.ui.home.HomeScreen
+import no.uio.ifi.in2000.team_43.ui.home.TopAppBar
 
+/*
 @Composable
 fun InputScreen(
     ctx: Ctx,
@@ -32,3 +65,213 @@ fun InputScreen(
         }
     }
 }
+
+ */
+
+
+// Vil ha en sånn ?hjelp knapp som gir bruker en guide med hva som menes med de forskjellige input-feltene
+// Vil også legge til en knapp så man kan legge til flere takflater
+
+@Composable
+fun InputScreen(
+    ctx: Ctx,
+    onNextBtnClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController()
+) {
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentScreen = HomeScreen.valueOf(
+        backStackEntry?.destination?.route ?: HomeScreen.Input.name
+    )
+
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize(),
+        topBar =  { TopAppBar(
+            currentScreen = currentScreen,
+            canNavigateBack = navController.previousBackStackEntry != null,
+            navigateUp = { navController.navigateUp() }
+        ) },
+        bottomBar = { BottomAppBar() },
+    ) { innerPadding ->
+
+        Column (
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+                .fillMaxWidth()
+        ) {
+            // Text("coords: ${ctx.coords?.coordinates()}")
+
+            InputFelts(modifier = Modifier.padding(innerPadding))
+
+            Button(
+                onClick = {
+                    onNextBtnClicked()
+                },
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = "Navigate to Info"
+                )
+            }
+        }
+
+
+
+        /*
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            // verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                LazyColumn(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = modifier
+                        .fillMaxWidth()
+                ) {
+                    item {
+                        Text("coords: ${ctx.coords?.coordinates()}")
+                        InputFelts(modifier = Modifier.padding(innerPadding))
+                        Button(
+                            onClick = { onNextBtnClicked() },
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = "Navigate to Info"
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+         */
+    }
+}
+
+@Composable
+fun InputFelts(modifier: Modifier = Modifier) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    var length by remember { mutableStateOf("") }
+    var width by remember { mutableStateOf("") }
+    var angle by remember { mutableStateOf("") }
+    var direction by remember { mutableStateOf("") }
+
+    var angleError by remember { mutableStateOf("") }
+    var directionError by remember { mutableStateOf("") }
+
+
+    Column (
+        modifier = modifier
+            // .wrapContentSize(Alignment.Center)
+            .fillMaxWidth()
+            .paddingFromBaseline(top = 52.dp),
+        //.padding(40.dp),
+        // verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Takflate 1",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = length,
+            onValueChange = {
+                if (it == "" || it.toIntOrNull() is Int) {
+                    length = it
+                }
+            },
+            label = { Text("Lengde") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
+            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
+        )
+
+        OutlinedTextField(
+            value = width,
+            onValueChange = {
+                if (it == "" || it.toIntOrNull() is Int) {
+                    width = it
+                }
+            },
+            label = { Text("Bredde") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
+            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
+        )
+
+        OutlinedTextField(
+            value = angle,
+            onValueChange = {
+                if (it == "" || it.toIntOrNull() is Int) {
+                    angle = it
+                    angleError = ""
+                    if (it == "" || it.toInt() !in 0..90) {
+                        angleError = "Vinkel må være mellom 0° og 90°"
+                    }
+                }
+            },
+            label = { Text("Vinkel i °") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
+            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
+        )
+
+        if (angleError != "") {
+            Text(
+                text = angleError,
+                color = Color.Red,
+                modifier = Modifier.padding(12.dp)
+            )
+        }
+
+        OutlinedTextField(
+            value = direction,
+            onValueChange = {
+                if (it == "" || it.toIntOrNull() is Int) {
+                    direction = it
+                    directionError = ""
+                    if (it == "" || it.toInt() !in 0..359) {
+                        directionError = "Retning må være mellom 0° og 359°"
+                    }
+                }
+            },
+            label = { Text("Retning i ° (kompass)") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
+            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
+        )
+
+        if (directionError != "") {
+            Text(
+                text = directionError,
+                color = Color.Red,
+                modifier = Modifier.padding(12.dp)
+            )
+        }
+    }
+}
+
+/*
+@Preview (
+    showBackground = true,
+    showSystemUi = true,
+    name = "Input preview"
+)
+@Composable
+fun InputScreenPreview() {
+    InputScreen()
+}
+
+ */
