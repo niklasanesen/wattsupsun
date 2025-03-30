@@ -1,5 +1,7 @@
 package no.uio.ifi.in2000.team_43.model.met
 
+import kotlinx.serialization.Serializable
+
 data class MetRes(
     val context: String,
     val type: String,
@@ -38,4 +40,10 @@ data class Level(
     val levelType: String,
     val unit: String,
     val value: Int
+)
+
+@Serializable
+data class WeatherStation(
+    val name: String,
+    val id: String
 )
