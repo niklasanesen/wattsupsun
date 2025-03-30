@@ -67,9 +67,10 @@ fun InputScreen(
         topBar =  { TopAppBar(
             currentScreen = currentScreen,
             canNavigateBack = navController.previousBackStackEntry != null,
-            navigateUp = { navController.navigateUp() }
+            navigateUp = { navController.navigateUp() },
+            navController = navController
         ) },
-        bottomBar = { BottomAppBar() },
+        // bottomBar = { BottomAppBar() },
     ) { innerPadding ->
 
         Column (

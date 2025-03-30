@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.BottomAppBar
@@ -26,8 +27,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import no.uio.ifi.in2000.team_43.R
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import no.uio.ifi.in2000.team_43.ui.appinfo.AppInfoScreen
 import no.uio.ifi.in2000.team_43.ui.info.InfoScreen
 import no.uio.ifi.in2000.team_43.ui.input.InputScreen
 
@@ -38,6 +41,7 @@ enum class HomeScreen(@StringRes val title: Int) {
     Start(title = R.string.app_name),
     Input(title = R.string.input),
     Info(title = R.string.info),
+    InfoApp(title = R.string.app_info)
 }
 
 
@@ -61,10 +65,12 @@ fun HomeScreen(
             TopAppBar(
                 currentScreen = currentScreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() }
+                navigateUp = { navController.navigateUp() },
+                navController = navController
             )
         },
-        bottomBar = { BottomAppBar() },
+        // Fjerner bottom baren siden vi ikke bruker den til noe enda
+        // bottomBar = { BottomAppBar() },
     ) { innerPadding ->
         val ctx by viewModel.ctx.collectAsState()
 
@@ -99,6 +105,11 @@ fun HomeScreen(
                     modifier = Modifier.padding(innerPadding)
                 )
             }
+            composable(route = HomeScreen.InfoApp.name) {
+                AppInfoScreen(
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
         }
 
     }
@@ -110,6 +121,7 @@ fun TopAppBar(
     currentScreen: HomeScreen,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
+    navController: NavController
 ) {
     CenterAlignedTopAppBar(
         title = { Text(stringResource(currentScreen.title)) },
@@ -128,10 +140,10 @@ fun TopAppBar(
             }
         },
         actions = {
-            IconButton(onClick = { /* do something */ }) {
+            IconButton(onClick = { navController.navigate(HomeScreen.InfoApp.name) }) {
                 Icon(
-                    imageVector = Icons.Filled.Menu,
-                    contentDescription = "Localized description"
+                    imageVector = Icons.Filled.Info,
+                    contentDescription = "Info"
                 )
             }
         },
