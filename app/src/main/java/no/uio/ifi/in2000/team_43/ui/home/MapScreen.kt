@@ -47,24 +47,27 @@ fun MapScreen(
     val coords by viewModel.coords.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     var isSearchActive by remember { mutableStateOf(false) }
+    var addressIsSelected by remember { mutableStateOf(false) }
 
     val mapViewportState = rememberMapViewportState {
         setCameraOptions {
-            zoom(16.0)
+            zoom(4.0)
             center(coords)
             pitch(0.0)
             bearing(0.0)
         }
     }
 
-    LaunchedEffect(coords) {
-        coords?.let {
-            mapViewportState.flyTo(
-                CameraOptions.Builder()
-                    .center(it)
-                    .zoom(16.0)
-                    .build()
-            )
+    if (addressIsSelected) {
+        LaunchedEffect(coords) {
+            coords?.let {
+                mapViewportState.flyTo(
+                    CameraOptions.Builder()
+                        .center(it)
+                        .zoom(16.0)
+                        .build()
+                )
+            }
         }
     }
 
@@ -95,6 +98,7 @@ fun MapScreen(
                                 .fillMaxWidth()
                                 .clickable {
                                     searchQuery = suggestion.name
+                                    addressIsSelected = true
                                     viewModel.select(suggestion)
                                     isSearchActive = false
                                 }
