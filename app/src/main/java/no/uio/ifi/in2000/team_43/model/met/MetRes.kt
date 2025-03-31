@@ -5,11 +5,6 @@ import kotlinx.serialization.Serializable
 import no.uio.ifi.in2000.team_43.utils.serializers.InstantSerializer
 import java.time.Instant
 
-
-
-
-)
-
 @Serializable
 data class WeatherStation(
     val name: String,
