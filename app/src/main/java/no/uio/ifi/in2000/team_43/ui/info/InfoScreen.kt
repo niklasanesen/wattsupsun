@@ -31,12 +31,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
+import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 
 // test
 
@@ -47,6 +49,7 @@ fun InfoScreen(
     stromprisViewModel: StromprisViewModel = viewModel(),
     ctx: Ctx,
     modifier: Modifier = Modifier,
+    viewModel: MetViewModel = viewModel()
 ) {
     // Samler data fra ViewModels
     val pvgisData by pvgisViewModel.data.collectAsState()
@@ -116,6 +119,31 @@ fun InfoScreen(
             Text(text = "Laster DRcalc data...")
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        val weatherList by viewModel.data.collectAsState()
+        val errorMessage by viewModel.errorMessage.collectAsState()
+        when {
+            errorMessage != null -> {
+                Text(
+                    text = "Error: $errorMessage",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+
+            weatherList?.dataList?.isNotEmpty() == true -> {
+                val weatherData = weatherList!!.dataList.first()
+                Text(
+                    text = "Skydekke: ${weatherData.value} ${weatherData.unit}",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+            }
+
+            else -> {
+                CircularProgressIndicator()
+            }
+        }
     }
 
 
