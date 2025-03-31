@@ -1,5 +1,7 @@
 package no.uio.ifi.in2000.team_43.ui.home
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -45,6 +47,7 @@ enum class HomeScreen(@StringRes val title: Int) {
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
