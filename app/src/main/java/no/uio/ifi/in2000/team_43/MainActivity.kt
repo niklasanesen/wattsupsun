@@ -126,8 +126,9 @@ class MainActivity : ComponentActivity() {
             Team_43Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
-                    //HomeScreen()
-                    InfoScreen()
+
+                    HomeScreen()
+                    //InfoScreen()
 
                     /*
                     Greeting(

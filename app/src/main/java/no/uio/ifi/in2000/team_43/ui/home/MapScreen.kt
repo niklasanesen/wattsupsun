@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,34 +32,42 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
 
 @Composable
-fun MapScreen(modifier: Modifier = Modifier, viewModel: MapViewModel = viewModel()) {
+fun MapScreen(
+    modifier: Modifier = Modifier,
+    viewModel: MapViewModel = viewModel(),
+    onNextBtnClicked: (coords: Point?) -> Unit,
+) {
     val suggestions by viewModel.suggestions.collectAsState()
     val coords by viewModel.coords.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     var isSearchActive by remember { mutableStateOf(false) }
+    var addressIsSelected by remember { mutableStateOf(false) }
 
     val mapViewportState = rememberMapViewportState {
         setCameraOptions {
-            zoom(16.0)
+            zoom(4.0)
             center(coords)
             pitch(0.0)
             bearing(0.0)
         }
     }
 
-    LaunchedEffect(coords) {
-        coords?.let {
-            mapViewportState.flyTo(
-                CameraOptions.Builder()
-                    .center(it)
-                    .zoom(16.0)
-                    .build()
-            )
+    if (addressIsSelected) {
+        LaunchedEffect(coords) {
+            coords?.let {
+                mapViewportState.flyTo(
+                    CameraOptions.Builder()
+                        .center(it)
+                        .zoom(16.0)
+                        .build()
+                )
+            }
         }
     }
 
@@ -89,6 +98,7 @@ fun MapScreen(modifier: Modifier = Modifier, viewModel: MapViewModel = viewModel
                                 .fillMaxWidth()
                                 .clickable {
                                     searchQuery = suggestion.name
+                                    addressIsSelected = true
                                     viewModel.select(suggestion)
                                     isSearchActive = false
                                 }
@@ -114,6 +124,14 @@ fun MapScreen(modifier: Modifier = Modifier, viewModel: MapViewModel = viewModel
                     ),
                 placeholder = { Text("Search location...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.ArrowForward,
+                        contentDescription = "Navigate to Input",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable { onNextBtnClicked(coords) }
+                    )
+                },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
                     focusedContainerColor = Color.White

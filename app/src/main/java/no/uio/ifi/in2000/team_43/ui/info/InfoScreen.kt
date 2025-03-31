@@ -2,6 +2,7 @@ package no.uio.ifi.in2000.team_43.ui.info
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -12,10 +13,8 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
@@ -23,6 +22,21 @@ import no.uio.ifi.in2000.team_43.ui.strompris.StromprisViewModel
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 
 // test
 
@@ -30,20 +44,36 @@ import java.time.format.DateTimeParseException
 @Composable
 fun InfoScreen(
     pvgisViewModel: PVGISViewModel = viewModel(),
-    stromprisViewModel: StromprisViewModel = viewModel()
+    stromprisViewModel: StromprisViewModel = viewModel(),
+    ctx: Ctx,
+    modifier: Modifier = Modifier,
 ) {
+
+
+
+
     // Samler data fra ViewModels
     val pvgisData by pvgisViewModel.data.collectAsState()
     val stromprisData by stromprisViewModel.data.collectAsState()
     val drCalcData by pvgisViewModel.drCalcData.collectAsState() // Henter DRcalc data
+    val drCalcTotalSum by pvgisViewModel.drCalcDataTotalSum.collectAsState() // Henter kalkulert totalsum
 
     val scrollState = rememberScrollState()
     Column(modifier = Modifier.padding(16.dp).verticalScroll(scrollState)) {
 
-
         // Tittel for skjermen
+        Spacer(modifier = Modifier.height(200.dp))
         Text(text = "Info Screen", style = MaterialTheme.typography.titleMedium)
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+        // Koordinater og verdier fra bruker
+        Text("coords: ${ctx.coords?.coordinates()}")
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Inputverdier av takflate: \nLengde: ${ctx.input?.length} \nBredde: ${ctx.input?.width} \nVinkel: ${ctx.input?.angle}° \nRetning: ${ctx.input?.direction}°")
+        Spacer(modifier = Modifier.height(16.dp))
+
+
+
 
 
         // Vise PVGIS-data hvis tilgjengelig
@@ -87,13 +117,29 @@ fun InfoScreen(
             }
 
             // Beregn total solinnstråling for dagen
-            val drcalcTotal = pvgisViewModel.drCalcDataTotalSum
+            val drcalcTotal = drCalcTotalSum
             Text(text = "Totalt for hele dagen: $drcalcTotal W/m²")
         } else {
             Text(text = "Laster DRcalc data...")
         }
 
     }
+
+
+
+    /*
+Box(modifier = modifier
+.fillMaxSize()
+.padding(20.dp)
+) {
+Column {
+Text("coords: ${ctx.coords?.coordinates()}")
+Spacer(modifier = Modifier.height(16.dp))
+Text("Inputverdier av takflate: \nLengde: ${ctx.input?.length} \nBredde: ${ctx.input?.width} \nVinkel: ${ctx.input?.angle}° \nRetning: ${ctx.input?.direction}°")
+}
+}
+
+*/
 }
 
 

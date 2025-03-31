@@ -6,8 +6,11 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.team_43.data.PVGIS.PVGISDatasource
 import no.uio.ifi.in2000.team_43.data.PVGIS.PVGISRepository
@@ -30,22 +33,14 @@ class PVGISViewModel : ViewModel() {
     // Henter DRcalc-data
     private val _drCalcData = MutableStateFlow<List<DailyProfile>?>(null)
     val drCalcData: StateFlow<List<DailyProfile>?> = _drCalcData.asStateFlow()
-    var drCalcDataTotalSum: Double = 0.0;
+    val drCalcDataTotalSum: StateFlow<Double?> = drCalcData
+        .map { listeMedData -> listeMedData?.sumOf { it.G_i } ?: 0.0 } // Håndterer null-tilfeller
+        .stateIn(viewModelScope, SharingStarted.Lazily, 0.0)
 
     // Laster data når ViewModel opprettes
     init {
         fetchPVGISData()
         fetchDRcalcData()
-
-        //bergegner totalsum
-
-        val listeMedData: List<DailyProfile>?  = drCalcData.value
-        var totalSum: Double = 0.0
-
-        listeMedData?.forEach { data ->
-            totalSum += data.G_i
-        }
-        drCalcDataTotalSum = totalSum
     }
 
     // Henter PVGIS-data og lagrer det i StateFlow
