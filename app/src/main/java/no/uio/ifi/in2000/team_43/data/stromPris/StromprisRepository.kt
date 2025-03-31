@@ -2,9 +2,6 @@ package no.uio.ifi.in2000.team_43.data.stromPris
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.google.gson.Gson
-import no.uio.ifi.in2000.team_43.data.met.MetDataSource
-import no.uio.ifi.in2000.team_43.model.met.MetRes
 import no.uio.ifi.in2000.team_43.model.stromPris.StromprisRes
 
 class StromprisRepository (private val stromprisDataSource: StromprisDataSource){

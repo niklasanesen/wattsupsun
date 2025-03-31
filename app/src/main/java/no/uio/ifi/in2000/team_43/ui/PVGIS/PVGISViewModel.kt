@@ -4,11 +4,11 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -18,8 +18,8 @@ import no.uio.ifi.in2000.team_43.data.met.MetDataSource
 import no.uio.ifi.in2000.team_43.data.met.MetRepository
 import no.uio.ifi.in2000.team_43.model.DRcalcRes.DRcalcRes
 import no.uio.ifi.in2000.team_43.model.DRcalcRes.DailyProfile
+
 import no.uio.ifi.in2000.team_43.model.PVGIS.PVGISRes
-import no.uio.ifi.in2000.team_43.model.met.MetRes
 
 @RequiresApi(Build.VERSION_CODES.O)
 class PVGISViewModel : ViewModel() {

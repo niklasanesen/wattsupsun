@@ -1,12 +1,21 @@
 package no.uio.ifi.in2000.team_43.data.met
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-import no.uio.ifi.in2000.team_43.model.met.MetRes
+import no.uio.ifi.in2000.team_43.model.met.ValidYears
+import no.uio.ifi.in2000.team_43.model.met.WeatherList
+import no.uio.ifi.in2000.team_43.model.met.WeatherStation
 
-class MetRepository(private val metDataSource: MetDataSource) {
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun getMetData(): MetRes? {
-        return metDataSource.getMetData()
+class MetRepository() {
+    private val metDataSource = MetDataSource()
+
+    suspend fun getWeatherStation(): WeatherStation? {
+        return metDataSource.getWeatherStationData()
+    }
+
+    suspend fun getValidTime(weatherStation: WeatherStation): ValidYears? {
+        return metDataSource.getStartTime(weatherStation)
+    }
+
+    suspend fun getDataSet(weatherStation: WeatherStation, validYears: ValidYears): WeatherList? {
+        return metDataSource.getWeatherData(weatherStation, validYears)
     }
 }

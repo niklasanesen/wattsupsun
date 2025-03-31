@@ -5,12 +5,8 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import io.ktor.client.call.body
 import io.ktor.client.request.get
-import io.ktor.client.request.headers
-import io.ktor.http.HttpHeaders
 import no.uio.ifi.in2000.team_43.data.APIClient
-import no.uio.ifi.in2000.team_43.model.met.MetRes
 import no.uio.ifi.in2000.team_43.model.stromPris.StromprisRes
-import java.util.Base64
 
 class StromprisDataSource {
     @RequiresApi(Build.VERSION_CODES.O)
