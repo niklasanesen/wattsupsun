@@ -30,7 +30,7 @@ class MetDataSource {
 
     suspend fun getWeatherStationData(): WeatherStation? {
         var url = "https://frost.met.no/sources/v0.jsonld?"
-        url += "elements=air_temperature&"
+        url += "elements=cloud_area_fraction&"
         url += "geometry=" + "nearest(POINT(10 59))"
 
         // Debugging: Print the final API URL
@@ -73,7 +73,7 @@ class MetDataSource {
     suspend fun getStartTime(station: WeatherStation): ValidYears? {
         var url = "https://frost.met.no/observations/availableTimeSeries/v0.jsonld?"
         url += "sources=" + station.id + "&"
-        url += "elements=" + "air_temperature"
+        url += "elements=" + "cloud_area_fraction"
 
         // Debugging: Print the final API URL
         println("Final API URL: $url")
@@ -137,7 +137,7 @@ class MetDataSource {
         var url = "https://frost.met.no/observations/v0.jsonld?"
         url += "sources=" + station.id + "&"
         url += "referencetime=$formattedStartDate/$formattedEndDate&"
-        url += "elements=" + "air_temperature"
+        url += "elements=" + "cloud_area_fraction"
 
         // Debugging: Print the final API URL
         println("Final API URL: $url")
