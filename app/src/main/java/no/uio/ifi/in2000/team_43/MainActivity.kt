@@ -22,7 +22,9 @@ import no.uio.ifi.in2000.team_43.model.stromPris.toFormattedString
 import no.uio.ifi.in2000.team_43.model.PVGIS.PVGISRes
 import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
 import no.uio.ifi.in2000.team_43.ui.home.HomeScreen
+import no.uio.ifi.in2000.team_43.ui.map.MapScreen
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
+import no.uio.ifi.in2000.team_43.ui.met.WeatherScreen
 import no.uio.ifi.in2000.team_43.ui.strompris.StromprisViewModel
 import no.uio.ifi.in2000.team_43.ui.theme.Team_43Theme
 
@@ -91,7 +93,7 @@ class MainActivity : ComponentActivity() {
             Team_43Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
-                    HomeScreen()
+                    WeatherScreen()
 
                     /*
                     Greeting(

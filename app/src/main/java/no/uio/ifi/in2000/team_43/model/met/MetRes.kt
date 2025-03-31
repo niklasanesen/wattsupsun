@@ -61,7 +61,7 @@ data class ValidYears(
 @Serializable
 data class WeatherData(
     val elementId: String,
-    val value: Int,
+    val value: Double,
     val unit: String,
     val weatherStation: WeatherStation
 )

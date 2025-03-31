@@ -1,6 +1,7 @@
 package no.uio.ifi.in2000.team_43.data.met
 
 import no.uio.ifi.in2000.team_43.model.met.ValidYears
+import no.uio.ifi.in2000.team_43.model.met.WeatherList
 import no.uio.ifi.in2000.team_43.model.met.WeatherStation
 
 class MetRepository() {
@@ -12,5 +13,9 @@ class MetRepository() {
 
     suspend fun getValidTime(weatherStation: WeatherStation): ValidYears? {
         return metDataSource.getStartTime(weatherStation)
+    }
+
+    suspend fun getDataSet(weatherStation: WeatherStation, validYears: ValidYears): WeatherList? {
+        return metDataSource.getWeatherData(weatherStation, validYears)
     }
 }
