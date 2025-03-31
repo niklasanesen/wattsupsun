@@ -48,10 +48,6 @@ fun InfoScreen(
     ctx: Ctx,
     modifier: Modifier = Modifier,
 ) {
-
-
-
-
     // Samler data fra ViewModels
     val pvgisData by pvgisViewModel.data.collectAsState()
     val stromprisData by stromprisViewModel.data.collectAsState()
@@ -59,10 +55,9 @@ fun InfoScreen(
     val drCalcTotalSum by pvgisViewModel.drCalcDataTotalSum.collectAsState() // Henter kalkulert totalsum
 
     val scrollState = rememberScrollState()
-    Column(modifier = Modifier.padding(16.dp).verticalScroll(scrollState)) {
+    Column(modifier = modifier.padding(20.dp).verticalScroll(scrollState)) {
 
         // Tittel for skjermen
-        Spacer(modifier = Modifier.height(200.dp))
         Text(text = "Info Screen", style = MaterialTheme.typography.titleMedium)
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
@@ -71,8 +66,6 @@ fun InfoScreen(
         Spacer(modifier = Modifier.height(16.dp))
         Text("Inputverdier av takflate: \nLengde: ${ctx.input?.length} \nBredde: ${ctx.input?.width} \nVinkel: ${ctx.input?.angle}° \nRetning: ${ctx.input?.direction}°")
         Spacer(modifier = Modifier.height(16.dp))
-
-
 
 
 

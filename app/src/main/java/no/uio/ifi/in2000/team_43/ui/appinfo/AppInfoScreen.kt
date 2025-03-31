@@ -38,7 +38,7 @@ fun AppInfoScreen(
             // modifier = Modifier.paddingFromBaseline(8.dp)
         )
         Text(
-            text = "Denne appen gir deg all relevant og nyttig informasjon når det kommer til å installere solcellepaneler på eiendommen din. Målet er at du enklere skal kunne vurdere nytten ved solcelleplaneler og om dette -og eventuelt hvilke som- er noe for deg:) "
+            text = "Denne appen gir deg all relevant og nyttig informasjon når det kommer til å installere solcellepaneler på eiendommen din. Målet er at du enklere skal kunne vurdere nytten ved solcelleplaneler og om dette -og eventuelt hvilke som- er noe for deg:)"
         )
 
         Spacer(Modifier.height(32.dp))
