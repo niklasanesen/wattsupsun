@@ -83,4 +83,9 @@ dependencies {
     implementation("com.mapbox.search:mapbox-search-android:2.8.0-rc.1")
     implementation("com.mapbox.search:mapbox-search-android-ui:2.8.0-rc.1")
 
+    // navigation
+    implementation("androidx.navigation:navigation-compose:2.7.4")
+    // meterial3
+    implementation("androidx.compose.material3:material3:1.2.0")
+
 }

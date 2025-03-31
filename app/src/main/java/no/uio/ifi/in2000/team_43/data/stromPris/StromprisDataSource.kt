@@ -15,8 +15,8 @@ class StromprisDataSource {
 
             // Testdata:
             val year = "2025"
-            val month = "01" // MÅ ha 2 siffer
-            val day = "25" // MÅ ha 2 siffer
+            val month = "03" // MÅ ha 2 siffer
+            val day = "29" // MÅ ha 2 siffer
             val priceLocationCode = "NO1" // Totalt 5 prisområder i Norge, NO1 er ment for Oslo NB; bokstaven O ikke tallet
 
 

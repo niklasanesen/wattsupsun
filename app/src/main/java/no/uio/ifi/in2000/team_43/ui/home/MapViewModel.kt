@@ -1,6 +1,5 @@
-package no.uio.ifi.in2000.team_43.ui.map
+package no.uio.ifi.in2000.team_43.ui.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mapbox.geojson.Point
@@ -24,7 +23,7 @@ class MapViewModel() : ViewModel() {
     private val _suggestions = MutableStateFlow<List<PlaceAutocompleteSuggestion>>(emptyList())
     val suggestions: StateFlow<List<PlaceAutocompleteSuggestion>> = _suggestions.asStateFlow()
 
-    private val _coords = MutableStateFlow<Point?>(Point.fromLngLat(10.7522, 59.9139))
+    private val _coords = MutableStateFlow<Point?>(Point.fromLngLat(12.30778, 63.99056))
     val coords: StateFlow<Point?> = _coords.asStateFlow()
 
     fun search(text: String)  {
