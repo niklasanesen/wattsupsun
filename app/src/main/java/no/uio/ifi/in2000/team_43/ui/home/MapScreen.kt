@@ -125,12 +125,14 @@ fun MapScreen(
                 placeholder = { Text("Search location...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                 trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.ArrowForward,
-                        contentDescription = "Navigate to Input",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable { onNextBtnClicked(coords) }
-                    )
+                    if (addressIsSelected) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowForward,
+                            contentDescription = "Navigate to Input",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.clickable { onNextBtnClicked(coords) }
+                        )
+                    }
                 },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
