@@ -1,15 +1,12 @@
 package no.uio.ifi.in2000.team_43.data.stromPris
 
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import no.uio.ifi.in2000.team_43.data.APIClient
 import no.uio.ifi.in2000.team_43.model.stromPris.StromprisRes
 
 class StromprisDataSource {
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getStromprisData(): List<StromprisRes>? {
         try {
 
@@ -21,8 +18,8 @@ class StromprisDataSource {
 
 
             var url = "https://www.hvakosterstrommen.no/api/v1/prices/"
-            url += year + "/"
-            url += month + "-"
+            url += "$year/"
+            url += "$month-"
             url +=  day + "_"
             url += priceLocationCode
 

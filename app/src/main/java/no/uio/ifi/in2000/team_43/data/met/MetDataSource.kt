@@ -1,7 +1,5 @@
 package no.uio.ifi.in2000.team_43.data.met
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
@@ -9,29 +7,27 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import no.uio.ifi.in2000.team_43.data.APIClient
+import no.uio.ifi.in2000.team_43.model.met.Coordinates
 import no.uio.ifi.in2000.team_43.model.met.ValidYears
 import no.uio.ifi.in2000.team_43.model.met.WeatherData
 import no.uio.ifi.in2000.team_43.model.met.WeatherList
 import no.uio.ifi.in2000.team_43.model.met.WeatherStation
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.met.formatDate
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.met.getMostRecentStation
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Base64
-
-fun formatDate(zonedDateTime: ZonedDateTime): String {
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    return formatter.format(zonedDateTime)
-}
 
 class MetDataSource {
     val clientId = "576d17b2-5647-4cd4-ba76-e852f7e4b6cb"
     val encoded = String(Base64.getEncoder().encode("$clientId:".toByteArray(Charsets.UTF_8)))
 
-    suspend fun getWeatherStationData(): WeatherStation? {
+    suspend fun getWeatherStationData(coordinates: Coordinates): WeatherStation? {
         var url = "https://frost.met.no/sources/v0.jsonld?"
-        url += "elements=cloud_area_fraction&"
-        url += "geometry=" + "nearest(POINT(10 59))"
+        url += "elements=mean(cloud_area_fraction P1Y),mean(air_temperature P1Y),mean(snow_coverage_type P1M)&"
+        //url += "geometry=" + "nearest(POINT(${coordinates.longitude} ${coordinates.latitude}))"
+        url += "geometry=" + "nearest(POINT(10.742364883422852 59.925140380859375))"
 
         // Debugging: Print the final API URL
         println("Final API URL: $url")
@@ -70,10 +66,10 @@ class MetDataSource {
         }
     }
 
-    suspend fun getStartTime(station: WeatherStation): ValidYears? {
+    suspend fun getStartTime(station: WeatherStation, weatherElement: String): ValidYears? {
         var url = "https://frost.met.no/observations/availableTimeSeries/v0.jsonld?"
         url += "sources=" + station.id + "&"
-        url += "elements=" + "cloud_area_fraction"
+        url += "elements=$weatherElement"
 
         // Debugging: Print the final API URL
         println("Final API URL: $url")
@@ -95,10 +91,10 @@ class MetDataSource {
                 val times = jsonObject.getAsJsonArray("data")
 
                 if (times.size() > 0) {
-                    val firstTime = _getMostRecentStation(times)
-                    return if (firstTime != null) {
+                    val firstTime = getMostRecentStation(times)
+                    if (firstTime != null) {
                         ValidYears(
-                            validTo = Instant.parse(firstTime.get("validTo").asString),
+                            validTo = firstTime.get("validTo")?.asString?.let { Instant.parse(it) },
                             elementId = firstTime.get("elementId").asString,
                             weatherStation = station
                         )
@@ -117,18 +113,17 @@ class MetDataSource {
 
     suspend fun getWeatherData(station: WeatherStation, validYears: ValidYears): WeatherList? {
 
-        var time: ZonedDateTime
+        val time: ZonedDateTime
 
         if (validYears.validTo == null) {
-            val today = Instant.now()
+            val today = Instant.parse("2025-01-01T00:00:00Z")
             time = today.atZone(ZoneId.of("UTC"))
         } else {
             time = validYears.validTo.atZone((ZoneId.of("UTC")))
         }
         val endDate = time
 
-        val startDate = endDate.minusYears(1)
-
+        val startDate = endDate.minusYears(2)
 
         val formattedStartDate = formatDate(startDate)
         val formattedEndDate = formatDate(endDate)
@@ -137,7 +132,7 @@ class MetDataSource {
         var url = "https://frost.met.no/observations/v0.jsonld?"
         url += "sources=" + station.id + "&"
         url += "referencetime=$formattedStartDate/$formattedEndDate&"
-        url += "elements=" + "cloud_area_fraction"
+        url += "elements=${validYears.elementId}"
 
         // Debugging: Print the final API URL
         println("Final API URL: $url")
@@ -180,28 +175,5 @@ class MetDataSource {
             e.printStackTrace()
             null
         }
-    }
-
-    fun _getMostRecentStation(stations: JsonArray): JsonObject? {
-        var maxDate = Instant.EPOCH
-        var mostRecentStation: JsonObject? = null
-
-        for (station in stations) {
-            val stationObj = station.asJsonObject
-            val dateRes = stationObj.get("validTo")
-
-            // check if station is still active
-            if (dateRes.isJsonNull) {
-                return stationObj
-            }
-
-            val currDate = Instant.parse(dateRes.asString)
-            if (currDate.isAfter(maxDate)) {
-                maxDate = currDate
-                mostRecentStation = stationObj
-            }
-        }
-
-        return mostRecentStation
     }
 }

@@ -32,3 +32,8 @@ data class WeatherList(
     val dataList: List<WeatherData>
 )
 
+@Serializable
+data class Coordinates(
+    val latitude: Double,
+    val longitude: Double
+)

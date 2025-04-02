@@ -1,61 +1,49 @@
 package no.uio.ifi.in2000.team_43.ui.info
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import no.uio.ifi.in2000.team_43.model.ctx.Ctx
+import no.uio.ifi.in2000.team_43.model.met.Coordinates
 import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
+import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.strompris.StromprisViewModel
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import no.uio.ifi.in2000.team_43.model.ctx.Ctx
-import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 
 // test
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun InfoScreen(
+    modifier: Modifier = Modifier,
     pvgisViewModel: PVGISViewModel = viewModel(),
     stromprisViewModel: StromprisViewModel = viewModel(),
     ctx: Ctx,
-    modifier: Modifier = Modifier,
-    viewModel: MetViewModel = viewModel()
+    metViewModel: MetViewModel = viewModel()
 ) {
     // Samler data fra ViewModels
     val pvgisData by pvgisViewModel.data.collectAsState()
     val stromprisData by stromprisViewModel.data.collectAsState()
     val drCalcData by pvgisViewModel.drCalcData.collectAsState() // Henter DRcalc data
     val drCalcTotalSum by pvgisViewModel.drCalcDataTotalSum.collectAsState() // Henter kalkulert totalsum
+    val weatherList by metViewModel.data.collectAsState()
+
+    val errorMessage by metViewModel.errorMessage.collectAsState()
 
     val scrollState = rememberScrollState()
     Column(modifier = modifier.padding(20.dp).verticalScroll(scrollState)) {
@@ -121,8 +109,12 @@ fun InfoScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        val weatherList by viewModel.data.collectAsState()
-        val errorMessage by viewModel.errorMessage.collectAsState()
+        LaunchedEffect(ctx.coords) {
+            ctx.coords?.let {
+                metViewModel.fetchWeatherData(Coordinates(it.latitude(), it.longitude()))
+            }
+        }
+
         when {
             errorMessage != null -> {
                 Text(
@@ -133,9 +125,28 @@ fun InfoScreen(
             }
 
             weatherList?.dataList?.isNotEmpty() == true -> {
-                val weatherData = weatherList!!.dataList.first()
+                val tempWeatherData = weatherList!!.dataList[0]
+
                 Text(
-                    text = "Skydekke: ${weatherData.value} ${weatherData.unit}",
+                    text = "Temperatur: ${tempWeatherData.value} ${tempWeatherData.unit}",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                val cloudWeatherData = weatherList!!.dataList[1]
+
+                Text(
+                    text = "Skydekke: ${cloudWeatherData.value} ${cloudWeatherData.unit}",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                val snowWeatherData = weatherList!!.dataList[2]
+
+                Text(
+                    text = "Snømengde: ${snowWeatherData.value} ${snowWeatherData.unit}",
                     style = MaterialTheme.typography.headlineMedium
                 )
             }
@@ -167,7 +178,6 @@ Text("Inputverdier av takflate: \nLengde: ${ctx.input?.length} \nBredde: ${ctx.i
 
 
 // Parser tidspunktdataene fra stromAPI til leselig klokkeslett
-@RequiresApi(Build.VERSION_CODES.O)
 fun getTimeFromDate(dateString: String): String? {
     return try {
         // Definerer formatet på inngangsstrengen
@@ -179,6 +189,7 @@ fun getTimeFromDate(dateString: String): String? {
         // Henter ut klokkeslettet i ønsket format
         dateTime.toLocalTime().toString() // For eksempel "23:00:00"
     } catch (e: DateTimeParseException) {
+        e.printStackTrace()
         // Håndterer feil hvis strengen ikke kan parses
         null
     }
