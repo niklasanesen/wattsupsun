@@ -1,8 +1,6 @@
 package no.uio.ifi.in2000.team_43.ui.strompris
 
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +11,6 @@ import no.uio.ifi.in2000.team_43.data.stromPris.StromprisDataSource
 import no.uio.ifi.in2000.team_43.data.stromPris.StromprisRepository
 import no.uio.ifi.in2000.team_43.model.stromPris.StromprisRes
 
-@RequiresApi(Build.VERSION_CODES.O)
 class StromprisViewModel : ViewModel() {
 
     private val stromprisRepo = StromprisRepository(stromprisDataSource = StromprisDataSource())

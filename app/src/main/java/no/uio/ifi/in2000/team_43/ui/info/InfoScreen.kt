@@ -189,6 +189,7 @@ fun getTimeFromDate(dateString: String): String? {
         // Henter ut klokkeslettet i ønsket format
         dateTime.toLocalTime().toString() // For eksempel "23:00:00"
     } catch (e: DateTimeParseException) {
+        e.printStackTrace()
         // Håndterer feil hvis strengen ikke kan parses
         null
     }
