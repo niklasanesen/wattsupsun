@@ -12,7 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -125,12 +125,14 @@ fun MapScreen(
                 placeholder = { Text("Search location...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                 trailingIcon = {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Navigate to Input",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable { onNextBtnClicked(coords) }
-                    )
+                    if (addressIsSelected) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowForward,
+                            contentDescription = "Navigate to Input",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.clickable { onNextBtnClicked(coords) }
+                        )
+                    }
                 },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
