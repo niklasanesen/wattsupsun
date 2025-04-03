@@ -36,6 +36,12 @@ import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 
 @Composable
 fun MapScreen(
@@ -48,6 +54,10 @@ fun MapScreen(
     var searchQuery by remember { mutableStateOf("") }
     var isSearchActive by remember { mutableStateOf(false) }
     var addressIsSelected by remember { mutableStateOf(false) }
+
+    // keyboard stuff
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
 
     val mapViewportState = rememberMapViewportState {
         setCameraOptions {
@@ -115,6 +125,7 @@ fun MapScreen(
                     isSearchActive = it.isNotEmpty()
                 },
                 modifier = Modifier
+                    .focusRequester(focusRequester)
                     .fillMaxWidth()
                     .clip(
                         if (isSearchActive && suggestions.isNotEmpty())
@@ -138,7 +149,9 @@ fun MapScreen(
                     unfocusedContainerColor = Color.White,
                     focusedContainerColor = Color.White
                 ),
-                singleLine = true
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
             )
         }
     }
