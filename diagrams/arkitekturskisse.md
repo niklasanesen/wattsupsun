@@ -4,6 +4,10 @@ graph TD
 
     %% Homescreen
     HomeScreen --> HomeViewModel
+    HomeScreen --> MapViewModel
+
+    HomeViewModel --> |// App statedata som skal passes ved skjermbytte| CTX
+
     
     %% Infoscreen til viewmodels
     InfoScreen --> PVGISViewModel
@@ -31,7 +35,7 @@ graph TD
     MetDataSource --> |// vær/klimadata fra met API| MetRes
 
     %% Styling for bobler
-    class PVGISRes,DRCalcRes,StromprisRes,MetRes circle;
+    class PVGISRes,DRCalcRes,StromprisRes,MetRes,CTX circle;
     
     classDef circle stroke:#333,stroke-width:4px,rx:50%;
 
