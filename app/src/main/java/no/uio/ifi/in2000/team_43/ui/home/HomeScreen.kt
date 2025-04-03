@@ -1,12 +1,17 @@
 package no.uio.ifi.in2000.team_43.ui.home
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.outlined.Done
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -68,8 +73,7 @@ fun HomeScreen(
                 navController = navController
             )
         },
-        // Fjerner bottom baren siden vi ikke bruker den til noe enda
-        // bottomBar = { BottomAppBar() },
+        bottomBar = { BottomAppBar(navController) },
     ) { innerPadding ->
         val ctx by viewModel.ctx.collectAsState()
 
@@ -151,47 +155,25 @@ fun TopAppBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomAppBar() {
+fun BottomAppBar(
+    navController: NavController
+) {
     BottomAppBar(
         actions = {
-            IconButton(onClick = { /* do something */ }) {
-                Icon(Icons.Filled.Check, contentDescription = "Localized description")
-            }
-        }
-        /*
-        actions = {
-            IconButton(onClick = { /* do something */ }) {
-                Icon(Icons.Filled.Check, contentDescription = "Localized description")
-            }
-            IconButton(onClick = { /* do something */ }) {
-                Icon(
-                    Icons.Filled.Edit,
-                    contentDescription = "Localized description",
-                )
-            }
-            IconButton(onClick = { /* do something */ }) {
-                Icon(
-                    Icons.Filled.Mic,
-                    contentDescription = "Localized description",
-                )
-            }
-            IconButton(onClick = { /* do something */ }) {
-                Icon(
-                    Icons.Filled.Image,
-                    contentDescription = "Localized description",
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                IconButton(onClick = { navController.navigate(HomeScreen.Start.name) }) {
+                    Icon(Icons.Outlined.Home, contentDescription = "Goto home")
+                }
+                IconButton(onClick = { navController.navigate(HomeScreen.Input.name) }) {
+                    Icon(Icons.Outlined.Edit, contentDescription = "Goto input")
+                }
+                IconButton(onClick = { navController.navigate(HomeScreen.Info.name) }) {
+                    Icon(Icons.Outlined.Done, contentDescription = "Goto information")
+                }
             }
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { /* do something */ },
-                containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
-                elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
-            ) {
-                Icon(Icons.Filled.Add, "Localized description")
-            }
-        }
-
-         */
     )
 }
