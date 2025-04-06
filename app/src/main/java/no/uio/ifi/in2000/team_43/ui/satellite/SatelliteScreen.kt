@@ -9,9 +9,10 @@ import com.mapbox.maps.Style
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
 import com.mapbox.maps.extension.compose.style.MapStyle
+import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 
 @Composable
-fun SatelliteScreen(coords: Point?, onPolygonCompleted: (List<Point>) -> Unit) {
+fun SatelliteScreen(modifier: Modifier = Modifier, ctx: Ctx,coords: Point?) {
     val mapViewportState = rememberMapViewportState {
         setCameraOptions {
             zoom(19.0)  // Zoom in close to the roof
