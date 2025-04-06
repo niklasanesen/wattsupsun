@@ -29,7 +29,11 @@ import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.map.getBitmapFromVectorDrawable
 
 @Composable
-fun SatelliteScreen(modifier: Modifier = Modifier, ctx: Ctx) {
+fun SatelliteScreen(
+    modifier: Modifier = Modifier,
+    ctx: Ctx,
+    onNextBtnClicked: (area: Double) -> (Unit)
+) {
 
     var points by remember { mutableStateOf(listOf<Point>()) }
     val pointAnnotations = remember { mutableStateListOf<PointAnnotationOptions>() }
