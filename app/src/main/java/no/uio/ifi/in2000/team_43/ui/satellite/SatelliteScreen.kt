@@ -41,7 +41,11 @@ import com.mapbox.turf.TurfMeasurement
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 
 @Composable
-fun SatelliteScreen(modifier: Modifier = Modifier, ctx: Ctx) {
+fun SatelliteScreen(
+    modifier: Modifier = Modifier,
+    ctx: Ctx,
+    onNextBtnClicked: (area: Double) -> Unit,
+) {
     var points by remember { mutableStateOf(listOf<Point>()) }
     var areaInSquareMeters by remember { mutableDoubleStateOf(0.0) }
 
@@ -107,27 +111,29 @@ fun SatelliteScreen(modifier: Modifier = Modifier, ctx: Ctx) {
                     )
                 )
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = if (points.size >= 3) "${String.format("%.3f", areaInSquareMeters)} m²" else "",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        lineHeight = 24.sp,
-                        fontWeight = FontWeight(500),
-                        color = Color(0xFFFFFFFF),
-                        letterSpacing = 0.15.sp,
-                    )
-                )
-                Button(
-                    onClick = {},
-                    enabled = true,
+            if (points.size >= 3) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Neste")
+                    Text(
+                        text = "${String.format("%.3f", areaInSquareMeters)} m²",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            lineHeight = 24.sp,
+                            fontWeight = FontWeight(500),
+                            color = Color(0xFFFFFFFF),
+                            letterSpacing = 0.15.sp,
+                        )
+                    )
+                    Button(
+                        onClick = {onNextBtnClicked(areaInSquareMeters)},
+                        enabled = true,
+                    ) {
+                        Text("Neste")
+                    }
                 }
             }
         }

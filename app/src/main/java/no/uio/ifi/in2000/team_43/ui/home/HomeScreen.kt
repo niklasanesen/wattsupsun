@@ -112,6 +112,10 @@ fun HomeScreen(
             composable(route = HomeScreen.Satellite.name) {
                 SatelliteScreen(
                     ctx = ctx,
+                    onNextBtnClicked = {
+                        viewModel.setArea(it)
+                        navController.navigate(HomeScreen.Info.name)
+                    },
                     modifier = Modifier.padding(innerPadding)
                 )
             }
