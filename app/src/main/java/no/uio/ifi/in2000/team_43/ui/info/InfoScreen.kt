@@ -57,6 +57,8 @@ fun InfoScreen(
         Spacer(modifier = Modifier.height(16.dp))
         Text("Inputverdier av takflate: \nLengde: ${ctx.input?.length} \nBredde: ${ctx.input?.width} \nVinkel: ${ctx.input?.angle}° \nRetning: ${ctx.input?.direction}°")
         Spacer(modifier = Modifier.height(16.dp))
+        Text("areaInSquareMeters: ${ctx.areaInSquareMeters}")
+        Spacer(modifier = Modifier.height(16.dp))
 
 
 
