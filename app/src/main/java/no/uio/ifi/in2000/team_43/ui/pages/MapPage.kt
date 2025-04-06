@@ -44,6 +44,7 @@ import no.uio.ifi.in2000.team_43.ui.home.HomeViewModel
 import no.uio.ifi.in2000.team_43.ui.home.MapScreen
 import no.uio.ifi.in2000.team_43.ui.info.InfoScreen
 import no.uio.ifi.in2000.team_43.ui.input.InputScreen
+import no.uio.ifi.in2000.team_43.ui.satellite.SatelliteScreen
 
 /**
  * enum values that represent the screens in the app
@@ -52,6 +53,7 @@ enum class HomeScreen(@StringRes val title: Int) {
     Start(title = R.string.app_name),
     Input(title = R.string.input),
     Info(title = R.string.info),
+    Satellite(title = R.string.satellite),
     InfoApp(title = R.string.app_info)
 }
 
@@ -91,11 +93,14 @@ fun MapPage(
         ) {
             composable(route = HomeScreen.Start.name) {
                 MapScreen(
-                    onNextBtnClicked = {
+                    onInfoBtnClicked = {
                         viewModel.setCoords(it)
                         navController.navigate(HomeScreen.Input.name)
                     },
-                    // modifier = Modifier.padding(innerPadding)
+                    onSatelliteBtnClicked = {
+                        viewModel.setCoords(it)
+                        navController.navigate(HomeScreen.Satellite.name)
+                    }
                 )
             }
             composable(route = HomeScreen.Input.name) {
@@ -105,18 +110,29 @@ fun MapPage(
                         viewModel.setInput(it)
                         navController.navigate(HomeScreen.Info.name)
                     },
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
                 )
             }
+            composable(route = HomeScreen.Satellite.name) {
+                SatelliteScreen(
+                    ctx = ctx,
+                    onNextBtnClicked = {
+                        viewModel.setArea(it)
+                        navController.navigate(HomeScreen.Info.name)
+                    },
+                    modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
+                )
+            }
+
             composable(route = HomeScreen.Info.name) {
                 InfoScreen(
                     ctx = ctx,
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
                 )
             }
             composable(route = HomeScreen.InfoApp.name) {
                 AppInfoScreen(
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
                 )
             }
         }

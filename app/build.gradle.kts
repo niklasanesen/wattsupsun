@@ -81,15 +81,21 @@ dependencies {
     implementation(libs.maps.compose)
     implementation("com.mapbox.search:autofill:2.8.0-rc.1")
     implementation("com.mapbox.search:discover:2.8.0-rc.1")
-    implementation("com.mapbox.search:place-autocomplete:2.8.0-rc.1")
+    implementation(libs.place.autocomplete)
     implementation("com.mapbox.search:offline:2.8.0-rc.1")
-    implementation("com.mapbox.search:mapbox-search-android:2.8.0-rc.1")
-    implementation("com.mapbox.search:mapbox-search-android-ui:2.8.0-rc.1")
+    implementation(libs.mapbox.search.android)
+    implementation(libs.mapbox.search.android.ui)
 
     // navigation
-    implementation("androidx.navigation:navigation-compose:2.7.4")
+    implementation(libs.androidx.navigation.compose)
     // meterial3
-    implementation("androidx.compose.material3:material3:1.2.0")
+    implementation("androidx.compose.material3:material3:1.3.1")
+
+    // turf
+    implementation("com.mapbox.mapboxsdk:mapbox-sdk-geojson:7.3.2")
+    implementation("com.mapbox.mapboxsdk:mapbox-sdk-services:7.3.2")
+    implementation("com.mapbox.mapboxsdk:mapbox-sdk-turf:7.3.2")
+    implementation("com.mapbox.mapboxsdk:mapbox-sdk-core:7.3.2")
 
     // BottomNavigation
     implementation("androidx.compose.material:material:1.7.8")

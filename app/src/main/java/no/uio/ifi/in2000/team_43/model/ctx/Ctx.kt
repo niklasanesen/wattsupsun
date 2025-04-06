@@ -5,5 +5,6 @@ import no.uio.ifi.in2000.team_43.model.input.Input
 
 data class Ctx(
     val coords: Point?,
-    val input: Input?
+    val input: Input?,
+    val areaInSquareMeters: Double?
 )

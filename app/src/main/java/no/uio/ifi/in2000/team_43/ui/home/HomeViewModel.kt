@@ -13,7 +13,7 @@ class HomeViewModel() : ViewModel() {
     /**
      * app state
      */
-    private val _ctx = MutableStateFlow<Ctx>(Ctx(coords = null, input = null))
+    private val _ctx = MutableStateFlow<Ctx>(Ctx(coords = null, input = null, areaInSquareMeters = null))
     val ctx: StateFlow<Ctx> = _ctx.asStateFlow()
 
     fun setCoords(newCoords: Point?) {
@@ -28,6 +28,14 @@ class HomeViewModel() : ViewModel() {
         _ctx.update { currentState ->
             currentState.copy(
                 input = newInput
+            )
+        }
+    }
+
+    fun setArea(newArea: Double) {
+        _ctx.update { currentState ->
+            currentState.copy(
+                areaInSquareMeters = newArea
             )
         }
     }
