@@ -49,7 +49,8 @@ import androidx.compose.ui.text.input.ImeAction
 fun MapScreen(
     modifier: Modifier = Modifier,
     viewModel: MapViewModel = viewModel(),
-    onNextBtnClicked: (coords: Point?) -> Unit,
+    onInfoBtnClicked: (coords: Point?) -> Unit,
+    onSatelliteBtnClicked: (coords: Point?) -> Unit,
 ) {
     val suggestions by viewModel.suggestions.collectAsState()
     val coords by viewModel.coords.collectAsState()
@@ -101,7 +102,7 @@ fun MapScreen(
                 onDismissRequest = {},
                 confirmButton = {
                     TextButton(
-                        onClick = { onNextBtnClicked(coords) },
+                        onClick = { onInfoBtnClicked(coords) },
                         enabled = true
                     ) {
                         Text("Oppgi mål")
@@ -109,7 +110,7 @@ fun MapScreen(
                 },
                 dismissButton = {
                     TextButton(
-                        onClick = {},
+                        onClick = { onSatelliteBtnClicked(coords) },
                         enabled = true
                     ) {
                         Text("Tegn takflate")
