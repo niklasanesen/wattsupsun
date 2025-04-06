@@ -131,6 +131,13 @@ fun TopAppBar(
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     navController: NavController
+    /*
+    currentScreen: HomeScreen = HomeScreen.valueOf(HomeScreen.Start.name),
+    canNavigateBack: Boolean = false,
+    navigateUp: () -> Unit = {},
+    navController: NavController = rememberNavController()
+
+     */
 ) {
     CenterAlignedTopAppBar(
         title = { Text(stringResource(currentScreen.title)) },
@@ -149,11 +156,13 @@ fun TopAppBar(
             }
         },
         actions = {
-            IconButton(onClick = { navController.navigate(HomeScreen.InfoApp.name) }) {
-                Icon(
-                    imageVector = Icons.Filled.Info,
-                    contentDescription = "Info"
-                )
+            if (currentScreen != HomeScreen.InfoApp) {
+                IconButton(onClick = { navController.navigate(HomeScreen.InfoApp.name) }) {
+                    Icon(
+                        imageVector = Icons.Filled.Info,
+                        contentDescription = "Info"
+                    )
+                }
             }
         },
     )
