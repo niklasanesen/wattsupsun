@@ -38,6 +38,9 @@ android {
         compose = true
         viewBinding = true
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.15"
+    }
 }
 
 dependencies {
@@ -87,5 +90,8 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.4")
     // meterial3
     implementation("androidx.compose.material3:material3:1.2.0")
+
+    // BottomNavigation
+    implementation("androidx.compose.material:material:1.7.8")
 
 }

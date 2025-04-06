@@ -9,8 +9,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -18,13 +21,21 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -37,7 +48,11 @@ import no.uio.ifi.in2000.team_43.R
 import no.uio.ifi.in2000.team_43.ui.appinfo.AppInfoScreen
 import no.uio.ifi.in2000.team_43.ui.info.InfoScreen
 import no.uio.ifi.in2000.team_43.ui.input.InputScreen
+import no.uio.ifi.in2000.team_43.ui.pages.MapPage
+import no.uio.ifi.in2000.team_43.ui.pages.ProfilePage
+import no.uio.ifi.in2000.team_43.ui.pages.SavedPage
 
+/*
 /**
  * enum values that represent the screens in the app
  */
@@ -48,13 +63,16 @@ enum class HomeScreen(@StringRes val title: Int) {
     InfoApp(title = R.string.app_info)
 }
 
+ */
+
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = viewModel(),
-    navController: NavHostController = rememberNavController()
+    // viewModel: HomeViewModel = viewModel(),
+    // navController: NavHostController = rememberNavController()
 ) {
+    /*
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
 
@@ -63,20 +81,42 @@ fun HomeScreen(
         backStackEntry?.destination?.route ?: HomeScreen.Start.name
     )
 
+     */
+
+    val navItemList = listOf(
+        NavItem("Map", Icons.Default.LocationOn),
+        NavItem("Saved", Icons.Outlined.Favorite),
+        NavItem("Profile", Icons.Default.Person),
+    )
+    var selectedIndex by remember {
+        mutableIntStateOf(0)
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                currentScreen = currentScreen,
-                canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() },
-                navController = navController
-            )
-        },
-        bottomBar = { BottomAppBar(navController) },
-    ) { innerPadding ->
-        val ctx by viewModel.ctx.collectAsState()
+        bottomBar = {
+            // BottomAppBar(navController)
+            NavigationBar {
+                navItemList.forEachIndexed { index, navItem ->
+                    NavigationBarItem(
+                        selected = selectedIndex == index,
+                        onClick = {
+                            selectedIndex = index
+                        },
+                        icon = {
+                            Icon(imageVector = navItem.icon, contentDescription = "Icon")
+                        }
+                    )
+                }
+            }
 
+        },
+    ) { innerPadding ->
+        // val ctx by viewModel.ctx.collectAsState()
+
+        ContentScreen(modifier = modifier.padding(innerPadding), selectedIndex)
+
+        /*
         NavHost(
             navController = navController,
             startDestination = HomeScreen.Start.name,
@@ -115,9 +155,21 @@ fun HomeScreen(
             }
         }
 
+         */
+
     }
 }
 
+@Composable
+fun ContentScreen(modifier: Modifier = Modifier, selectedIndex: Int) {
+    when(selectedIndex) {
+        0 -> MapPage(modifier)
+        1 -> SavedPage(modifier)
+        2 -> ProfilePage(modifier)
+    }
+}
+
+/*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
@@ -153,6 +205,12 @@ fun TopAppBar(
     )
 }
 
+ */
+
+
+// Denne brukes ikke nå:
+
+/*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomAppBar(
@@ -177,3 +235,5 @@ fun BottomAppBar(
         },
     )
 }
+
+ */
