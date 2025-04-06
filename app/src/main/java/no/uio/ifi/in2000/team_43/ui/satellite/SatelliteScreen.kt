@@ -57,6 +57,7 @@ fun SatelliteScreen(
     var areaInSquareMeters by remember { mutableDoubleStateOf(0.0) }
     val pointAnnotations = remember { mutableStateListOf<PointAnnotationOptions>() }
     val context = LocalContext.current
+
     val bitmap = remember {
         try {
             getBitmapFromVectorDrawable(context, R.drawable.ic_map_marker)
@@ -65,6 +66,7 @@ fun SatelliteScreen(
             null
         }
     }
+
     val mapIconImage = remember(bitmap) {
         bitmap?.let { IconImage(it) }
     }
@@ -95,18 +97,13 @@ fun SatelliteScreen(
                 true
             }
         ) {
-            var counter = 0
             if (mapIconImage != null && points.isNotEmpty()) {
-                pointAnnotations.forEach { pointAnnotationOptions ->
-                    PointAnnotation(
-                        point = points[counter]
-
-                    ) {
+                points.forEachIndexed { index, point ->
+                    PointAnnotation(point = point) {
                         iconImage = mapIconImage
                         iconSize = 1.0
-                        iconColor = Color.Red
+                        iconColor = Color.Red  // Red color as a string
                     }
-                    counter++
                 }
             }
 

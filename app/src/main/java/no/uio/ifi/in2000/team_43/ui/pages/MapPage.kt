@@ -99,9 +99,8 @@ fun MapPage(
                     },
                     onSatelliteBtnClicked = {
                         viewModel.setCoords(it)
-                        navController.navigate(HomeScreen.Satellite)
-                    },
-                    modifier = Modifier.padding(innerPadding)
+                        navController.navigate(HomeScreen.Satellite.name)
+                    }
                 )
             }
             composable(route = HomeScreen.Input.name) {
@@ -111,7 +110,7 @@ fun MapPage(
                         viewModel.setInput(it)
                         navController.navigate(HomeScreen.Info.name)
                     },
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
                 )
             }
             composable(route = HomeScreen.Satellite.name) {
@@ -120,19 +119,20 @@ fun MapPage(
                     onNextBtnClicked = {
                         viewModel.setArea(it)
                         navController.navigate(HomeScreen.Info.name)
-                    }
+                    },
+                    modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
                 )
             }
 
             composable(route = HomeScreen.Info.name) {
                 InfoScreen(
                     ctx = ctx,
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
                 )
             }
             composable(route = HomeScreen.InfoApp.name) {
                 AppInfoScreen(
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
                 )
             }
         }
