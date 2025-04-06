@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,6 +38,7 @@ import no.uio.ifi.in2000.team_43.R
 import no.uio.ifi.in2000.team_43.ui.appinfo.AppInfoScreen
 import no.uio.ifi.in2000.team_43.ui.info.InfoScreen
 import no.uio.ifi.in2000.team_43.ui.input.InputScreen
+import no.uio.ifi.in2000.team_43.ui.satellite.SatelliteScreen
 
 /**
  * enum values that represent the screens in the app
@@ -45,6 +47,7 @@ enum class HomeScreen(@StringRes val title: Int) {
     Start(title = R.string.app_name),
     Input(title = R.string.input),
     Info(title = R.string.info),
+    Satellite(title = R.string.satellite),
     InfoApp(title = R.string.app_info)
 }
 
@@ -85,9 +88,13 @@ fun HomeScreen(
         ) {
             composable(route = HomeScreen.Start.name) {
                 MapScreen(
-                    onNextBtnClicked = {
+                    onInfoBtnClicked = {
                         viewModel.setCoords(it)
                         navController.navigate(HomeScreen.Input.name)
+                    },
+                    onSatelliteBtnClicked = {
+                        viewModel.setCoords(it)
+                        navController.navigate(HomeScreen.Satellite.name)
                     },
                     modifier = Modifier.padding(innerPadding)
                 )
@@ -99,6 +106,12 @@ fun HomeScreen(
                         viewModel.setInput(it)
                         navController.navigate(HomeScreen.Info.name)
                     },
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+            composable(route = HomeScreen.Satellite.name) {
+                SatelliteScreen(
+                    ctx = ctx,
                     modifier = Modifier.padding(innerPadding)
                 )
             }
@@ -169,6 +182,9 @@ fun BottomAppBar(
                 }
                 IconButton(onClick = { navController.navigate(HomeScreen.Input.name) }) {
                     Icon(Icons.Outlined.Edit, contentDescription = "Goto input")
+                }
+                IconButton(onClick = { navController.navigate(HomeScreen.Satellite.name) }) {
+                    Icon(Icons.Outlined.LocationOn , contentDescription = "Goto satellite")
                 }
                 IconButton(onClick = { navController.navigate(HomeScreen.Info.name) }) {
                     Icon(Icons.Outlined.Done, contentDescription = "Goto information")
