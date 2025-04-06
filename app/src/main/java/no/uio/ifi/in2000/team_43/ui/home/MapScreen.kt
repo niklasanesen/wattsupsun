@@ -38,6 +38,8 @@ import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -54,6 +56,7 @@ fun MapScreen(
     var searchQuery by remember { mutableStateOf("") }
     var isSearchActive by remember { mutableStateOf(false) }
     var addressIsSelected by remember { mutableStateOf(false) }
+    var addressIsConfirmed by remember { mutableStateOf(false) }
 
     // keyboard stuff
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -86,6 +89,35 @@ fun MapScreen(
             Modifier.fillMaxSize(),
             mapViewportState = mapViewportState
         )
+
+        if (addressIsConfirmed) {
+            AlertDialog(
+                title = {
+                    Text(text = "Registrer takflate")
+                },
+                text = {
+                    Text(text = "Vi trenger informasjon om dine takflater for å kunne gi deg relevant info. Velg å enten tegne takflate på kart eller manuelt oppgi mål.")
+                },
+                onDismissRequest = {},
+                confirmButton = {
+                    TextButton(
+                        onClick = { onNextBtnClicked(coords) },
+                        enabled = true
+                    ) {
+                        Text("Oppgi mål")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {},
+                        enabled = true
+                    ) {
+                        Text("Tegn takflate")
+                    }
+                }
+            )
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -141,7 +173,9 @@ fun MapScreen(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = "Navigate to Input",
                             tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.clickable { onNextBtnClicked(coords) }
+                            modifier = Modifier.clickable {
+                                addressIsConfirmed = true
+                            }
                         )
                     }
                 },
