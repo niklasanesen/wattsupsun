@@ -168,15 +168,6 @@ fun MapScreen(
                 placeholder = { Text("Search location...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                 trailingIcon = {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Navigate to Input",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.clickable { onNextBtnClicked(coords) }
-                    )
-                    // Dette er kommentert ut for nå så man slipper å waste API-kall
-                    // If-sjekken gjør at man må skrive inn adresse før man kan gå videre til neste skjerm
-                    /*
                     if (addressIsSelected) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
@@ -187,8 +178,6 @@ fun MapScreen(
                             }
                         )
                     }
-
-                     */
                 },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
