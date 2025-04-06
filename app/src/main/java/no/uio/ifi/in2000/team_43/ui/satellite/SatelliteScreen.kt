@@ -1,7 +1,6 @@
 package no.uio.ifi.in2000.team_43.ui.satellite
 
 import android.util.Log
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -12,14 +11,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.mapbox.geojson.Point
+import com.mapbox.geojson.Polygon
 import com.mapbox.maps.Style
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
 import com.mapbox.maps.extension.compose.annotation.generated.PolygonAnnotation
-import com.mapbox.maps.extension.compose.annotation.rememberIconImage
 import com.mapbox.maps.extension.compose.style.MapStyle
 import com.mapbox.maps.plugin.gestures.OnMapClickListener
-import no.uio.ifi.in2000.team_43.R
+import com.mapbox.turf.TurfMeasurement
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 
 @Composable
@@ -43,6 +42,10 @@ fun SatelliteScreen(modifier: Modifier = Modifier, ctx: Ctx) {
                 true
             }
         ) {
+            val pointsList = listOf(points)
+            val polygon = Polygon.fromLngLats(pointsList)
+            val areaInSquareMeters = TurfMeasurement.area(polygon)
+            Log.d("PolygonArea", "Area: $areaInSquareMeters square meters")
             PolygonAnnotation(
                 points = listOf(points),
             ) {
