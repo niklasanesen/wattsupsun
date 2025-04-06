@@ -38,6 +38,9 @@ android {
         compose = true
         viewBinding = true
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.15"
+    }
 }
 
 dependencies {
@@ -93,5 +96,8 @@ dependencies {
     implementation("com.mapbox.mapboxsdk:mapbox-sdk-services:7.3.2")
     implementation("com.mapbox.mapboxsdk:mapbox-sdk-turf:7.3.2")
     implementation("com.mapbox.mapboxsdk:mapbox-sdk-core:7.3.2")
+
+    // BottomNavigation
+    implementation("androidx.compose.material:material:1.7.8")
 
 }
