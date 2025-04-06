@@ -168,6 +168,15 @@ fun MapScreen(
                 placeholder = { Text("Search location...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                 trailingIcon = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "Navigate to Input",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable {
+                            addressIsConfirmed = true
+                        }
+                    )
+                    /*
                     if (addressIsSelected) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
@@ -178,6 +187,8 @@ fun MapScreen(
                             }
                         )
                     }
+
+                     */
                 },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
