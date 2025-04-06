@@ -169,7 +169,7 @@ fun MapScreen(
                 placeholder = { Text("Search location...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                 trailingIcon = {
-                    if (addressIsSelected) {
+
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = "Navigate to Input",
@@ -178,7 +178,7 @@ fun MapScreen(
                                 addressIsConfirmed = true
                             }
                         )
-                    }
+
                 },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
