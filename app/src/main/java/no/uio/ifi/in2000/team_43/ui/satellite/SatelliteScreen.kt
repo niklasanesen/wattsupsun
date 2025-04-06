@@ -1,5 +1,29 @@
 package no.uio.ifi.in2000.team_43.ui.satellite
 
-class SatelliteScreen {
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import com.mapbox.geojson.Point
+import com.mapbox.maps.Style
+import com.mapbox.maps.extension.compose.MapboxMap
+import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
+import com.mapbox.maps.extension.compose.style.MapStyle
 
+@Composable
+fun SatelliteScreen(coords: Point?, onPolygonCompleted: (List<Point>) -> Unit) {
+    val mapViewportState = rememberMapViewportState {
+        setCameraOptions {
+            zoom(19.0)  // Zoom in close to the roof
+            center(coords)
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        MapboxMap(
+            Modifier.fillMaxSize(),
+            mapViewportState = mapViewportState,
+            style = { MapStyle(style = Style.SATELLITE_STREETS)}
+        )
+    }
 }
