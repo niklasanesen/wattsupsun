@@ -88,4 +88,10 @@ dependencies {
     // meterial3
     implementation("androidx.compose.material3:material3:1.2.0")
 
+    // turf
+    implementation("com.mapbox.mapboxsdk:mapbox-sdk-geojson:7.3.2")
+    implementation("com.mapbox.mapboxsdk:mapbox-sdk-services:7.3.2")
+    implementation("com.mapbox.mapboxsdk:mapbox-sdk-turf:7.3.2")
+    implementation("com.mapbox.mapboxsdk:mapbox-sdk-core:7.3.2")
+
 }
