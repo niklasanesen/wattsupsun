@@ -35,8 +35,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.model.input.Input
-import no.uio.ifi.in2000.team_43.ui.home.HomeScreen
-import no.uio.ifi.in2000.team_43.ui.home.TopAppBar
+import no.uio.ifi.in2000.team_43.ui.pages.HomeScreen
+import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
 
 
 // Vil ha en sånn ?hjelp knapp som gir bruker en guide med hva som menes med de forskjellige input-feltene

@@ -36,18 +36,32 @@ import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 
 @Composable
 fun MapScreen(
     modifier: Modifier = Modifier,
     viewModel: MapViewModel = viewModel(),
-    onNextBtnClicked: (coords: Point?) -> Unit,
+    onInfoBtnClicked: (coords: Point?) -> Unit,
+    onSatelliteBtnClicked: (coords: Point?) -> Unit,
 ) {
     val suggestions by viewModel.suggestions.collectAsState()
     val coords by viewModel.coords.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     var isSearchActive by remember { mutableStateOf(false) }
     var addressIsSelected by remember { mutableStateOf(false) }
+    var addressIsConfirmed by remember { mutableStateOf(false) }
+
+    // keyboard stuff
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
 
     val mapViewportState = rememberMapViewportState {
         setCameraOptions {
@@ -76,6 +90,35 @@ fun MapScreen(
             Modifier.fillMaxSize(),
             mapViewportState = mapViewportState
         )
+
+        if (addressIsConfirmed) {
+            AlertDialog(
+                title = {
+                    Text(text = "Registrer takflate")
+                },
+                text = {
+                    Text(text = "Vi trenger informasjon om dine takflater for å kunne gi deg relevant info. Velg å enten tegne takflate på kart eller manuelt oppgi mål.")
+                },
+                onDismissRequest = {},
+                confirmButton = {
+                    TextButton(
+                        onClick = { onInfoBtnClicked(coords) },
+                        enabled = true
+                    ) {
+                        Text("Oppgi mål")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { onSatelliteBtnClicked(coords) },
+                        enabled = true
+                    ) {
+                        Text("Tegn takflate")
+                    }
+                }
+            )
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -115,6 +158,7 @@ fun MapScreen(
                     isSearchActive = it.isNotEmpty()
                 },
                 modifier = Modifier
+                    .focusRequester(focusRequester)
                     .fillMaxWidth()
                     .clip(
                         if (isSearchActive && suggestions.isNotEmpty())
@@ -125,20 +169,35 @@ fun MapScreen(
                 placeholder = { Text("Search location...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                 trailingIcon = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "Navigate to Input",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable {
+                            addressIsConfirmed = true
+                        }
+                    )
+                    /*
                     if (addressIsSelected) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                             contentDescription = "Navigate to Input",
                             tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.clickable { onNextBtnClicked(coords) }
+                            modifier = Modifier.clickable {
+                                addressIsConfirmed = true
+                            }
                         )
                     }
+
+                     */
                 },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
                     focusedContainerColor = Color.White
                 ),
-                singleLine = true
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
             )
         }
     }

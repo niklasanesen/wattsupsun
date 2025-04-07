@@ -26,8 +26,8 @@ class MetDataSource {
     suspend fun getWeatherStationData(coordinates: Coordinates): WeatherStation? {
         var url = "https://frost.met.no/sources/v0.jsonld?"
         url += "elements=mean(cloud_area_fraction P1Y),mean(air_temperature P1Y),mean(snow_coverage_type P1M)&"
-        //url += "geometry=" + "nearest(POINT(${coordinates.longitude} ${coordinates.latitude}))"
-        url += "geometry=" + "nearest(POINT(10.742364883422852 59.925140380859375))"
+        url += "geometry=" + "nearest(POINT(${coordinates.longitude} ${coordinates.latitude}))"
+
 
         // Debugging: Print the final API URL
         println("Final API URL: $url")

@@ -57,6 +57,8 @@ fun InfoScreen(
         Spacer(modifier = Modifier.height(16.dp))
         Text("Inputverdier av takflate: \nLengde: ${ctx.input?.length} \nBredde: ${ctx.input?.width} \nVinkel: ${ctx.input?.angle}° \nRetning: ${ctx.input?.direction}°")
         Spacer(modifier = Modifier.height(16.dp))
+        Text("areaInSquareMeters: ${ctx.areaInSquareMeters}")
+        Spacer(modifier = Modifier.height(16.dp))
 
 
 
@@ -125,7 +127,7 @@ fun InfoScreen(
             }
 
             weatherList?.dataList?.isNotEmpty() == true -> {
-                val tempWeatherData = weatherList!!.dataList[0]
+                val tempWeatherData = weatherList!!.dataList[0] //temp
 
                 Text(
                     text = "Temperatur: ${tempWeatherData.value} ${tempWeatherData.unit}",
@@ -134,7 +136,7 @@ fun InfoScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                val cloudWeatherData = weatherList!!.dataList[1]
+                val cloudWeatherData = weatherList!!.dataList[1] //skydekke
 
                 Text(
                     text = "Skydekke: ${cloudWeatherData.value} ${cloudWeatherData.unit}",
@@ -143,7 +145,7 @@ fun InfoScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                val snowWeatherData = weatherList!!.dataList[2]
+                val snowWeatherData = weatherList!!.dataList[2] //snødekke
 
                 Text(
                     text = "Snømengde: ${snowWeatherData.value} ${snowWeatherData.unit}",
