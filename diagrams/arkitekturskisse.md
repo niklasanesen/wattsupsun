@@ -7,7 +7,9 @@ graph TD
     HomeScreen --> MapViewModel
 
     HomeViewModel --> |// App statedata som skal passes ved skjermbytte| CTX
-
+    
+    %% InputScreen
+	InputScreen
     
     %% Infoscreen til viewmodels
     InfoScreen --> PVGISViewModel
