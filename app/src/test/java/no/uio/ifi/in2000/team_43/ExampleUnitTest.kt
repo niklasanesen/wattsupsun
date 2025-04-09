@@ -1,28 +1,34 @@
 package no.uio.ifi.in2000.team_43
 
+import io.mockk.coEvery
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.uio.ifi.in2000.team_43.data.met.MetDataSource
 import no.uio.ifi.in2000.team_43.model.met.Coordinates
+import no.uio.ifi.in2000.team_43.model.met.WeatherStation
 import org.junit.Test
-
 import org.junit.Assert.*
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
-class ExampleUnitTest {
-    val coordinates = Coordinates(
-        latitude = 10.6,
-        longitude = 59.9
-    )
+class WeatherDataTest {
     @Test
     fun weatherData_isCorrect() = runTest {
-        val metDataSource = MetDataSource()
+        val mockMetDataSource = mockk<MetDataSource>()
 
-        val station = metDataSource.getWeatherStationData(coordinates)
+        val coordinates = Coordinates(
+            latitude = 10.6,
+            longitude = 59.9
+        )
 
-        assertEquals(4, 2 + 2)
+        coEvery {
+            mockMetDataSource.getWeatherStationData(coordinates)
+        } returns WeatherStation(
+            id = "SN18700",
+            name = "Oslo",
+        )
+
+        val station = mockMetDataSource.getWeatherStationData(coordinates)
+
+        assertEquals("SN18700", station?.id)
+        assertEquals("Oslo", station?.name)
     }
 }

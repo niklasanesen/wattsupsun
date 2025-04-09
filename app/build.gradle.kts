@@ -102,5 +102,6 @@ dependencies {
 
     // testing
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3") // Use the latest version
+    testImplementation("io.mockk:mockk:1.13.8")
 
 }
