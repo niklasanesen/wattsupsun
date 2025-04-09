@@ -100,4 +100,12 @@ dependencies {
     // BottomNavigation
     implementation("androidx.compose.material:material:1.7.8")
 
+    // testing
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3") // Use the latest version
+    testImplementation("io.mockk:mockk:1.13.8")
+
+    // Mocking (Mockito)
+    testImplementation ("org.mockito:mockito-core:5.5.0")
+    testImplementation ("org.mockito.kotlin:mockito-kotlin:5.0.0")
+
 }
