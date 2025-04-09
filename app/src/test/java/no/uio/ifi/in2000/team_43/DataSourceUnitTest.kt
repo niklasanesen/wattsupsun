@@ -6,9 +6,11 @@ import kotlinx.coroutines.test.runTest
 import no.uio.ifi.in2000.team_43.data.met.MetDataSource
 import no.uio.ifi.in2000.team_43.model.met.Coordinates
 import no.uio.ifi.in2000.team_43.model.met.WeatherStation
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.met.formatDate
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.met.getMostRecentStation
 import org.junit.Test
 import org.junit.Assert.*
+import java.time.ZonedDateTime
 
 class WeatherDataTest {
     @Test
@@ -50,5 +52,20 @@ class WeatherDataTest {
 
         val res = getMostRecentStation(checkStationJsonObj)
         assertEquals(res, correctStationJsonObj)
+    }
+
+    @Test
+    fun formatDate_isCorrect() = runTest {
+        val testDate1 = ZonedDateTime.parse("2023-05-15T12:30:00Z")
+        assertEquals("2023-05-15", formatDate(testDate1))
+
+        val testDate2 = ZonedDateTime.parse("2024-12-31T23:59:59Z")
+        assertEquals("2024-12-31", formatDate(testDate2))
+
+        val testDate3 = ZonedDateTime.parse("2025-01-01T00:00:00Z")
+        assertEquals("2025-01-01", formatDate(testDate3))
+
+        val testDate4 = ZonedDateTime.parse("2023-10-10T12:00:00+01:00")
+        assertEquals("2023-10-10", formatDate(testDate4))
     }
 }
