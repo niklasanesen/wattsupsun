@@ -12,6 +12,23 @@ import no.uio.ifi.in2000.team_43.model.met.WeatherList
 import no.uio.ifi.in2000.team_43.model.met.WeatherStation
 import no.uio.ifi.in2000.team_43.model.met.ValidYears
 import no.uio.ifi.in2000.team_43.model.met.WeatherData
+import kotlin.math.min
+
+
+
+fun calcCCF(x: Int): Double {
+    return 1 - (x.toDouble() / 8) * 0.75
+}
+
+fun calcSCF(x: Int): Double {
+    return 1 - min(x.toDouble() / 30, 1.0) * 0.3
+}
+
+fun calcGHI(x: Int, y: Int, z: Int): Double {
+    return (x * y * z).toDouble()
+}
+
+
 
 class MetViewModel : ViewModel() {
     private val metRepo = MetRepository()
