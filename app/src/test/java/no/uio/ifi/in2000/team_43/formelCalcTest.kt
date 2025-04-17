@@ -1,9 +1,11 @@
 package no.uio.ifi.in2000.team_43
 
 import kotlin.math.min
-import no.uio.ifi.in2000.team_43.model.met.calcCCF
-import no.uio.ifi.in2000.team_43.model.met.calcSCF
-import no.uio.ifi.in2000.team_43.model.met.calcGHI
+import no.uio.ifi.in2000.team_43.ui.met.calcCCF
+import no.uio.ifi.in2000.team_43.ui.met.calcSCF
+import no.uio.ifi.in2000.team_43.ui.met.calcGHI
+
+
 import org.junit.Test
 import org.junit.Assert.assertEquals
 
