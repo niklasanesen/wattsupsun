@@ -42,6 +42,8 @@ import no.uio.ifi.in2000.team_43.model.input.Direction
 import no.uio.ifi.in2000.team_43.model.input.Input
 import no.uio.ifi.in2000.team_43.ui.pages.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
+import no.uio.ifi.in2000.team_43.ui.satellite.SatelliteScreen
+import kotlin.math.floor
 
 
 // Vil ha en sånn ?hjelp knapp som gir bruker en guide med hva som menes med de forskjellige input-feltene
@@ -53,12 +55,16 @@ fun InputScreen(
     ctx: Ctx,
     onNextBtnClicked: (input: Input) -> Unit,
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentScreen = HomeScreen.valueOf(
         backStackEntry?.destination?.route ?: HomeScreen.Input.name
     )
+
+    val previousBackStackEntry = navController.previousBackStackEntry
+    val previousRoute = previousBackStackEntry?.destination?.route
+
 
     Scaffold(
         modifier = Modifier
@@ -83,16 +89,29 @@ fun InputScreen(
             var length by remember { mutableStateOf("") }
             var width by remember { mutableStateOf("") }
             var angle by remember { mutableStateOf("") }
-            // var direction by remember { mutableStateOf("") }
+            var direction: Direction by remember { mutableStateOf(Direction.NORTH)}
 
             var angleError by remember { mutableStateOf("") }
-            // var directionError by remember { mutableStateOf("") }
-
             var error by remember { mutableStateOf("") }
 
             // For dropdownmeny retning:
             var expanded: Boolean by remember { mutableStateOf(false) }
-            var direction: Direction by remember { mutableStateOf(Direction.NORTH)}
+
+            /*
+            // Hvis bruker kommer fra skjerm 2b (har tegna takflate)
+            val areal: Boolean = ctx.areaInSquareMeters != null
+             */
+
+            Text("$previousRoute")
+
+            if (previousRoute != null) {
+                val previousScreen = HomeScreen.entries.find { it.route == previousRoute }
+                if (previousScreen == HomeScreen.Satellite) {
+                    ctx.areaInSquareMeters = null
+                }
+            }
+
+
 
 
             Column (
@@ -113,31 +132,37 @@ fun InputScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = length,
-                    onValueChange = {
-                        if (it == "" || it.toIntOrNull() is Int) {
-                            length = it
-                        }
-                    },
-                    label = { Text("Lengde") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
-                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
-                )
+                if (ctx.areaInSquareMeters != null) {
+                    Text("Areal: ${floor(ctx.areaInSquareMeters!!).toInt()} m^2")
+                } else {
+                    OutlinedTextField(
+                        value = length,
+                        onValueChange = {
+                            if (it == "" || it.toIntOrNull() is Int) {
+                                length = it
+                            }
+                        },
+                        label = { Text("Lengde") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
+                        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
+                    )
 
-                OutlinedTextField(
-                    value = width,
-                    onValueChange = {
-                        if (it == "" || it.toIntOrNull() is Int) {
-                            width = it
-                        }
-                    },
-                    label = { Text("Bredde") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
-                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
-                )
+                    OutlinedTextField(
+                        value = width,
+                        onValueChange = {
+                            if (it == "" || it.toIntOrNull() is Int) {
+                                width = it
+                            }
+                        },
+                        label = { Text("Bredde") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
+                        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
+                    )
+                }
+
+
 
                 OutlinedTextField(
                     value = angle,
@@ -226,12 +251,23 @@ fun InputScreen(
                 }
             }
 
+            Spacer(Modifier.height(12.dp))
+
             Button(
                 onClick = {
-                    if (length != "" && width != "" && angle != "") {
-                        onNextBtnClicked(Input(length.toInt(), width.toInt(), angle.toInt(), getDegrees(direction)))
+                    // Dette er quickfix siden vi får areal fra å tegne takflate, og ikke lengde og bredde:
+                    if (ctx.areaInSquareMeters != null) {
+                        if (angle != "") {
+                            onNextBtnClicked(Input(0, 0, angle.toInt(), getDegrees(direction)))
+                        } else {
+                            error = "Vennligst fyll ut alle feltene"
+                        }
                     } else {
-                        error = "Vennligst fyll ut alle feltene"
+                        if (length != "" && width != "" && angle != "") {
+                            onNextBtnClicked(Input(length.toInt(), width.toInt(), angle.toInt(), getDegrees(direction)))
+                        } else {
+                            error = "Vennligst fyll ut alle feltene"
+                        }
                     }
                 },
             ) {
