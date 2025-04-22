@@ -12,6 +12,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -34,6 +38,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
+import no.uio.ifi.in2000.team_43.model.input.Direction
 import no.uio.ifi.in2000.team_43.model.input.Input
 import no.uio.ifi.in2000.team_43.ui.pages.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
@@ -42,6 +47,7 @@ import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
 // Vil ha en sånn ?hjelp knapp som gir bruker en guide med hva som menes med de forskjellige input-feltene
 // Vil også legge til en knapp så man kan legge til flere takflater
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InputScreen(
     ctx: Ctx,
@@ -77,12 +83,16 @@ fun InputScreen(
             var length by remember { mutableStateOf("") }
             var width by remember { mutableStateOf("") }
             var angle by remember { mutableStateOf("") }
-            var direction by remember { mutableStateOf("") }
+            // var direction by remember { mutableStateOf("") }
 
             var angleError by remember { mutableStateOf("") }
-            var directionError by remember { mutableStateOf("") }
+            // var directionError by remember { mutableStateOf("") }
 
             var error by remember { mutableStateOf("") }
+
+            // For dropdownmeny retning:
+            var expanded: Boolean by remember { mutableStateOf(false) }
+            var direction: Direction by remember { mutableStateOf(Direction.NORTH)}
 
 
             Column (
@@ -154,6 +164,7 @@ fun InputScreen(
                     )
                 }
 
+                /*
                 OutlinedTextField(
                     value = direction,
                     onValueChange = {
@@ -178,12 +189,47 @@ fun InputScreen(
                         modifier = Modifier.padding(12.dp)
                     )
                 }
+
+                 */
+
+
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = {expanded = it},
+                ) {
+                    OutlinedTextField(
+                        value = getDirection(direction),
+                        onValueChange = {},
+                        label = { Text("Retning") },
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .align(Alignment.CenterHorizontally)
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        Direction.entries.forEach { entry ->
+                            DropdownMenuItem(
+                                text = { Text(getDirection(entry)) },
+                                onClick = {
+                                    direction = entry
+                                    expanded = false
+                                },
+                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                            )
+                        }
+                    }
+                }
             }
 
             Button(
                 onClick = {
-                    if (length != "" && width != "" && angle != "" && direction != "") {
-                        onNextBtnClicked(Input(length.toInt(), width.toInt(), angle.toInt(), direction.toInt()))
+                    if (length != "" && width != "" && angle != "") {
+                        onNextBtnClicked(Input(length.toInt(), width.toInt(), angle.toInt(), getDegrees(direction)))
                     } else {
                         error = "Vennligst fyll ut alle feltene"
                     }
@@ -205,6 +251,22 @@ fun InputScreen(
         }
     }
 }
+
+fun getDirection(direction: Direction): String =
+    when (direction) {
+        Direction.NORTH -> "Nord"
+        Direction.EAST -> "Øst"
+        Direction.SOUTH -> "Sør"
+        Direction.WEST -> "Vest"
+    }
+
+fun getDegrees(direction: Direction): Int =
+    when (direction) {
+        Direction.NORTH -> 0
+        Direction.EAST -> 90
+        Direction.SOUTH -> 180
+        Direction.WEST -> 240
+    }
 
 
 
