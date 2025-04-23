@@ -14,7 +14,7 @@ import no.uio.ifi.in2000.team_43.model.met.ValidYears
 import no.uio.ifi.in2000.team_43.model.met.WeatherData
 import kotlin.math.min
 
-
+// test
 
 fun calcCCF(x: Int): Double {
     return 1 - (x.toDouble() / 8) * 0.75
