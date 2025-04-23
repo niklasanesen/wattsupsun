@@ -18,7 +18,13 @@ class HomeViewModel() : ViewModel() {
     val ctx: StateFlow<Ctx> = _ctx.asStateFlow()
 
     fun resetCtx() {
-        _ctx.value = Ctx(coords = null, input = null, areal = null)
+        // _ctx.value = Ctx(coords = null, input = null, areal = null)
+        _ctx.update { currentState ->
+            currentState.copy(
+                input = null,
+                areal = null
+            )
+        }
     }
 
     fun setCoords(newCoords: Point?) {
