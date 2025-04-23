@@ -1,18 +1,30 @@
 package no.uio.ifi.in2000.team_43
 
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.serialization.gson.gson
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import no.uio.ifi.in2000.team_43.data.met.MetDataSource
 import no.uio.ifi.in2000.team_43.model.met.Coordinates
+import no.uio.ifi.in2000.team_43.model.met.ValidYears
 import no.uio.ifi.in2000.team_43.model.met.WeatherStation
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.met.formatDate
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.met.getMostRecentStation
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Test
-import org.junit.Assert.*
+import java.io.File
+import java.time.Instant
 import java.time.ZonedDateTime
 
-class WeatherDataTest {
+class DataSourceUnitTest{
     @Test
     fun weatherData_isCorrect() = runTest {
         val mockMetDataSource = mockk<MetDataSource>()
@@ -35,7 +47,73 @@ class WeatherDataTest {
         assertEquals("Oslo", station?.name)
     }
 
+    //test datasource for temp per day
+    @Test
+    fun tempData_isCorrect() = runTest {
+        //Arrange
+        val station = WeatherStation(
+            id = "SN18700",
+            name = "Oslo",
+        )
+
+        val tempElement = "mean(air_temperature P1D)"
+
+        val validYears = ValidYears(
+            validTo = Instant.parse("2025-01-01T00:00:00Z"),
+            elementId = tempElement,
+            weatherStation = station
+        )
+
+        val jsonFixture = File("src/test/java/no/uio/ifi/in2000/team_43/resources/sample_response_temp.json").readText()
+
+        val mockEngine = MockEngine { request ->
+            respond(
+                content = jsonFixture,
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+
+        val client = HttpClient(mockEngine) {
+            install(ContentNegotiation) {
+                gson()
+            }
+        }
+
+        val dataSource = MetDataSource(client)
+
+        //Act
+        val result = dataSource.getWeatherData(station, validYears.elementId, "2024-01-01", "2025-01-01")
+
+        //Assert
+
+        //check datalist size
+        assertNotNull(result)
+        assertEquals(366, result!!.dataList.size)
+
+        //check first element
+        val first = result.dataList[0]
+        assertEquals(-4.9, first.value, 0.0001)
+        assertEquals("degC", first.unit)
+        assertEquals("SN18700", first.weatherStation.id)
+        assertEquals(Instant.parse("2024-01-01T00:00:00Z"), first.timeMeasured)
+
+        //check arbitrary element
+        val weather = result.dataList.find { it.timeMeasured == Instant.parse("2024-06-15T00:00:00Z") }
+        assertNotNull(weather)
+        assertEquals("mean(air_temperature P1D)", weather!!.elementId)
+        assertEquals(14.4, weather.value, 0.0001)
+
+        //check last element
+        val last = result.dataList[365]
+        assertEquals(-1.1, last.value, 0.0001)
+        assertEquals("degC", last.unit)
+        assertEquals("SN18700", last.weatherStation.id)
+        assertEquals(Instant.parse("2024-12-31T00:00:00Z"), last.timeMeasured)
+    }
+
     // test some helper functions used in weatherdata api/datasource
+    /*
     @Test
     fun getMostRecentStation_isCorrect() = runTest {
         val jsonParser = com.google.gson.JsonParser()
@@ -53,7 +131,7 @@ class WeatherDataTest {
         val res = getMostRecentStation(checkStationJsonObj)
         assertEquals(res, correctStationJsonObj)
     }
-
+    */
     @Test
     fun formatDate_isCorrect() = runTest {
         val testDate1 = ZonedDateTime.parse("2023-05-15T12:30:00Z")

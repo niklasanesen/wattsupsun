@@ -1,6 +1,7 @@
 package no.uio.ifi.in2000.team_43.model.met
 
 
+import androidx.compose.ui.layout.Measured
 import com.mapbox.maps.extension.style.expressions.dsl.generated.min
 import kotlinx.serialization.Serializable
 import no.uio.ifi.in2000.team_43.utils.serializers.InstantSerializer
@@ -21,11 +22,17 @@ data class ValidYears(
 )
 
 @Serializable
+data class AllValidYears(
+    val validYearsList: List<ValidYears>
+)
+
+@Serializable
 data class WeatherData(
     val elementId: String,
     val value: Double,
     val unit: String,
-    val weatherStation: WeatherStation
+    val weatherStation: WeatherStation,
+    val timeMeasured: Instant?
 )
 
 @Serializable

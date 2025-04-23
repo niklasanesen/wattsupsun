@@ -69,7 +69,8 @@ class MetViewModel : ViewModel() {
                     elementId = "mean(air_temperature P1Y)",
                     value = averageTempData,
                     unit = "Celsius",
-                    weatherStation = station
+                    weatherStation = station,
+                    timeMeasured = null
 
                 )
 
@@ -94,7 +95,8 @@ class MetViewModel : ViewModel() {
                     elementId = "mean(cloud_area_fraction P1Y)",
                     value = averageCloudData,
                     unit = "Octas",
-                    weatherStation = station
+                    weatherStation = station,
+                    timeMeasured = null
                 )
 
                 val validYearsSnow: ValidYears? = metRepo.getValidTime(station, "mean(snow_coverage_type P1M)")
@@ -131,7 +133,8 @@ class MetViewModel : ViewModel() {
                     elementId = "mean(snow_coverage_type P1M)",
                     value = averageSnowData,
                     unit = snowDesc,
-                    weatherStation = station
+                    weatherStation = station,
+                    timeMeasured = null
                 )
 
                 _data.value = WeatherList(
