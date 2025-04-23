@@ -12,6 +12,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -34,25 +38,33 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
+import no.uio.ifi.in2000.team_43.model.input.Direction
 import no.uio.ifi.in2000.team_43.model.input.Input
 import no.uio.ifi.in2000.team_43.ui.pages.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
+import no.uio.ifi.in2000.team_43.ui.satellite.SatelliteScreen
+import kotlin.math.floor
 
 
 // Vil ha en sånn ?hjelp knapp som gir bruker en guide med hva som menes med de forskjellige input-feltene
 // Vil også legge til en knapp så man kan legge til flere takflater
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InputScreen(
     ctx: Ctx,
     onNextBtnClicked: (input: Input) -> Unit,
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentScreen = HomeScreen.valueOf(
         backStackEntry?.destination?.route ?: HomeScreen.Input.name
     )
+
+    val previousBackStackEntry = navController.previousBackStackEntry
+    val previousRoute = previousBackStackEntry?.destination?.route
+
 
     Scaffold(
         modifier = Modifier
@@ -77,12 +89,29 @@ fun InputScreen(
             var length by remember { mutableStateOf("") }
             var width by remember { mutableStateOf("") }
             var angle by remember { mutableStateOf("") }
-            var direction by remember { mutableStateOf("") }
+            var direction: Direction by remember { mutableStateOf(Direction.NORTH)}
 
             var angleError by remember { mutableStateOf("") }
-            var directionError by remember { mutableStateOf("") }
-
             var error by remember { mutableStateOf("") }
+
+            // For dropdownmeny retning:
+            var expanded: Boolean by remember { mutableStateOf(false) }
+
+            /*
+            // Hvis bruker kommer fra skjerm 2b (har tegna takflate)
+            val areal: Boolean = ctx.areaInSquareMeters != null
+             */
+
+            Text("$previousRoute")
+
+            if (previousRoute != null) {
+                val previousScreen = HomeScreen.entries.find { it.route == previousRoute }
+                if (previousScreen == HomeScreen.Satellite) {
+                    ctx.areal = null
+                }
+            }
+
+
 
 
             Column (
@@ -103,31 +132,37 @@ fun InputScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = length,
-                    onValueChange = {
-                        if (it == "" || it.toIntOrNull() is Int) {
-                            length = it
-                        }
-                    },
-                    label = { Text("Lengde") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
-                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
-                )
+                if (ctx.areal != null) {
+                    Text("Areal: ${floor(ctx.areal!!.areal).toInt()} m^2")
+                } else {
+                    OutlinedTextField(
+                        value = length,
+                        onValueChange = {
+                            if (it == "" || it.toIntOrNull() is Int) {
+                                length = it
+                            }
+                        },
+                        label = { Text("Lengde") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
+                        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
+                    )
 
-                OutlinedTextField(
-                    value = width,
-                    onValueChange = {
-                        if (it == "" || it.toIntOrNull() is Int) {
-                            width = it
-                        }
-                    },
-                    label = { Text("Bredde") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
-                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
-                )
+                    OutlinedTextField(
+                        value = width,
+                        onValueChange = {
+                            if (it == "" || it.toIntOrNull() is Int) {
+                                width = it
+                            }
+                        },
+                        label = { Text("Bredde") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
+                        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
+                    )
+                }
+
+
 
                 OutlinedTextField(
                     value = angle,
@@ -154,6 +189,7 @@ fun InputScreen(
                     )
                 }
 
+                /*
                 OutlinedTextField(
                     value = direction,
                     onValueChange = {
@@ -178,14 +214,60 @@ fun InputScreen(
                         modifier = Modifier.padding(12.dp)
                     )
                 }
+
+                 */
+
+
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = {expanded = it},
+                ) {
+                    OutlinedTextField(
+                        value = getDirection(direction),
+                        onValueChange = {},
+                        label = { Text("Retning") },
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .align(Alignment.CenterHorizontally)
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        Direction.entries.forEach { entry ->
+                            DropdownMenuItem(
+                                text = { Text(getDirection(entry)) },
+                                onClick = {
+                                    direction = entry
+                                    expanded = false
+                                },
+                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                            )
+                        }
+                    }
+                }
             }
+
+            Spacer(Modifier.height(12.dp))
 
             Button(
                 onClick = {
-                    if (length != "" && width != "" && angle != "" && direction != "") {
-                        onNextBtnClicked(Input(length.toInt(), width.toInt(), angle.toInt(), direction.toInt()))
+                    // Dette er quickfix siden vi får areal fra å tegne takflate, og ikke lengde og bredde:
+                    if (ctx.areal != null) {
+                        if (angle != "") {
+                            onNextBtnClicked(Input(0, 0, angle.toInt(), getDegrees(direction)))
+                        } else {
+                            error = "Vennligst fyll ut alle feltene"
+                        }
                     } else {
-                        error = "Vennligst fyll ut alle feltene"
+                        if (length != "" && width != "" && angle != "") {
+                            onNextBtnClicked(Input(length.toInt(), width.toInt(), angle.toInt(), getDegrees(direction)))
+                        } else {
+                            error = "Vennligst fyll ut alle feltene"
+                        }
                     }
                 },
             ) {
@@ -205,6 +287,22 @@ fun InputScreen(
         }
     }
 }
+
+fun getDirection(direction: Direction): String =
+    when (direction) {
+        Direction.NORTH -> "Nord"
+        Direction.EAST -> "Øst"
+        Direction.SOUTH -> "Sør"
+        Direction.WEST -> "Vest"
+    }
+
+fun getDegrees(direction: Direction): Int =
+    when (direction) {
+        Direction.NORTH -> 0
+        Direction.EAST -> 90
+        Direction.SOUTH -> 180
+        Direction.WEST -> 240
+    }
 
 
 
