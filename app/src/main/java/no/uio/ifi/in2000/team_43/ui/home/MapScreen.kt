@@ -49,7 +49,7 @@ import androidx.compose.ui.text.input.ImeAction
 fun MapScreen(
     modifier: Modifier = Modifier,
     viewModel: MapViewModel = viewModel(),
-    onInfoBtnClicked: (coords: Point?) -> Unit,
+    onInputBtnClicked: (coords: Point?) -> Unit,
     onSatelliteBtnClicked: (coords: Point?) -> Unit,
 ) {
     val suggestions by viewModel.suggestions.collectAsState()
@@ -97,12 +97,12 @@ fun MapScreen(
                     Text(text = "Registrer takflate")
                 },
                 text = {
-                    Text(text = "Vi trenger informasjon om dine takflater for å kunne gi deg relevant info. Velg å enten tegne takflate på kart eller manuelt oppgi mål.")
+                    Text(text = "Vi trenger informasjon om dine takflater for å kunne gi deg relevant info. Velg å enten tegne takflate på kart eller manuelt oppgi mål. Vi anbefaler å oppgi mål for mest korrekte beregninger.")
                 },
                 onDismissRequest = {},
                 confirmButton = {
                     TextButton(
-                        onClick = { onInfoBtnClicked(coords) },
+                        onClick = { onInputBtnClicked(coords) },
                         enabled = true
                     ) {
                         Text("Oppgi mål")
