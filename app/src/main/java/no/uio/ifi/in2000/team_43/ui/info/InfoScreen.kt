@@ -57,7 +57,9 @@ fun InfoScreen(
         Spacer(modifier = Modifier.height(16.dp))
         Text("Inputverdier av takflate: \nLengde: ${ctx.input?.length} \nBredde: ${ctx.input?.width} \nVinkel: ${ctx.input?.angle}° \nRetning: ${ctx.input?.direction}°")
         Spacer(modifier = Modifier.height(16.dp))
-        Text("areaInSquareMeters: ${ctx.areaInSquareMeters}")
+        Text("areaInSquareMeters: ${ctx.areal?.areal}") // Vet ikke hvorfor denne blir 0 nå??
+        Text("lengde: ${ctx.areal?.length}")
+        Text("bredde: ${ctx.areal?.width}")
         Spacer(modifier = Modifier.height(16.dp))
 
 

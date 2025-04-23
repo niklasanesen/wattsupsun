@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,10 +49,12 @@ import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
 import com.mapbox.maps.extension.compose.annotation.generated.PolygonAnnotation
 import com.mapbox.maps.extension.compose.rememberMapState
 import com.mapbox.maps.extension.compose.style.MapStyle
+import com.mapbox.maps.extension.style.expressions.dsl.generated.length
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import com.mapbox.turf.TurfMeasurement
 import no.uio.ifi.in2000.team_43.R
+import no.uio.ifi.in2000.team_43.model.areal.Areal
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.model.map.RoofPolygon
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.map.getBitmapFromVectorDrawable
@@ -61,11 +64,15 @@ import no.uio.ifi.in2000.team_43.utils.helperfuctions.map.getBitmapFromVectorDra
 fun SatelliteScreen(
     modifier: Modifier = Modifier,
     ctx: Ctx,
-    onNextBtnClicked: (area: Double) -> (Unit)
+    onNextBtnClicked: (areal: Areal) -> (Unit)
 ) {
 
     var areaInSquareMeters by remember { mutableDoubleStateOf(0.0) }
     var totalAreaInSquareMeters by remember { mutableDoubleStateOf(0.0) }
+
+    // Endre til lengde og bredde istedenfor areal
+    var length by remember { mutableDoubleStateOf(0.0) }
+    var width by remember { mutableDoubleStateOf(0.0) }
 
     var points by remember { mutableStateOf(listOf<Point>()) }
     val pointAnnotations = remember { mutableStateListOf<PointAnnotationOptions>() }
@@ -144,13 +151,19 @@ fun SatelliteScreen(
                 areaInSquareMeters = TurfMeasurement.area(polygon)
                 Log.d("PolygonArea", "Area: $areaInSquareMeters square meters")
 
+                // Vil heller ha lengde og bredde:
+                length = TurfMeasurement.distance(points[0], points[1], "metres")
+                width = TurfMeasurement.distance(points[1], points[2], "metres")
+                Log.i("Lengde og bredde", "$length, $width")
+
+
                 savedPolygons.add(
                     RoofPolygon(points = closedPoints, area = areaInSquareMeters)
                 )
                 totalAreaInSquareMeters += areaInSquareMeters
 
                 points = emptyList()
-                areaInSquareMeters = 0.0
+                // areaInSquareMeters = 0.0 -- Kommenterer ut dette for må fikse så man ikke kan legge til flere takflater
             } else {
                 Log.e("PolygonValidation", "Polygon must have exactly 4 points. Current count: ${points.size}")
             }
@@ -259,7 +272,7 @@ fun SatelliteScreen(
                         )
                     )
                     Button(
-                        onClick = {onNextBtnClicked(areaInSquareMeters)},
+                        onClick = {onNextBtnClicked(Areal(areaInSquareMeters, length, width))},
                         enabled = true,
                     ) {
                         Text("Neste")

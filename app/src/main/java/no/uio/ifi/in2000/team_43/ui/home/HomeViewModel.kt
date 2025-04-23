@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import no.uio.ifi.in2000.team_43.model.areal.Areal
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.model.input.Input
 
@@ -13,7 +14,7 @@ class HomeViewModel() : ViewModel() {
     /**
      * app state
      */
-    private val _ctx = MutableStateFlow<Ctx>(Ctx(coords = null, input = null, areaInSquareMeters = null))
+    private val _ctx = MutableStateFlow<Ctx>(Ctx(coords = null, input = null, areal = null))
     val ctx: StateFlow<Ctx> = _ctx.asStateFlow()
 
     fun setCoords(newCoords: Point?) {
@@ -32,10 +33,10 @@ class HomeViewModel() : ViewModel() {
         }
     }
 
-    fun setArea(newArea: Double) {
+    fun setArea(newAreal: Areal) {
         _ctx.update { currentState ->
             currentState.copy(
-                areaInSquareMeters = newArea
+                areal = newAreal
             )
         }
     }
