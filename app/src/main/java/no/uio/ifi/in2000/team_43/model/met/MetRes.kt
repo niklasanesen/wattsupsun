@@ -1,6 +1,7 @@
 package no.uio.ifi.in2000.team_43.model.met
 
 
+import com.mapbox.maps.extension.style.expressions.dsl.generated.min
 import kotlinx.serialization.Serializable
 import no.uio.ifi.in2000.team_43.utils.serializers.InstantSerializer
 import java.time.Instant
