@@ -108,5 +108,8 @@ dependencies {
     // Mocking (Mockito)
     testImplementation (libs.mockito.core)
     testImplementation (libs.mockito.kotlin)
+    testImplementation(kotlin("test"))
 
+    // Coroutine testing Turbine
+    testImplementation("app.cash.turbine:turbine:1.2.0")
 }

@@ -30,8 +30,7 @@ fun calcGHI(x: Int, y: Int, z: Int): Double {
 
 
 
-class MetViewModel : ViewModel() {
-    private val metRepo = MetRepository()
+class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewModel() {
 
     private val _data = MutableStateFlow<WeatherList?>(null)
     val data: StateFlow<WeatherList?> = _data.asStateFlow()

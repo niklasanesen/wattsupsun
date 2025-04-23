@@ -4,21 +4,19 @@ package no.uio.ifi.in2000.team_43
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import no.uio.ifi.in2000.team_43.data.met.MetDataSource
 import no.uio.ifi.in2000.team_43.data.met.MetRepository
-import no.uio.ifi.in2000.team_43.model.met.Coordinates
 import no.uio.ifi.in2000.team_43.model.met.ValidYears
 import no.uio.ifi.in2000.team_43.model.met.WeatherData
 import no.uio.ifi.in2000.team_43.model.met.WeatherList
 import no.uio.ifi.in2000.team_43.model.met.WeatherStation
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 class MetRepositoryTest{
     private lateinit var repository: MetRepository
@@ -53,7 +51,9 @@ class MetRepositoryTest{
                     value = value,
                     unit = "W/m2",
                     weatherStation = station,
-                    timeMeasured = Instant.parse("2024-01-01T%02d:00:00Z".format(index))
+                    timeMeasured = Instant
+                        .parse("2024-01-01T00:00:00Z")
+                        .plus(index.toLong(), ChronoUnit.HOURS)
                 )
             }
         )
