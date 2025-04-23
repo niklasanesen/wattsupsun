@@ -58,6 +58,7 @@ import no.uio.ifi.in2000.team_43.model.areal.Areal
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.model.map.RoofPolygon
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.map.getBitmapFromVectorDrawable
+import kotlin.math.floor
 
 @SuppressLint("DefaultLocale")
 @Composable
@@ -272,7 +273,7 @@ fun SatelliteScreen(
                         )
                     )
                     Button(
-                        onClick = {onNextBtnClicked(Areal(areaInSquareMeters, length, width))},
+                        onClick = {onNextBtnClicked(Areal(areaInSquareMeters, floor(length), floor(width)))},
                         enabled = true,
                     ) {
                         Text("Neste")

@@ -86,6 +86,7 @@ fun InputScreen(
             // Text("coords: ${ctx.coords?.coordinates()}")
 
             val keyboardController = LocalSoftwareKeyboardController.current
+
             var length by remember { mutableStateOf("") }
             var width by remember { mutableStateOf("") }
             var angle by remember { mutableStateOf("") }
@@ -97,22 +98,10 @@ fun InputScreen(
             // For dropdownmeny retning:
             var expanded: Boolean by remember { mutableStateOf(false) }
 
-            /*
-            // Hvis bruker kommer fra skjerm 2b (har tegna takflate)
-            val areal: Boolean = ctx.areaInSquareMeters != null
-             */
-
-            Text("$previousRoute")
-
-            if (previousRoute != null) {
-                val previousScreen = HomeScreen.entries.find { it.route == previousRoute }
-                if (previousScreen == HomeScreen.Satellite) {
-                    ctx.areal = null
-                }
+            if (ctx.areal != null && length.isEmpty() && width.isEmpty()) {
+                length = ctx.areal!!.length.toInt().toString()
+                width = ctx.areal!!.width.toInt().toString()
             }
-
-
-
 
             Column (
                 modifier = modifier
@@ -132,35 +121,32 @@ fun InputScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                if (ctx.areal != null) {
-                    Text("Areal: ${floor(ctx.areal!!.areal).toInt()} m^2")
-                } else {
-                    OutlinedTextField(
-                        value = length,
-                        onValueChange = {
-                            if (it == "" || it.toIntOrNull() is Int) {
-                                length = it
-                            }
-                        },
-                        label = { Text("Lengde") },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
-                        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
-                    )
+                OutlinedTextField(
+                    value = length,
+                    onValueChange = {
+                        if (it == "" || it.toIntOrNull() is Int) {
+                            length = it
+                        }
+                    },
+                    label = { Text("Lengde") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
+                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
+                )
 
-                    OutlinedTextField(
-                        value = width,
-                        onValueChange = {
-                            if (it == "" || it.toIntOrNull() is Int) {
-                                width = it
-                            }
-                        },
-                        label = { Text("Bredde") },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
-                        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
-                    )
-                }
+                OutlinedTextField(
+                    value = width,
+                    onValueChange = {
+                        if (it == "" || it.toIntOrNull() is Int) {
+                            width = it
+                        }
+                    },
+                    label = { Text("Bredde") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
+                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
+                )
+
 
 
 
@@ -255,19 +241,10 @@ fun InputScreen(
 
             Button(
                 onClick = {
-                    // Dette er quickfix siden vi får areal fra å tegne takflate, og ikke lengde og bredde:
-                    if (ctx.areal != null) {
-                        if (angle != "") {
-                            onNextBtnClicked(Input(0, 0, angle.toInt(), getDegrees(direction)))
-                        } else {
-                            error = "Vennligst fyll ut alle feltene"
-                        }
+                    if (length != "" && width != "" && angle != "") {
+                        onNextBtnClicked(Input(length.toInt(), width.toInt(), angle.toInt(), getDegrees(direction)))
                     } else {
-                        if (length != "" && width != "" && angle != "") {
-                            onNextBtnClicked(Input(length.toInt(), width.toInt(), angle.toInt(), getDegrees(direction)))
-                        } else {
-                            error = "Vennligst fyll ut alle feltene"
-                        }
+                        error = "Vennligst fyll ut alle feltene"
                     }
                 },
             ) {
