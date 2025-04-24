@@ -34,6 +34,7 @@ class MetRepositoryTest{
         val station = WeatherStation(id = "SN18700", name = "Oslo")
         val validYears = ValidYears(
             validTo = Instant.parse("2025-01-01T00:00:00Z"),
+            validFrom = Instant.parse("2018-01-19T07:46:55.000Z"),
             elementId = "mean(surface_downwelling_shortwave_flux_in_air PT1H)",
             weatherStation = station
         )

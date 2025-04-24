@@ -41,7 +41,7 @@ fun InfoScreen(
     val stromprisData by stromprisViewModel.data.collectAsState()
     val drCalcData by pvgisViewModel.drCalcData.collectAsState() // Henter DRcalc data
     val drCalcTotalSum by pvgisViewModel.drCalcDataTotalSum.collectAsState() // Henter kalkulert totalsum
-    val weatherList by metViewModel.data.collectAsState()
+    val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata
 
     val errorMessage by metViewModel.errorMessage.collectAsState()
 
@@ -126,17 +126,27 @@ fun InfoScreen(
                 )
             }
 
-            weatherList?.dataList?.isNotEmpty() == true -> {
-                val tempWeatherData = weatherList!!.dataList[0] //temp
+            weatherList?.dailyObservation?.isNotEmpty() == true -> {
+                val weatherDataForFirstDay = weatherList!!.dailyObservation[1] //dato og værliste i en pair, alle datoer er sortert fra 1 januar til 31 desember
 
                 Text(
-                    text = "Temperatur: ${tempWeatherData.value} ${tempWeatherData.unit}",
+                    text = "Dato: ${weatherDataForFirstDay.first}",
                     style = MaterialTheme.typography.headlineMedium
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                val cloudWeatherData = weatherList!!.dataList[1] //skydekke
+                val weatherDataList = weatherDataForFirstDay.second //dette aksesserer værlisten med alle målinger for relevant dag
+                val observationForTemp = weatherDataList.dataList[0]
+
+                Text(
+                    text = "Temperatur: ${observationForTemp.value} ${observationForTemp.unit}",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                val cloudWeatherData = weatherDataList.dataList[1] //skydekke
 
                 Text(
                     text = "Skydekke: ${cloudWeatherData.value} ${cloudWeatherData.unit}",
@@ -145,12 +155,22 @@ fun InfoScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                val snowWeatherData = weatherList!!.dataList[2] //snødekke
+                val snowWeatherData = weatherDataList.dataList[2] //snødekke
 
                 Text(
                     text = "Snømengde: ${snowWeatherData.value} ${snowWeatherData.unit}",
                     style = MaterialTheme.typography.headlineMedium
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                val radiationWeatherData = weatherDataList.dataList[3] //globalstråling
+
+                Text(
+                    text = "Global Solstråling: ${radiationWeatherData.value} ${radiationWeatherData.unit}",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+
             }
 
             else -> {

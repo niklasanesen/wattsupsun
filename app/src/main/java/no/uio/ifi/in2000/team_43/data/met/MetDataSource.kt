@@ -20,10 +20,12 @@ class MetDataSource(private val client: HttpClient) {
     val clientId = "576d17b2-5647-4cd4-ba76-e852f7e4b6cb"
     val encoded = String(Base64.getEncoder().encode("$clientId:".toByteArray(Charsets.UTF_8)))
 
-    suspend fun getWeatherStationData(coordinates: Coordinates): WeatherStation? {
+    suspend fun getWeatherStationData(coordinates: Coordinates, nearestMaxCount: Int): WeatherStation? {
         var url = "https://frost.met.no/sources/v0.jsonld?"
-        url += "elements=mean(cloud_area_fraction P1Y),mean(air_temperature P1Y),mean(snow_coverage_type P1M)&"
-        url += "geometry=" + "nearest(POINT(${coordinates.longitude} ${coordinates.latitude}))"
+        url += "types=SensorSystem&"
+        url += "elements=mean(cloud_area_fraction P1D),mean(air_temperature P1D),mean(surface_snow_thickness P1M),mean(surface_downwelling_shortwave_flux_in_air PT1H)&"
+        url += "geometry=" + "nearest(POINT(${coordinates.longitude} ${coordinates.latitude}))&"
+        url += "nearestmaxcount=$nearestMaxCount"
 
 
         // Debugging: Print the final API URL
@@ -50,7 +52,7 @@ class MetDataSource(private val client: HttpClient) {
                 }
 
                 val stations = jsonObject.getAsJsonArray("data")
-                val firstStation = stations[0].asJsonObject
+                val firstStation = stations[nearestMaxCount - 1].asJsonObject
 
                 return WeatherStation(
                     id = firstStation.get("id").asString,
@@ -89,8 +91,14 @@ class MetDataSource(private val client: HttpClient) {
                 val allValidYears = times
                     .map { obj ->
                         val timeObj = obj.asJsonObject
+                        val validTo = if (timeObj.has("validTo") && !timeObj["validTo"].isJsonNull) {
+                                Instant.parse(timeObj["validTo"].asString)
+                            } else {
+                                Instant.parse("2025-01-01T00:00:00Z")
+                            }
                         ValidYears(
-                            validTo = timeObj.get("validTo")?.asString?.let { Instant.parse(it) },
+                            validTo =  validTo,
+                            validFrom = timeObj.get("validFrom").asString.let { Instant.parse(it) },
                             elementId = timeObj.get("elementId").asString,
                             weatherStation = station
                         )
@@ -133,6 +141,8 @@ class MetDataSource(private val client: HttpClient) {
                     .map { it.asJsonObject }
                     .flatMap { dataObj ->
                         dataObj.getAsJsonArray("observations")
+                            .sortedBy { it.asJsonObject.get("timeOffset").asString }
+                            .take(1)
                             .map { obsEntry ->
                                 obsEntry.asJsonObject.let { obsObj ->
                                     WeatherData(
@@ -140,7 +150,7 @@ class MetDataSource(private val client: HttpClient) {
                                         value = obsObj.get("value").asDouble,
                                         unit = obsObj.get("unit").asString,
                                         weatherStation = station,
-                                        timeMeasured = null
+                                        timeMeasured = dataObj.get("referenceTime").asString.let { Instant.parse(it) }
                                     )
                                 }
                             }
