@@ -70,11 +70,11 @@ fun beregnStromproduksjon(
     return beregnetSum;
 }
 
-// Hjelpefunksjon for
+// Hjelpefunksjon for beregnStromproduksjon()
 fun beregnEffekttap(optimalEffekt: Double, avvikVinkelGrader: Double): Double {
-    val vinkelRad = avvikVinkelGrader * PI / 180  // konverter til radianer
+    val vinkelRad = avvikVinkelGrader * PI / 180  // konverter til radianer (altså fra grader til tallverdi)
     val effekt = optimalEffekt * cos(vinkelRad)
-    return effekt.coerceAtLeast(0.0)  // sørger for at det ikke blir negativt
+    return effekt.coerceAtLeast(0.0)
 }
 
 
