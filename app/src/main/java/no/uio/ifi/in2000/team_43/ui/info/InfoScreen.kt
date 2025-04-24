@@ -55,10 +55,15 @@ fun InfoScreen(
         // Koordinater og verdier fra bruker
         Text("coords: ${ctx.coords?.coordinates()}")
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Inputverdier av takflate: \nLengde: ${ctx.input?.length} \nBredde: ${ctx.input?.width} \nVinkel: ${ctx.input?.angle}° \nRetning: ${ctx.input?.direction}°")
+        Text(text = "Takflate-verdier:", style = MaterialTheme.typography.titleMedium)
+        Text("Lengde: ${ctx.input?.length} m \nBredde: ${ctx.input?.width} m \nVinkel: ${ctx.input?.angle}° \nRetning: ${ctx.input?.direction}°")
         Spacer(modifier = Modifier.height(16.dp))
-        Text("areaInSquareMeters: ${ctx.areaInSquareMeters}")
-        Spacer(modifier = Modifier.height(16.dp))
+        /*
+        Text("areaInSquareMeters: ${ctx.areal?.areal}")
+        Text("lengde: ${ctx.areal?.length}")
+        Text("bredde: ${ctx.areal?.width}")
+        */
+        Spacer(modifier = Modifier.height(20.dp))
 
 
 

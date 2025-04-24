@@ -80,6 +80,7 @@ fun MapPage(
                 .fillMaxSize()
         ) {
             composable(route = HomeScreen.Start.name) {
+                viewModel.resetCtx()
                 MapScreen(
                     onInputBtnClicked = {
                         viewModel.setCoords(it)
