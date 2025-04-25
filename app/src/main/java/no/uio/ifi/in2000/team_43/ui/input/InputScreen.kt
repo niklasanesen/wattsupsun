@@ -161,7 +161,7 @@ fun InputScreen(
                             }
                         }
                     },
-                    label = { Text("Vinkel i °") },
+                    label = { Text("Takvinkel i °") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
                     keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
@@ -278,7 +278,7 @@ fun getDegrees(direction: Direction): Int =
         Direction.NORTH -> 0
         Direction.EAST -> 90
         Direction.SOUTH -> 180
-        Direction.WEST -> 240
+        Direction.WEST -> 270
     }
 
 
