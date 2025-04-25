@@ -278,7 +278,7 @@ fun getDegrees(direction: Direction): Int =
         Direction.NORTH -> 0
         Direction.EAST -> 90
         Direction.SOUTH -> 180
-        Direction.WEST -> 240
+        Direction.WEST -> 270
     }
 
 
