@@ -41,7 +41,7 @@ fun InfoScreen(
     val stromprisData by stromprisViewModel.data.collectAsState()
     val drCalcData by pvgisViewModel.drCalcData.collectAsState() // Henter DRcalc data
     val drCalcTotalSum by pvgisViewModel.drCalcDataTotalSum.collectAsState() // Henter kalkulert totalsum
-    val weatherList by metViewModel.data.collectAsState()
+    val weatherList by metViewModel.dataSortedByDate.collectAsState()
 
     val errorMessage by metViewModel.errorMessage.collectAsState()
 
@@ -126,8 +126,8 @@ fun InfoScreen(
                 )
             }
 
-            weatherList?.dataList?.isNotEmpty() == true -> {
-                val tempWeatherData = weatherList!!.dataList[0] //temp
+            weatherList?.dailyObservation?.isNotEmpty() == true -> {
+                val tempWeatherData = weatherList!!.dailyObservation[0].second.dataList[0] //temp
 
                 Text(
                     text = "Temperatur: ${tempWeatherData.value} ${tempWeatherData.unit}",
@@ -136,7 +136,7 @@ fun InfoScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                val cloudWeatherData = weatherList!!.dataList[1] //skydekke
+                val cloudWeatherData = weatherList!!.dailyObservation[0].second.dataList[1] //skydekke
 
                 Text(
                     text = "Skydekke: ${cloudWeatherData.value} ${cloudWeatherData.unit}",
@@ -145,7 +145,7 @@ fun InfoScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                val snowWeatherData = weatherList!!.dataList[2] //snødekke
+                val snowWeatherData = weatherList!!.dailyObservation[0].second.dataList[2] //snødekke
 
                 Text(
                     text = "Snømengde: ${snowWeatherData.value} ${snowWeatherData.unit}",

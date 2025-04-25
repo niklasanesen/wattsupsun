@@ -59,8 +59,8 @@ class DataSourceUnitTest{
         val tempElement = "mean(air_temperature P1D)"
 
         val validYears = ValidYears(
-            validFrom = null,
             validTo = Instant.parse("2025-01-01T00:00:00Z"),
+            validFrom = Instant.parse("2006-04-03T00:00:00.000Z"),
             elementId = tempElement,
             weatherStation = station
         )
@@ -107,7 +107,7 @@ class DataSourceUnitTest{
 
         //check last element
         val last = result.dataList[365]
-        assertEquals(-1.1, last.value, 0.0001)
+        assertEquals(-2.4, last.value, 0.0001)
         assertEquals("degC", last.unit)
         assertEquals("SN18700", last.weatherStation.id)
         assertEquals(Instant.parse("2024-12-31T00:00:00Z"), last.timeMeasured)

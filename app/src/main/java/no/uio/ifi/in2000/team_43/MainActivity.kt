@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
         // test met api
         val viewModel = MetViewModel()
         lifecycleScope.launch {
-            viewModel.data.collect { res ->
+            viewModel.dataSortedByDate.collect { res ->
                 Log.d("MainActivity", "Met data: $res")
             }
         }

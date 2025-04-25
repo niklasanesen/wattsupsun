@@ -11,11 +11,13 @@ import no.uio.ifi.in2000.team_43.model.met.ValidYears
 import no.uio.ifi.in2000.team_43.model.met.WeatherData
 import no.uio.ifi.in2000.team_43.model.met.WeatherList
 import no.uio.ifi.in2000.team_43.model.met.WeatherStation
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.met.formatDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import java.time.Instant
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
 class MetRepositoryTest{
@@ -24,17 +26,17 @@ class MetRepositoryTest{
 
     @Before
     fun setup() {
-        // Injecting mock into repository using constructor injection
         repository = MetRepository(mockDataSource)
     }
 
     @Test
     fun metRepositoryTestGlobalRadiation() = runTest {
+
         // Arrange
         val station = WeatherStation(id = "SN18700", name = "Oslo")
         val validYears = ValidYears(
-            validFrom = null,
             validTo = Instant.parse("2025-01-01T00:00:00Z"),
+            validFrom = Instant.parse("2024-01-01T00:00:00.00Z"),
             elementId = "mean(surface_downwelling_shortwave_flux_in_air PT1H)",
             weatherStation = station
         )
@@ -59,12 +61,15 @@ class MetRepositoryTest{
             }
         )
 
+        val formattedStartDate = formatDate(validYears.validFrom!!.atZone(ZoneId.of("UTC")))
+        val formattedEndDate = formatDate(validYears.validTo!!.atZone(ZoneId.of("UTC")))
+
         coEvery {
             mockDataSource.getWeatherData(
                 station,
                 validYears.elementId,
-                "2024-01-01",
-                "2025-01-01"
+                formattedStartDate,
+                formattedEndDate
             )
         } returns mockWeatherList
 

@@ -17,12 +17,17 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import kotlin.math.min
 
+fun calcInsolation(cloudData: Double, snowData: Double, globalRadiation: Double): Double {
+    val calcCloud = 1 - (cloudData.toDouble() / 8) * 0.75
+    val calcSnow = 1 - min(snowData.toDouble() / 30, 1.0) * 0.3
 
+    return (calcCloud * calcSnow * globalRadiation).toDouble()
+}
 
 class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewModel() {
 
-    private val _dataSortedByDate = MutableStateFlow<WeatherList?>(null)
-    val dataSortedByDate: StateFlow<WeatherList?> = _dataSortedByDate.asStateFlow()
+    private val _dataSortedByDate = MutableStateFlow<AggregatedData?>(null)
+    val dataSortedByDate: StateFlow<AggregatedData?> = _dataSortedByDate.asStateFlow()
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
