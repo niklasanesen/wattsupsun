@@ -49,7 +49,7 @@ fun InfoScreen(
     val stromprisData by stromprisViewModel.data.collectAsState()
     val drCalcData by pvgisViewModel.drCalcData.collectAsState() // Henter DRcalc data
     val drCalcTotalSum by pvgisViewModel.drCalcDataTotalSum.collectAsState() // Henter kalkulert totalsum
-    val weatherList by metViewModel.dataSortedByDate.collectAsState()
+    val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata
 
     val errorMessage by metViewModel.errorMessage.collectAsState()
 
@@ -289,72 +289,31 @@ fun InfoScreen(
             }
 
             weatherList?.dailyObservation?.isNotEmpty() == true -> {
-                val tempWeatherData = weatherList!!.dailyObservation[0].second.dataList[0] //temp
+                val weatherDataForFirstDay = weatherList!!.dailyObservation[1] //dato og værliste i en pair, alle datoer er sortert fra 1 januar til 31 desember
 
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = 8.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    backgroundColor = Color(0xFFB3E5FC) // Lys blå bakgrunn
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "Temperatur: ${tempWeatherData.value} ${tempWeatherData.unit}",
-                            style = MaterialTheme.typography.headlineMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 24.sp, // Økt størrelse for bedre visuell fremtreden
-                                color = MaterialTheme.colorScheme.onSurface
-                            ),
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-                    }
-                }
+                Text(
+                    text = "Dato: ${weatherDataForFirstDay.first}",
+                    style = MaterialTheme.typography.headlineMedium
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                val cloudWeatherData = weatherList!!.dailyObservation[0].second.dataList[1] //skydekke
+                val weatherDataList = weatherDataForFirstDay.second //dette aksesserer værlisten med alle målinger for relevant dag
+                val observationForTemp = weatherDataList.dataList[0]
 
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = 8.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    backgroundColor = Color(0xFFB3E5FC) // Lys blå bakgrunn
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "Skydekke: ${cloudWeatherData.value} ${cloudWeatherData.unit}",
-                            style = MaterialTheme.typography.headlineMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 24.sp, // Økt størrelse for bedre visuell fremtreden
-                                color = MaterialTheme.colorScheme.onSurface
-                            ),
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-                    }
-                }
+                Text(
+                    text = "Temperatur: ${observationForTemp.value} ${observationForTemp.unit}",
+                    style = MaterialTheme.typography.headlineMedium
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                val snowWeatherData = weatherList!!.dailyObservation[0].second.dataList[2] //snødekke
+                val insolationWeatherData = weatherDataList.dataList[1] //solinnstråling
 
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = 8.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    backgroundColor = Color(0xFFB3E5FC) // Lys blå bakgrunn
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "Snømengde: ${snowWeatherData.value} ${snowWeatherData.unit}",
-                            style = MaterialTheme.typography.headlineMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 24.sp, // Økt størrelse for bedre visuell fremtreden
-                                color = MaterialTheme.colorScheme.onSurface
-                            ),
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-                    }
-                }
+                Text(
+                    text = "Solinnstråling: ${insolationWeatherData.value} ${insolationWeatherData.unit}",
+                    style = MaterialTheme.typography.headlineMedium
+                )
             }
 
             else -> {

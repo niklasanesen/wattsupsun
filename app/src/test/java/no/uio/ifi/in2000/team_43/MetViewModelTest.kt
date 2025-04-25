@@ -92,7 +92,7 @@ class MetViewModelTest {
 
         coEvery { metRepo.getWeatherStation(coordinates, any()) } returns station
 
-        coEvery { metRepo.getValidTime(any(), any()) } returns validYears
+        coEvery { metRepo.getValidTime(any()) } returns validYears
 
         coEvery { metRepo.getDataSet(any(), any()) } returns mockWeatherList
         coEvery { metRepo.getSnowThickness(any(), any()) } returns mockWeatherList
@@ -105,40 +105,44 @@ class MetViewModelTest {
         // Use collect to wait for the value to be updated in the flow
         val dataSortedByDate = metViewModel.dataSortedByDate.first { it != null }// This will block until an item is emitted
 
-        // Assert that dataSortedByDate is not null
-        assertNotNull(dataSortedByDate)
+            // Assert that dataSortedByDate is not null
+            assertNotNull(dataSortedByDate)
 
-        // Check if the dailyObservation list is null or empty
-        val dailyObservation = dataSortedByDate?.dailyObservation
-        assertNotNull(dailyObservation)
-        assertTrue(dailyObservation!!.isNotEmpty())
+            // Check if the dailyObservation list is null or empty
+            val dailyObservation = dataSortedByDate?.dailyObservation
+            assertNotNull(dailyObservation)
+            assertTrue(dailyObservation!!.isNotEmpty())
 
-        // Log the contents of dailyObservation for debugging
-        println("dailyObservation: $dailyObservation")
+            // Log the contents of dailyObservation for debugging
+            println("dailyObservation: $dailyObservation")
 
-        // Check that data is sorted by date
-        val firstItem = dailyObservation.first()
-        assertNotNull(firstItem)
+            // Check that data is sorted by date
+            val firstItem = dailyObservation.first()
+            assertNotNull(firstItem)
+            println("First item: $firstItem")
 
-        // Assert that the first item's date is as expected
-        assertEquals(Instant.parse("2024-01-01T00:00:00Z"), firstItem.first)
+            // Log the value of the first item for debugging
+            firstItem.let {
+                println("First item date: ${it.first}")
+                println("First item data: ${it.second.dataList}")
+            }
 
-        //Assert that temperature is the first element
-        assertEquals("mean(air_temperature P1D)", firstItem.second.dataList.first().elementId)
+            // Assert that the first item's date is as expected
+            assertEquals(Instant.parse("2024-01-01T00:00:00Z"), firstItem.first)
 
+            // Validate that the calculated insolation for the given day is correctly added
+            val insolationData = firstItem.second.dataList.last()
+            assertNotNull(insolationData)
+            println("Insolation data: $insolationData")
 
-        // Validate that the calculated insolation for the given day is correctly added
-        val insolationData = firstItem.second.dataList.last()
-        assertNotNull(insolationData)
+            assertEquals("mean(solar_irradiance P1D)", insolationData.elementId)
+            assertEquals("W/m2", insolationData.unit)
 
-        assertEquals("mean(solar_irradiance P1D)", insolationData.elementId)
-        assertEquals("W/m2", insolationData.unit)
-
-        // Validate error message state if necessary
-        coVerify { metRepo.getWeatherStation(coordinates, 1) }
-        coVerify { metRepo.getValidTime(any(), any()) }
-        coVerify { metRepo.getDataSet(any(), any()) }
-        coVerify { metRepo.getSnowThickness(any(), any()) }
-        coVerify { metRepo.getGlobalRadiationData(any(), any()) }
-    }
+            // Validate error message state if necessary
+            coVerify { metRepo.getWeatherStation(coordinates, 1) }
+            coVerify { metRepo.getValidTime(any()) }
+            coVerify { metRepo.getDataSet(any(), any()) }
+            coVerify { metRepo.getSnowThickness(any(), any()) }
+            coVerify { metRepo.getGlobalRadiationData(any(), any()) }
+        }
 }

@@ -1,8 +1,6 @@
 package no.uio.ifi.in2000.team_43.model.met
 
 
-import androidx.compose.ui.layout.Measured
-import com.mapbox.maps.extension.style.expressions.dsl.generated.min
 import kotlinx.serialization.Serializable
 import no.uio.ifi.in2000.team_43.utils.serializers.InstantSerializer
 import java.time.Instant
@@ -16,8 +14,8 @@ data class WeatherStation(
 @Serializable
 data class ValidYears(
     @Serializable(with = InstantSerializer::class)
-    val validFrom: Instant?,
-    val validTo: Instant?,
+    val validTo: Instant,
+    val validFrom: Instant,
     val elementId: String,
     val weatherStation: WeatherStation
 )
@@ -33,7 +31,7 @@ data class WeatherData(
     val value: Double,
     val unit: String,
     val weatherStation: WeatherStation,
-    val timeMeasured: Instant?
+    val timeMeasured: Instant
 )
 
 @Serializable

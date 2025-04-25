@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.team_43.ui.met
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,10 +10,10 @@ import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.team_43.data.met.MetRepository
 import no.uio.ifi.in2000.team_43.model.met.AggregatedData
 import no.uio.ifi.in2000.team_43.model.met.Coordinates
-import no.uio.ifi.in2000.team_43.model.met.WeatherList
-import no.uio.ifi.in2000.team_43.model.met.WeatherStation
 import no.uio.ifi.in2000.team_43.model.met.ValidYears
 import no.uio.ifi.in2000.team_43.model.met.WeatherData
+import no.uio.ifi.in2000.team_43.model.met.WeatherList
+import no.uio.ifi.in2000.team_43.model.met.WeatherStation
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import kotlin.math.min
@@ -22,18 +23,9 @@ import kotlin.math.PI
 fun calcInsolation(cloudData: Double, snowData: Double, globalRadiation: Double): Double {
     val calcCloud = 1 - (cloudData.toDouble() / 8) * 0.75
     val calcSnow = 1 - min(snowData.toDouble() / 30, 1.0) * 0.3
-
     return (calcCloud * calcSnow * globalRadiation).toDouble()
 }
 
-class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewModel() {
-
-    private val _dataSortedByDate = MutableStateFlow<AggregatedData?>(null)
-    val dataSortedByDate: StateFlow<AggregatedData?> = _dataSortedByDate.asStateFlow()
-
-    private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
-    
 // Beregninger for stromproduksjon
 
 // kort forklart:
@@ -80,7 +72,48 @@ fun beregnEffekttap(optimalEffekt: Double, avvikVinkelGrader: Double): Double {
     return effekt.coerceAtLeast(0.0)
 }
 
-      private suspend fun fetchWeatherDataForElement(validYears: ValidYears, elementId: String): WeatherList? {
+class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewModel() {
+
+    private val _dataSortedByDate = MutableStateFlow<AggregatedData?>(null)
+    val dataSortedByDate: StateFlow<AggregatedData?> = _dataSortedByDate.asStateFlow()
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+
+    var nearestMaxCount = 1
+    val maxAttempts = 31 //the amount of stations that match the relevant elements in Norway
+
+    fun calcInsolation(cloudData: Double, snowData: Double, globalRadiation: Double): Double {
+        val calcCloud = 1 - (cloudData.toDouble() / 8) * 0.75
+        val calcSnow = 1 - min(snowData.toDouble() / 30, 1.0) * 0.3
+
+        return (calcCloud * calcSnow * globalRadiation).toDouble()
+    }
+
+    suspend fun tryGetValidYear(coordinates: Coordinates, nearestMaxCount: Int, attempts: Int = 0): ValidYears? {
+        println("MetViewModel Trying to get valid year for station, attempt $attempts")
+        if (attempts >= maxAttempts) {
+            _errorMessage.value = "Unable to find valid years after $maxAttempts attempts."
+            return null
+        }
+
+        val station: WeatherStation? = metRepo.getWeatherStation(coordinates, nearestMaxCount)
+
+        if (station == null) {
+            _errorMessage.value = "Weather station not found or no valid year found"
+            return null
+        }
+
+        val validYears: ValidYears? = metRepo.getValidTime(station)
+
+        if (validYears != null) {
+            return validYears
+        }
+
+        return tryGetValidYear(coordinates, nearestMaxCount + 1, attempts + 1)
+    }
+
+    private suspend fun fetchWeatherDataForElement(validYears: ValidYears, elementId: String): WeatherList? {
         val validYearsElement = ValidYears(
             elementId = elementId,
             validFrom = validYears.validFrom,
@@ -99,7 +132,7 @@ fun beregnEffekttap(optimalEffekt: Double, avvikVinkelGrader: Double): Double {
 
     private fun aggregateDataByDate(weatherDataList: List<WeatherData>): List<Pair<Instant, WeatherList>> {
         //Group the weather data by date
-        val groupedByDate = weatherDataList.groupBy { it.timeMeasured!!.truncatedTo(ChronoUnit.DAYS) }
+        val groupedByDate = weatherDataList.groupBy { it.timeMeasured.truncatedTo(ChronoUnit.DAYS) }
 
         groupedByDate.forEach { date ->
             println("groupCheck Given date: ${date.key} which has amount of values: ${date.value.size}")
@@ -124,51 +157,29 @@ fun beregnEffekttap(optimalEffekt: Double, avvikVinkelGrader: Double): Double {
         }.sortedBy { it.first }
     }
 
-
     fun fetchWeatherData(coordinates: Coordinates) {
+        println("MetViewModel fetchWeatherData() launched")
         viewModelScope.launch {
             try {
-                val station: WeatherStation? = metRepo.getWeatherStation(coordinates, 1)
-                if (station == null) {
-                    _errorMessage.value = "Weather station not found"
+
+                val validYears = tryGetValidYear(coordinates, nearestMaxCount)
+
+                if (validYears == null) {
                     return@launch
                 }
 
-                val tempValidYears: ValidYears? = metRepo.getValidTime(station, "mean(air_temperature P1D)")
-                if(tempValidYears == null) {
-                    _errorMessage.value = "Temp year not found"
-                    return@launch
-                }
-
-                val cloudValidYears: ValidYears? = metRepo.getValidTime(station, "mean(air_temperature P1D)")
-                if(cloudValidYears == null) {
-                    _errorMessage.value = "Cloud year not found"
-                    return@launch
-                }
-
-                val snowValidYears: ValidYears? = metRepo.getValidTime(station, "mean(air_temperature P1D)")
-                if(snowValidYears == null) {
-                    _errorMessage.value = "Snow year not found"
-                    return@launch
-                }
-
-                val sunValidYears: ValidYears? = metRepo.getValidTime(station, "mean(air_temperature P1D)")
-                if(sunValidYears == null) {
-                    _errorMessage.value = "Temp year not found"
-                    return@launch
-                }
-
-                val tempWeatherList = fetchWeatherDataForElement(tempValidYears, "mean(air_temperature P1D)")
-                val cloudWeatherList = fetchWeatherDataForElement(cloudValidYears, "mean(cloud_area_fraction P1D)")
-                val snowWeatherList = fetchWeatherDataForElement(snowValidYears, "mean(surface_snow_thickness P1M)")
-                val radiationWeatherList = fetchWeatherDataForElement(sunValidYears, "mean(surface_downwelling_shortwave_flux_in_air PT1H)")
+                // Fetch weather data for different elements
+                val tempWeatherList = fetchWeatherDataForElement(validYears, "mean(air_temperature P1D)")
+                val cloudWeatherList = fetchWeatherDataForElement(validYears, "mean(cloud_area_fraction P1D)")
+                val snowWeatherList = fetchWeatherDataForElement(validYears, "mean(surface_snow_thickness P1M)")
+                val radiationWeatherList = fetchWeatherDataForElement(validYears, "mean(surface_downwelling_shortwave_flux_in_air PT1H)")
 
                 // Check for null responses
                 if (tempWeatherList == null || cloudWeatherList == null || snowWeatherList == null || radiationWeatherList == null) {
                     _errorMessage.value = "No weather data available for one or more elements."
                     return@launch
                 }
-
+                
                 // Aggregate data by date
                 val aggregatedData = aggregateDataByDate(
                     tempWeatherList.dataList + cloudWeatherList.dataList + snowWeatherList.dataList + radiationWeatherList.dataList
@@ -177,8 +188,8 @@ fun beregnEffekttap(optimalEffekt: Double, avvikVinkelGrader: Double): Double {
                 // Create the AggregatedData object
                 _dataSortedByDate.value = AggregatedData(dailyObservation = aggregatedData)
 
-
             } catch (e: Exception) {
+                println("Error fetching data: ${e.message}")
                 _errorMessage.value = "Error fetching data: ${e.message}"
             }
         }

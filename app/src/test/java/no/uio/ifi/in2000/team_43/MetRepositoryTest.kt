@@ -61,8 +61,8 @@ class MetRepositoryTest{
             }
         )
 
-        val formattedStartDate = formatDate(validYears.validFrom!!.atZone(ZoneId.of("UTC")))
-        val formattedEndDate = formatDate(validYears.validTo!!.atZone(ZoneId.of("UTC")))
+        val formattedStartDate = formatDate(validYears.validFrom)
+        val formattedEndDate = formatDate(validYears.validTo)
 
         coEvery {
             mockDataSource.getWeatherData(
