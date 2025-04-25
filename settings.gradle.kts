@@ -29,6 +29,8 @@ dependencyResolutionManagement {
                 password = providers.gradleProperty("MAPBOX_DOWNLOADS_TOKEN").get()
             }
         }
+        maven("https://jitpack.io")  // 👈 graf
+
     }
 }
 

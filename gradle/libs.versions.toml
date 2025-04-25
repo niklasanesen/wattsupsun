@@ -21,6 +21,7 @@ mapboxSearchAndroid = "2.8.0-rc.1"
 mapboxSearchAndroidUi = "2.8.0-rc.1"
 mapboxSearchAndroidUiVersion = "2.7.0"
 mapsCompose = "11.10.2"
+mpandroidchart = "v3.1.0"
 navigationCompose = "2.8.9"
 placeAutocomplete = "2.8.0-rc.1"
 appcompat = "1.7.0"
@@ -56,6 +57,7 @@ mapbox-search-android = { module = "com.mapbox.search:mapbox-search-android", ve
 mapbox-search-android-ui = { module = "com.mapbox.search:mapbox-search-android-ui", version.ref = "mapboxSearchAndroidUi" }
 mapbox-search-android-ui-v270 = { module = "com.mapbox.search:mapbox-search-android-ui", version.ref = "mapboxSearchAndroidUiVersion" }
 maps-compose = { module = "com.mapbox.extension:maps-compose", version.ref = "mapsCompose" }
+mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 place-autocomplete = { module = "com.mapbox.search:place-autocomplete", version.ref = "placeAutocomplete" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 place-autocomplete-v270 = { module = "com.mapbox.search:place-autocomplete", version.ref = "placeAutocompleteVersion" }

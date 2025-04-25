@@ -91,6 +91,15 @@ fun InfoScreen(
             Text(text = "Laster PVGIS data...")
         }
 
+        // Viser temperaturgraf (eksempelgraf)
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Temperaturgraf (eksempeldata):",
+            style = MaterialTheme.typography.titleMedium
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        ChartWithValueDisplay() // 👈 Grafen
 
 
 
