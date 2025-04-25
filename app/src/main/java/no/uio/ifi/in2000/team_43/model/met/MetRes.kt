@@ -42,7 +42,13 @@ data class WeatherList(
 )
 
 @Serializable
+data class AggregatedData(
+    val dailyObservation: List<Pair<Instant, WeatherList>>
+)
+
+@Serializable
 data class Coordinates(
     val latitude: Double,
     val longitude: Double
 )
+
