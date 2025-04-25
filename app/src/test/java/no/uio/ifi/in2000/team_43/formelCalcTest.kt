@@ -15,13 +15,13 @@ class FormelTester {
     val x = (0..100).random()
 
     @Test
-    fun testCalcCCF() {
+    fun testCalcSnow() {
 
         //arrange
         val expected = 1 - (x.toDouble() / 8) * 0.75
 
         //act
-        val actual = calcCCF(x)
+        val actual = calcSnow(x)
 
         //assert
         assertEquals(expected, actual, 0.0001)

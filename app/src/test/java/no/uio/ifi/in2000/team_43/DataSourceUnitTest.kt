@@ -16,13 +16,12 @@ import no.uio.ifi.in2000.team_43.model.met.Coordinates
 import no.uio.ifi.in2000.team_43.model.met.ValidYears
 import no.uio.ifi.in2000.team_43.model.met.WeatherStation
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.met.formatDate
-import no.uio.ifi.in2000.team_43.utils.helperfuctions.met.getMostRecentStation
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import java.io.File
 import java.time.Instant
-import java.time.ZonedDateTime
+
 
 class DataSourceUnitTest{
     @Test

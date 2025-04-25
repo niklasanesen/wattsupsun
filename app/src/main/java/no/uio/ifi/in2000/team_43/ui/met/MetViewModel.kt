@@ -18,18 +18,6 @@ import java.time.temporal.ChronoUnit
 import kotlin.math.min
 
 
-fun calcCCF(x: Int): Double {
-    return 1 - (x.toDouble() / 8) * 0.75
-}
-
-fun calcSCF(x: Int): Double {
-    return 1 - min(x.toDouble() / 30, 1.0) * 0.3
-}
-
-fun calcGHI(x: Int, y: Int, z: Int): Double {
-    return (x * y * z).toDouble()
-}
-
 
 
 class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewModel() {
@@ -37,11 +25,21 @@ class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewM
     private val _dataSortedByDate = MutableStateFlow<AggregatedData?>(null)
     val dataSortedByDate: StateFlow<AggregatedData?> = _dataSortedByDate.asStateFlow()
 
+    private val _solarInsolationData = MutableStateFlow<List<Pair<Instant, Double>>?>(null)
+    val solarInsolationData: StateFlow<List<Pair<Instant, Double>>?> = _solarInsolationData.asStateFlow()
+
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     var nearestMaxCount = 1
     val maxAttempts = 31 //the amount of stations that match the relevant elements in Norway
+
+    fun calcRadiation(cloudData: Int, snowData: Int, globalRadiation: Int): Double {
+        val calcCloud = 1 - (cloudData.toDouble() / 8) * 0.75
+        val calcSnow = 1 - min(snowData.toDouble() / 30, 1.0) * 0.3
+
+        return (calcCloud * calcSnow * globalRadiation).toDouble()
+    }
 
     suspend fun tryGetValidYear(coordinates: Coordinates, nearestMaxCount: Int, attempts: Int = 0): ValidYears? {
         if (attempts >= maxAttempts) {
@@ -121,6 +119,7 @@ class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewM
 
                 // Create the AggregatedData object
                 _dataSortedByDate.value = AggregatedData(dailyObservation = aggregatedData)
+
 
             } catch (e: Exception) {
                 _errorMessage.value = "Error fetching data: ${e.message}"
