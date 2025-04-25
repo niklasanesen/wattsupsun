@@ -135,75 +135,143 @@ fun InfoScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
-        Text(text = "Takflate-verdier:", style = MaterialTheme.typography.titleMedium)
-        Text("Lengde: ${ctx.input?.length} m \nBredde: ${ctx.input?.width} m \nVinkel: ${ctx.input?.angle}° \nRetning: ${ctx.input?.direction}°")
-        Spacer(modifier = Modifier.height(16.dp))
-        /*
-        Text("areaInSquareMeters: ${ctx.areal?.areal}")
-        Text("lengde: ${ctx.areal?.length}")
-        Text("bredde: ${ctx.areal?.width}")
-        */
+
         Spacer(modifier = Modifier.height(12.dp))
 
         // NED HIT
         when (ctx.input?.direction) {
-            0 -> Text("Nord: Det lønner seg ikke å ha solcellepaneler, basert på retningen du har valgt.")
-            90 -> Text("Øst: Du genererer mest strøm på starten av dagen, basert på retningen du har valgt.")
-            180 -> Text("Sør: Det lønner seg å ha solcellepaneler, basert på retningen du har valgt.")
-            270 -> Text("Vest: Du genererer mest strøm på slutten av dagen, basert på retningen du har valgt.")
+            0 -> {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    backgroundColor = Color(0xFFFFCDD2) // Lys rød bakgrunn
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Nord: Det lønner seg ikke å ha solcellepaneler, basert på retningen du har valgt.",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = Color(0xFFB71C1C) // Mørkere rød tekst
+                            ),
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
+                }
+            }
+            90 -> {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    backgroundColor = Color(0xFFC8E6C9) // Lys grønn bakgrunn
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Øst: Du genererer mest strøm på starten av dagen, basert på retningen du har valgt.",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = Color(0xFF388E3C) // Mørkere grønn tekst
+                            ),
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
+                }
+            }
+            180 -> {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    backgroundColor = Color(0xFFC8E6C9) // Lys grønn bakgrunn
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Sør: Det lønner seg å ha solcellepaneler, basert på retningen du har valgt.",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = Color(0xFF388E3C) // Mørkere grønn tekst
+                            ),
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
+                }
+            }
+            270 -> {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    backgroundColor = Color(0xFFC8E6C9) // Lys grønn bakgrunn
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Vest: Du genererer mest strøm på slutten av dagen, basert på retningen du har valgt.",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = Color(0xFF388E3C) // Mørkere grønn tekst
+                            ),
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Vise PVGIS-data hvis tilgjengelig
-        Text(text = "PVGIS StrømproduksjonsData: (PVGIS) ", style = MaterialTheme.typography.titleMedium)
-        Text(text = "(Har ikke kobla så den søker etter en adresse sin posisjon, dette er en random pos i oslo)", style = MaterialTheme.typography.titleSmall)
-        if (pvgisData != null) {
-            pvgisData?.outputs?.totals?.fixed?.let { totals ->
-                Text(text = "Estimert daglig produksjon: ${totals.E_d} kWh")
-                Text(text = "Estimert månedlig produksjon: ${totals.E_m} kWh")
-                Text(text = "Estimert årlig produksjon: ${totals.E_y} kWh")
-            }
-        } else {
-            Text(text = "Laster PVGIS data...")
-        }
-
-
-
-
-        // Vise Strømpris-data hvis tilgjengelig
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "Strømpris (dato 29.03.2025 prisområde NO1 er selvvalgt) (StromPris):", style = MaterialTheme.typography.titleMedium)
-        Text(text = "Trenger å fikse så den viser etter dagens dato og adresse sitt prisområde", style = MaterialTheme.typography.titleSmall)
-
-        if (stromprisData != null) {
-            stromprisData?.forEach { strompris ->
-                Text(text = "Kl: ${getTimeFromDate(strompris.time_start)} - Pris: ${strompris.NOK_per_kWh} kr/kWh")
-            }
-        } else {
-            Text(text = "Laster strømpris data...")
-        }
-
-
-        // Viser DRcalc data (sol innstråling)
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "Gjennomsnittlig stråling i Juli (DRcalc):", style = MaterialTheme.typography.titleMedium)
-        Text(text = "Trenger å fikse så den viser etter en adresse sin pos og selvvalgt mnd", style = MaterialTheme.typography.titleSmall)
-
-        if (drCalcData != null) {
-            drCalcData!!.forEach { data ->
-                Text(text = "Kl: ${data.time} - Solinnstråling: ${data.G_i} W/m²")
-            }
-
-            // Beregn total solinnstråling for dagen
-            val drcalcTotal = drCalcTotalSum
-            Text(text = "Totalt for hele dagen: $drcalcTotal W/m²")
-        } else {
-            Text(text = "Laster DRcalc data...")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
+//        // Vise PVGIS-data hvis tilgjengelig
+//        Text(text = "PVGIS StrømproduksjonsData: (PVGIS) ", style = MaterialTheme.typography.titleMedium)
+//        Text(text = "(Har ikke kobla så den søker etter en adresse sin posisjon, dette er en random pos i oslo)", style = MaterialTheme.typography.titleSmall)
+//        if (pvgisData != null) {
+//            pvgisData?.outputs?.totals?.fixed?.let { totals ->
+//                Text(text = "Estimert daglig produksjon: ${totals.E_d} kWh")
+//                Text(text = "Estimert månedlig produksjon: ${totals.E_m} kWh")
+//                Text(text = "Estimert årlig produksjon: ${totals.E_y} kWh")
+//            }
+//        } else {
+//            Text(text = "Laster PVGIS data...")
+//        }
+//
+//
+//
+//
+//        // Vise Strømpris-data hvis tilgjengelig
+//        Spacer(modifier = Modifier.height(16.dp))
+//        Text(text = "Strømpris (dato 29.03.2025 prisområde NO1 er selvvalgt) (StromPris):", style = MaterialTheme.typography.titleMedium)
+//        Text(text = "Trenger å fikse så den viser etter dagens dato og adresse sitt prisområde", style = MaterialTheme.typography.titleSmall)
+//
+//        if (stromprisData != null) {
+//            stromprisData?.forEach { strompris ->
+//                Text(text = "Kl: ${getTimeFromDate(strompris.time_start)} - Pris: ${strompris.NOK_per_kWh} kr/kWh")
+//            }
+//        } else {
+//            Text(text = "Laster strømpris data...")
+//        }
+//
+//
+//        // Viser DRcalc data (sol innstråling)
+//        Spacer(modifier = Modifier.height(16.dp))
+//        Text(text = "Gjennomsnittlig stråling i Juli (DRcalc):", style = MaterialTheme.typography.titleMedium)
+//        Text(text = "Trenger å fikse så den viser etter en adresse sin pos og selvvalgt mnd", style = MaterialTheme.typography.titleSmall)
+//
+//        if (drCalcData != null) {
+//            drCalcData!!.forEach { data ->
+//                Text(text = "Kl: ${data.time} - Solinnstråling: ${data.G_i} W/m²")
+//            }
+//
+//            // Beregn total solinnstråling for dagen
+//            val drcalcTotal = drCalcTotalSum
+//            Text(text = "Totalt for hele dagen: $drcalcTotal W/m²")
+//        } else {
+//            Text(text = "Laster DRcalc data...")
+//        }
+//
+//        Spacer(modifier = Modifier.height(16.dp))
 
         LaunchedEffect(ctx.coords) {
             ctx.coords?.let {
