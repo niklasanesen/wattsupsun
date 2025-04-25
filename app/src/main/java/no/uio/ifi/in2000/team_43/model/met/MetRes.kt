@@ -16,6 +16,7 @@ data class WeatherStation(
 @Serializable
 data class ValidYears(
     @Serializable(with = InstantSerializer::class)
+    val validFrom: Instant?,
     val validTo: Instant?,
     val elementId: String,
     val weatherStation: WeatherStation

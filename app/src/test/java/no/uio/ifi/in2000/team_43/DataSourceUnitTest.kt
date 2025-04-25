@@ -59,6 +59,7 @@ class DataSourceUnitTest{
         val tempElement = "mean(air_temperature P1D)"
 
         val validYears = ValidYears(
+            validFrom = null,
             validTo = Instant.parse("2025-01-01T00:00:00Z"),
             elementId = tempElement,
             weatherStation = station

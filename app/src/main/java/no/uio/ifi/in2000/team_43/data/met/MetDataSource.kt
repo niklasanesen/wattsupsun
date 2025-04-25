@@ -90,6 +90,7 @@ class MetDataSource(private val client: HttpClient) {
                     .map { obj ->
                         val timeObj = obj.asJsonObject
                         ValidYears(
+                            validFrom = null,
                             validTo = timeObj.get("validTo")?.asString?.let { Instant.parse(it) },
                             elementId = timeObj.get("elementId").asString,
                             weatherStation = station

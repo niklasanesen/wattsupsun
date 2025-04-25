@@ -32,8 +32,8 @@ fun calcGHI(x: Int, y: Int, z: Int): Double {
 
 class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewModel() {
 
-    private val _data = MutableStateFlow<WeatherList?>(null)
-    val data: StateFlow<WeatherList?> = _data.asStateFlow()
+    private val _dataSortedByDate = MutableStateFlow<WeatherList?>(null)
+    val dataSortedByDate: StateFlow<WeatherList?> = _dataSortedByDate.asStateFlow()
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
@@ -41,7 +41,7 @@ class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewM
     fun fetchWeatherData(coordinates: Coordinates) {
         viewModelScope.launch {
             try {
-                val station: WeatherStation? = metRepo.getWeatherStation(coordinates)
+                val station: WeatherStation? = metRepo.getWeatherStation(coordinates, 1)
                 if (station == null) {
                     _errorMessage.value = "Weather station not found"
                     return@launch
@@ -136,7 +136,7 @@ class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewM
                     timeMeasured = null
                 )
 
-                _data.value = WeatherList(
+                _dataSortedByDate.value = WeatherList(
                     dataList = listOf(averageTempObj, averageCloudObj, averageSnowObj)
                 )
 

@@ -13,7 +13,7 @@ import java.time.ZonedDateTime
 
 class MetRepository(private val metDataSource: MetDataSource = MetDataSource(APIClient.client)) {
 
-    suspend fun getWeatherStation(coordinates: Coordinates): WeatherStation? {
+    suspend fun getWeatherStation(coordinates: Coordinates, nearestMax: Int): WeatherStation? {
         return metDataSource.getWeatherStationData(coordinates)
     }
 
@@ -42,7 +42,12 @@ class MetRepository(private val metDataSource: MetDataSource = MetDataSource(API
     }
 
     suspend fun getGlobalRadiationData(weatherStation: WeatherStation, validYears: ValidYears): WeatherList? {
-        //implementation pending
+        //TODO: Implement global radiation
+        return null
+    }
+
+    suspend fun getSnowThickness(weatherStation: WeatherStation, validYears: ValidYears): WeatherList? {
+        //TODO: implement snow thickness
         return null
     }
 }
