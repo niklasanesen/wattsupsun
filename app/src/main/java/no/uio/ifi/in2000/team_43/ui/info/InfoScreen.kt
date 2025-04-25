@@ -89,7 +89,7 @@ fun InfoScreen(
                 )
                 Text(
                     text = "Coords: ${ctx.coords?.coordinates()}",
-                    style = MaterialTheme.typography.bodyMedium.copy(
+                    style = MaterialTheme.typography.titleMedium.copy(
                         fontSize = 20.sp, // Økt skriftstørrelse for bedre lesbarhet
                         color = MaterialTheme.colorScheme.primary,
                         letterSpacing = 0.5.sp
