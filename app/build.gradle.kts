@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.ktor.serialization.gson)
     implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.logging)
+    testImplementation(libs.ktor.client.mock)
 
     // Navigation
     implementation(libs.androidx.navigation.compose)
@@ -79,39 +80,45 @@ dependencies {
     //mapbox
     implementation(libs.android)
     implementation(libs.maps.compose)
-    implementation("com.mapbox.search:autofill:2.8.0-rc.1")
-    implementation("com.mapbox.search:discover:2.8.0-rc.1")
+    implementation(libs.autofill)
+    implementation(libs.discover)
     implementation(libs.place.autocomplete)
-    implementation("com.mapbox.search:offline:2.8.0-rc.1")
+    implementation(libs.offline)
     implementation(libs.mapbox.search.android)
     implementation(libs.mapbox.search.android.ui)
 
     // navigation
     implementation(libs.androidx.navigation.compose)
     // meterial3
-    implementation("androidx.compose.material3:material3:1.3.1")
+    implementation(libs.material3)
 
     // turf
-    implementation("com.mapbox.mapboxsdk:mapbox-sdk-geojson:7.3.2")
-    implementation("com.mapbox.mapboxsdk:mapbox-sdk-services:7.3.2")
-    implementation("com.mapbox.mapboxsdk:mapbox-sdk-turf:7.3.2")
-    implementation("com.mapbox.mapboxsdk:mapbox-sdk-core:7.3.2")
+    implementation(libs.mapbox.sdk.geojson)
+    implementation(libs.mapbox.sdk.services)
+    implementation(libs.mapbox.sdk.turf)
+    implementation(libs.mapbox.sdk.core)
 
     // BottomNavigation
-    implementation("androidx.compose.material:material:1.7.8")
+    implementation(libs.androidx.material)
 
     // testing
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3") // Use the latest version
-    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation(libs.kotlinx.coroutines.test) // Use the latest version
+    testImplementation(libs.mockk)
 
     // Mocking (Mockito)
-    testImplementation ("org.mockito:mockito-core:5.5.0")
-    testImplementation ("org.mockito.kotlin:mockito-kotlin:5.0.0")
+    testImplementation (libs.mockito.core)
+    testImplementation (libs.mockito.kotlin)
+    testImplementation(kotlin("test"))
 
+
+    // Coroutine testing Turbine
+    testImplementation("app.cash.turbine:turbine:1.2.0")
+    testImplementation ("androidx.arch.core:core-testing:2.2.0")
 
     //graf
     implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation ("androidx.compose.ui:ui:1.5.0")
     implementation ("androidx.compose.material:material:1.5.0")
+
 
 }

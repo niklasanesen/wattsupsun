@@ -7,30 +7,33 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.team_43.data.met.MetRepository
+import no.uio.ifi.in2000.team_43.model.met.AggregatedData
 import no.uio.ifi.in2000.team_43.model.met.Coordinates
 import no.uio.ifi.in2000.team_43.model.met.WeatherList
 import no.uio.ifi.in2000.team_43.model.met.WeatherStation
 import no.uio.ifi.in2000.team_43.model.met.ValidYears
 import no.uio.ifi.in2000.team_43.model.met.WeatherData
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import kotlin.math.min
 import kotlin.math.cos
 import kotlin.math.PI
 
+fun calcInsolation(cloudData: Double, snowData: Double, globalRadiation: Double): Double {
+    val calcCloud = 1 - (cloudData.toDouble() / 8) * 0.75
+    val calcSnow = 1 - min(snowData.toDouble() / 30, 1.0) * 0.3
 
-// test
-
-fun calcCCF(x: Int): Double {
-    return 1 - (x.toDouble() / 8) * 0.75
+    return (calcCloud * calcSnow * globalRadiation).toDouble()
 }
 
-fun calcSCF(x: Int): Double {
-    return 1 - min(x.toDouble() / 30, 1.0) * 0.3
-}
+class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewModel() {
 
-fun calcGHI(x: Int, y: Int, z: Int): Double {
-    return (x * y * z).toDouble()
-}
+    private val _dataSortedByDate = MutableStateFlow<AggregatedData?>(null)
+    val dataSortedByDate: StateFlow<AggregatedData?> = _dataSortedByDate.asStateFlow()
 
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+    
 // Beregninger for stromproduksjon
 
 // kort forklart:
@@ -77,117 +80,103 @@ fun beregnEffekttap(optimalEffekt: Double, avvikVinkelGrader: Double): Double {
     return effekt.coerceAtLeast(0.0)
 }
 
+      private suspend fun fetchWeatherDataForElement(validYears: ValidYears, elementId: String): WeatherList? {
+        val validYearsElement = ValidYears(
+            elementId = elementId,
+            validFrom = validYears.validFrom,
+            validTo = validYears.validTo,
+            weatherStation = validYears.weatherStation
+        )
 
+        return when (elementId) {
+            "mean(air_temperature P1D)" -> metRepo.getDataSet(validYearsElement.weatherStation, validYearsElement)
+            "mean(cloud_area_fraction P1D)" -> metRepo.getDataSet(validYearsElement.weatherStation, validYearsElement)
+            "mean(surface_snow_thickness P1M)" -> metRepo.getSnowThickness(validYearsElement.weatherStation, validYearsElement)
+            "mean(surface_downwelling_shortwave_flux_in_air PT1H)" -> metRepo.getGlobalRadiationData(validYearsElement.weatherStation, validYearsElement)
+            else -> null
+        }
+    }
 
+    private fun aggregateDataByDate(weatherDataList: List<WeatherData>): List<Pair<Instant, WeatherList>> {
+        //Group the weather data by date
+        val groupedByDate = weatherDataList.groupBy { it.timeMeasured!!.truncatedTo(ChronoUnit.DAYS) }
 
+        groupedByDate.forEach { date ->
+            println("groupCheck Given date: ${date.key} which has amount of values: ${date.value.size}")
+        }
+        // Map the grouped data to a list of pairs
+        return groupedByDate.map { (date, weatherDataForDay) ->
+            val temp = weatherDataForDay.find { it.elementId == "mean(air_temperature P1D)" }
+            val cloud = weatherDataForDay.find { it.elementId == "mean(cloud_area_fraction P1D)" }
+            val snow = weatherDataForDay.find { it.elementId == "mean(surface_snow_thickness P1M)" }
+            val radiation = weatherDataForDay.find { it.elementId == "mean(surface_downwelling_shortwave_flux_in_air PT1H)" }
 
-class MetViewModel : ViewModel() {
-    private val metRepo = MetRepository()
+            val insolationForDate = WeatherData(
+                elementId = "mean(solar_irradiance P1D)",
+                unit = "W/m2",
+                value = calcInsolation(cloud!!.value, snow!!.value, radiation!!.value),
+                timeMeasured = weatherDataForDay[0].timeMeasured,
+                weatherStation = weatherDataForDay[0].weatherStation
+            )
+            val completeList = listOf<WeatherData>(temp!!, insolationForDate)
 
-    private val _data = MutableStateFlow<WeatherList?>(null)
-    val data: StateFlow<WeatherList?> = _data.asStateFlow()
+            Pair(date, WeatherList(dataList = completeList))
+        }.sortedBy { it.first }
+    }
 
-    private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     fun fetchWeatherData(coordinates: Coordinates) {
         viewModelScope.launch {
             try {
-                val station: WeatherStation? = metRepo.getWeatherStation(coordinates)
+                val station: WeatherStation? = metRepo.getWeatherStation(coordinates, 1)
                 if (station == null) {
                     _errorMessage.value = "Weather station not found"
                     return@launch
                 }
 
-                val validYearsTemp: ValidYears? = metRepo.getValidTime(station, "mean(air_temperature P1Y)")
-                if (validYearsTemp == null) {
-                    _errorMessage.value = "No valid years found"
+                val tempValidYears: ValidYears? = metRepo.getValidTime(station, "mean(air_temperature P1D)")
+                if(tempValidYears == null) {
+                    _errorMessage.value = "Temp year not found"
                     return@launch
                 }
 
-                val tempWeatherList: WeatherList? = metRepo.getDataSet(station, validYearsTemp)
-                var averageTempData = 0.0
-                if (tempWeatherList != null) {
-                    tempWeatherList.dataList.forEach { observation ->
-                        averageTempData += observation.value
-                    }
-                    averageTempData = averageTempData/tempWeatherList.dataList.size
-                } else {
-                    _errorMessage.value = "No weather data available"
-                }
-
-                val averageTempObj = WeatherData(
-                    elementId = "mean(air_temperature P1Y)",
-                    value = averageTempData,
-                    unit = "Celsius",
-                    weatherStation = station
-
-                )
-
-                val validYearsCloud: ValidYears? = metRepo.getValidTime(station, "mean(cloud_area_fraction P1Y)")
-                if (validYearsCloud == null) {
-                    _errorMessage.value = "No valid years found"
+                val cloudValidYears: ValidYears? = metRepo.getValidTime(station, "mean(air_temperature P1D)")
+                if(cloudValidYears == null) {
+                    _errorMessage.value = "Cloud year not found"
                     return@launch
                 }
 
-                val cloudWeatherList: WeatherList? = metRepo.getDataSet(station, validYearsCloud)
-                var averageCloudData = 0.0
-                if (cloudWeatherList != null) {
-                    cloudWeatherList.dataList.forEach { observation ->
-                        averageCloudData += observation.value
-                    }
-                    averageCloudData = averageCloudData/cloudWeatherList.dataList.size
-                } else {
-                    _errorMessage.value = "No weather data available"
-                }
-
-                val averageCloudObj = WeatherData(
-                    elementId = "mean(cloud_area_fraction P1Y)",
-                    value = averageCloudData,
-                    unit = "Octas",
-                    weatherStation = station
-                )
-
-                val validYearsSnow: ValidYears? = metRepo.getValidTime(station, "mean(snow_coverage_type P1M)")
-                if (validYearsSnow == null) {
-                    _errorMessage.value = "No valid years found"
+                val snowValidYears: ValidYears? = metRepo.getValidTime(station, "mean(air_temperature P1D)")
+                if(snowValidYears == null) {
+                    _errorMessage.value = "Snow year not found"
                     return@launch
                 }
 
-                val snowWeatherList: WeatherList? = metRepo.getDataSet(station, validYearsSnow)
-                var averageSnowData = 0.0
-                if (snowWeatherList != null) {
-                    snowWeatherList.dataList.forEach { observation ->
-                        averageSnowData += observation.value
-                    }
-                    averageSnowData = averageSnowData/snowWeatherList.dataList.size
-                } else {
-                    _errorMessage.value = "No weather data available"
+                val sunValidYears: ValidYears? = metRepo.getValidTime(station, "mean(air_temperature P1D)")
+                if(sunValidYears == null) {
+                    _errorMessage.value = "Temp year not found"
+                    return@launch
                 }
 
-                val snowDesc: String =
-                    if (averageSnowData < 1.5 && averageSnowData >= 0.5) {
-                        "Mest bar mark"
-                    } else if (averageSnowData < 2.5 && averageSnowData >= 1.5) {
-                        "Like mye snødekt som bar mark"
-                    } else if (averageSnowData < 3.5 && averageSnowData >= 2.5) {
-                        "Mest snødekt mark"
-                    } else if (averageSnowData >= 3.5) {
-                        "Snø overalt"
-                    } else {
-                        "Ikke snø"
-                    }
+                val tempWeatherList = fetchWeatherDataForElement(tempValidYears, "mean(air_temperature P1D)")
+                val cloudWeatherList = fetchWeatherDataForElement(cloudValidYears, "mean(cloud_area_fraction P1D)")
+                val snowWeatherList = fetchWeatherDataForElement(snowValidYears, "mean(surface_snow_thickness P1M)")
+                val radiationWeatherList = fetchWeatherDataForElement(sunValidYears, "mean(surface_downwelling_shortwave_flux_in_air PT1H)")
 
-                val averageSnowObj = WeatherData(
-                    elementId = "mean(snow_coverage_type P1M)",
-                    value = averageSnowData,
-                    unit = snowDesc,
-                    weatherStation = station
+                // Check for null responses
+                if (tempWeatherList == null || cloudWeatherList == null || snowWeatherList == null || radiationWeatherList == null) {
+                    _errorMessage.value = "No weather data available for one or more elements."
+                    return@launch
+                }
+
+                // Aggregate data by date
+                val aggregatedData = aggregateDataByDate(
+                    tempWeatherList.dataList + cloudWeatherList.dataList + snowWeatherList.dataList + radiationWeatherList.dataList
                 )
 
-                _data.value = WeatherList(
-                    dataList = listOf(averageTempObj, averageCloudObj, averageSnowObj)
-                )
+                // Create the AggregatedData object
+                _dataSortedByDate.value = AggregatedData(dailyObservation = aggregatedData)
+
 
             } catch (e: Exception) {
                 _errorMessage.value = "Error fetching data: ${e.message}"
