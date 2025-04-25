@@ -146,28 +146,10 @@ fun InfoScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                val cloudWeatherData = weatherDataList.dataList[1] //skydekke
+                val insolationWeatherData = weatherDataList.dataList[1] //solinnstråling
 
                 Text(
-                    text = "Skydekke: ${cloudWeatherData.value} ${cloudWeatherData.unit}",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                val snowWeatherData = weatherDataList.dataList[2] //snødekke
-
-                Text(
-                    text = "Snømengde: ${snowWeatherData.value} ${snowWeatherData.unit}",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                val radiationWeatherData = weatherDataList.dataList[3] //globalstråling
-
-                Text(
-                    text = "Global Solstråling: ${radiationWeatherData.value} ${radiationWeatherData.unit}",
+                    text = "Solinnstråling: ${insolationWeatherData.value} ${insolationWeatherData.unit}",
                     style = MaterialTheme.typography.headlineMedium
                 )
 

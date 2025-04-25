@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.team_43.ui.met
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,16 +26,13 @@ class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewM
     private val _dataSortedByDate = MutableStateFlow<AggregatedData?>(null)
     val dataSortedByDate: StateFlow<AggregatedData?> = _dataSortedByDate.asStateFlow()
 
-    private val _solarInsolationData = MutableStateFlow<List<Pair<Instant, Double>>?>(null)
-    val solarInsolationData: StateFlow<List<Pair<Instant, Double>>?> = _solarInsolationData.asStateFlow()
-
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     var nearestMaxCount = 1
     val maxAttempts = 31 //the amount of stations that match the relevant elements in Norway
 
-    fun calcRadiation(cloudData: Int, snowData: Int, globalRadiation: Int): Double {
+    fun calcInsolation(cloudData: Double, snowData: Double, globalRadiation: Double): Double {
         val calcCloud = 1 - (cloudData.toDouble() / 8) * 0.75
         val calcSnow = 1 - min(snowData.toDouble() / 30, 1.0) * 0.3
 
@@ -42,6 +40,7 @@ class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewM
     }
 
     suspend fun tryGetValidYear(coordinates: Coordinates, nearestMaxCount: Int, attempts: Int = 0): ValidYears? {
+        println("MetViewModel Trying to get valid year for station, attempt $attempts")
         if (attempts >= maxAttempts) {
             _errorMessage.value = "Unable to find valid years after $maxAttempts attempts."
             return null
@@ -84,13 +83,31 @@ class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewM
         //Group the weather data by date
         val groupedByDate = weatherDataList.groupBy { it.timeMeasured.truncatedTo(ChronoUnit.DAYS) }
 
+        groupedByDate.forEach { date ->
+            println("groupCheck Given date: ${date.key} which has amount of values: ${date.value.size}")
+        }
         // Map the grouped data to a list of pairs
         return groupedByDate.map { (date, weatherDataForDay) ->
-            Pair(date, WeatherList(dataList = weatherDataForDay))
+            val temp = weatherDataForDay.find { it.elementId == "mean(air_temperature P1D)" }
+            val cloud = weatherDataForDay.find { it.elementId == "mean(cloud_area_fraction P1D)" }
+            val snow = weatherDataForDay.find { it.elementId == "mean(surface_snow_thickness P1M)" }
+            val radiation = weatherDataForDay.find { it.elementId == "mean(surface_downwelling_shortwave_flux_in_air PT1H)" }
+
+            val insolationForDate = WeatherData(
+                elementId = "mean(solar_irradiance P1D)",
+                unit = "W/m2",
+                value = calcInsolation(cloud!!.value, snow!!.value, radiation!!.value),
+                timeMeasured = weatherDataForDay[0].timeMeasured,
+                weatherStation = weatherDataForDay[0].weatherStation
+            )
+            val completeList = listOf<WeatherData>(temp!!, insolationForDate)
+
+            Pair(date, WeatherList(dataList = completeList))
         }.sortedBy { it.first }
     }
 
     fun fetchWeatherData(coordinates: Coordinates) {
+        println("MetViewModel fetchWeatherData() launched")
         viewModelScope.launch {
             try {
 
@@ -120,8 +137,8 @@ class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewM
                 // Create the AggregatedData object
                 _dataSortedByDate.value = AggregatedData(dailyObservation = aggregatedData)
 
-
             } catch (e: Exception) {
+                println("Error fetching data: ${e.message}")
                 _errorMessage.value = "Error fetching data: ${e.message}"
             }
         }
