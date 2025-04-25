@@ -16,6 +16,8 @@ import no.uio.ifi.in2000.team_43.model.met.WeatherData
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import kotlin.math.min
+import kotlin.math.cos
+import kotlin.math.PI
 
 fun calcInsolation(cloudData: Double, snowData: Double, globalRadiation: Double): Double {
     val calcCloud = 1 - (cloudData.toDouble() / 8) * 0.75
@@ -31,8 +33,54 @@ class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewM
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+    
+// Beregninger for stromproduksjon
 
-    private suspend fun fetchWeatherDataForElement(validYears: ValidYears, elementId: String): WeatherList? {
+// kort forklart:
+// 1. alcGHI gir forveentet effekt basert på skydekke, snø per kvadratmeter
+// 2. Gange dette med antall kvadratmeter med flate
+// 3. HVIS temp er over 25 kan man forvente tap på -0.3% per grad (kilde: https://www.otovo.no/blog/solcellepanel-solceller/solceller-norge-virkningsgrad/)
+// (sidenote: ved under 25 grad kan man få økt produksjon men ikke funnet kilde som begrunner enda)
+// 4. Man må anta at bruker har valgt anbefalt optimalvinkel, HVIS IKKE: egen formel som justerer
+
+
+fun beregnStromproduksjon(
+    solinnstraling: Double, // data hentet via calcGHI i kwh/m2
+    paneletsKvadratmeter: Double, // i m2
+    temperatur: Double, // fra met?
+    anbefaltVinkelValgt: Boolean, // Legg inn false hvis bruker IKKE har valgt optimal vinkel
+    avvikVinkel: Double // Antall grader vinkelen avviker fra
+): Double {
+
+    val OPTIMAL_TEMP: Double = 25.0;
+    val FEIL_TEMP_KORREKSJON: Double = 0.003; // 0.3%
+    var beregnetSum: Double = 0.0; // kwh/m2
+
+    beregnetSum = solinnstraling  * paneletsKvadratmeter;
+
+    if (temperatur > OPTIMAL_TEMP) {
+        val tempOverOptimal = temperatur - OPTIMAL_TEMP;
+        val korreksjonsfaktor = 1 - (tempOverOptimal * FEIL_TEMP_KORREKSJON);
+
+        beregnetSum = beregnetSum * korreksjonsfaktor
+
+    }
+
+    if(!anbefaltVinkelValgt) {
+        beregnetSum = beregnEffekttap(beregnetSum, avvikVinkel)
+    }
+
+    return beregnetSum;
+}
+
+// Hjelpefunksjon for beregnStromproduksjon()
+fun beregnEffekttap(optimalEffekt: Double, avvikVinkelGrader: Double): Double {
+    val vinkelRad = avvikVinkelGrader * PI / 180  // konverter til radianer (altså fra grader til tallverdi)
+    val effekt = optimalEffekt * cos(vinkelRad)
+    return effekt.coerceAtLeast(0.0)
+}
+
+      private suspend fun fetchWeatherDataForElement(validYears: ValidYears, elementId: String): WeatherList? {
         val validYearsElement = ValidYears(
             elementId = elementId,
             validFrom = validYears.validFrom,
