@@ -367,6 +367,8 @@ fun InfoScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        ChartWithValueDisplay() // grafen
+
         Button(
             onClick = {/*TODO*/},
             modifier = Modifier
