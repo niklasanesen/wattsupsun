@@ -243,7 +243,7 @@ fun SatelliteScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Klikk for å legge til punkt på takflaten",
+                    text = "Klikk for å legge til punkt på takflaten. Drag & Drop til søppelkasta for å slette.",
                     style = TextStyle(
                         fontSize = 16.sp,
                         lineHeight = 24.sp,

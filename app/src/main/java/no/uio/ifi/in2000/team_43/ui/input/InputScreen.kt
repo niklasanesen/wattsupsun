@@ -161,7 +161,7 @@ fun InputScreen(
                             }
                         }
                     },
-                    label = { Text("Vinkel i °") },
+                    label = { Text("Takvinkel i °") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
                     keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })

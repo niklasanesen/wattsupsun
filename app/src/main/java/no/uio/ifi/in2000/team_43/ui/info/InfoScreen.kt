@@ -68,10 +68,10 @@ fun InfoScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         when (ctx.input?.direction) {
-            0 -> Text("Nord: Det lønner seg ikke å ha solcellepaneler")
-            90 -> Text("Øst: Du genererer mest strøm på starten av dagen")
-            180 -> Text("Sør: Det lønner seg å ha solcellepaneler")
-            270 -> Text("Vest: Du genererer mest strøm på slutten av dagen")
+            0 -> Text("Nord: Det lønner seg ikke å ha solcellepaneler, basert på retningen du har valgt.")
+            90 -> Text("Øst: Du genererer mest strøm på starten av dagen, basert på retningen du har valgt.")
+            180 -> Text("Sør: Det lønner seg å ha solcellepaneler, basert på retningen du har valgt.")
+            270 -> Text("Vest: Du genererer mest strøm på slutten av dagen, basert på retningen du har valgt.")
         }
 
         Spacer(modifier = Modifier.height(32.dp))
