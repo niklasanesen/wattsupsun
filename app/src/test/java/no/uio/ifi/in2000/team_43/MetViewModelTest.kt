@@ -145,5 +145,4 @@ class MetViewModelTest {
             coVerify { metRepo.getSnowThickness(any(), any()) }
             coVerify { metRepo.getGlobalRadiationData(any(), any()) }
         }
-
 }

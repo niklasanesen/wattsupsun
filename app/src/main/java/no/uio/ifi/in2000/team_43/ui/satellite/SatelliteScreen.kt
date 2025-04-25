@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.team_43.ui.satellite
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,46 +18,71 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mapbox.geojson.Feature
 import com.mapbox.geojson.Point
 import com.mapbox.geojson.Polygon
+import com.mapbox.maps.MapboxMap
+import com.mapbox.maps.ScreenCoordinate
 import com.mapbox.maps.Style
+import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
 import com.mapbox.maps.extension.compose.annotation.IconImage
 import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
 import com.mapbox.maps.extension.compose.annotation.generated.PolygonAnnotation
+import com.mapbox.maps.extension.compose.rememberMapState
 import com.mapbox.maps.extension.compose.style.MapStyle
+import com.mapbox.maps.extension.style.expressions.dsl.generated.length
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import com.mapbox.turf.TurfMeasurement
 import no.uio.ifi.in2000.team_43.R
+import no.uio.ifi.in2000.team_43.model.areal.Areal
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
+import no.uio.ifi.in2000.team_43.model.map.RoofPolygon
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.map.getBitmapFromVectorDrawable
+import kotlin.math.floor
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun SatelliteScreen(
     modifier: Modifier = Modifier,
     ctx: Ctx,
-    onNextBtnClicked: (area: Double) -> (Unit)
+    onNextBtnClicked: (areal: Areal) -> (Unit)
 ) {
 
-    var points by remember { mutableStateOf(listOf<Point>()) }
     var areaInSquareMeters by remember { mutableDoubleStateOf(0.0) }
+    var totalAreaInSquareMeters by remember { mutableDoubleStateOf(0.0) }
+
+    // Endre til lengde og bredde istedenfor areal
+    var length by remember { mutableDoubleStateOf(0.0) }
+    var width by remember { mutableDoubleStateOf(0.0) }
+
+    var points by remember { mutableStateOf(listOf<Point>()) }
     val pointAnnotations = remember { mutableStateListOf<PointAnnotationOptions>() }
     val context = LocalContext.current
+    val savedPolygons = remember { mutableStateListOf<RoofPolygon>() }
+
+    var trashAreaOffset by remember { mutableStateOf(ScreenCoordinate(0.0, 0.0)) }
+    var trashAreaSize by remember { mutableStateOf(ScreenCoordinate(0.0, 0.0)) }
+    val mapboxMapState = remember { mutableStateOf<MapboxMap?>(null) }
 
     val bitmap = remember {
         try {
@@ -94,15 +120,21 @@ fun SatelliteScreen(
                             .withIconColor("#FF0000")
                     )
                 }
+
+                
                 true
             }
         ) {
+            MapEffect(Unit) { mapView ->
+                mapboxMapState.value = mapView.mapboxMap
+            }
             if (mapIconImage != null && points.isNotEmpty()) {
                 points.forEachIndexed { index, point ->
                     PointAnnotation(point = point) {
                         iconImage = mapIconImage
                         iconSize = 1.0
                         iconColor = Color.Red  // Red color as a string
+
                     }
                 }
             }
@@ -120,8 +152,27 @@ fun SatelliteScreen(
                 areaInSquareMeters = TurfMeasurement.area(polygon)
                 Log.d("PolygonArea", "Area: $areaInSquareMeters square meters")
 
+                // Vil heller ha lengde og bredde:
+                length = TurfMeasurement.distance(points[0], points[1], "metres")
+                width = TurfMeasurement.distance(points[1], points[2], "metres")
+                Log.i("Lengde og bredde", "$length, $width")
+
+
+                savedPolygons.add(
+                    RoofPolygon(points = closedPoints, area = areaInSquareMeters)
+                )
+                totalAreaInSquareMeters += areaInSquareMeters
+
+                points = emptyList()
+                // areaInSquareMeters = 0.0 -- Kommenterer ut dette for må fikse så man ikke kan legge til flere takflater
+            } else {
+                Log.e("PolygonValidation", "Polygon must have exactly 4 points. Current count: ${points.size}")
+            }
+
+            savedPolygons.forEach { roofPolygon ->
+                MapEffect(Unit) { }
                 PolygonAnnotation(
-                    points = listOf(closedPoints),
+                    points = listOf(roofPolygon.points),
                 ) {
                     fillColor = Color.LightGray
                     fillOpacity = 0.5
@@ -130,13 +181,51 @@ fun SatelliteScreen(
                         true
                     }.onLongClicked {
                         true
-                    }.onDragged {
+                    }.onDragged { dragEvent ->
+                        // Access the polygon's current geometry
+                        val currentGeometry = dragEvent.geometry
+
+                        // If you need a specific point (like the center), you can calculate it
+                        val polygonFeature = Feature.fromGeometry(currentGeometry)
+                        val centerFeature = TurfMeasurement.center(polygonFeature)
+                        val centerPoint = centerFeature.geometry() as Point
+
+                        mapboxMapState.value?.let { mapboxMap ->
+                            val screenPos = mapboxMap.pixelForCoordinate(centerPoint)
+                            Log.d("position", "${screenPos.x} is the x, ${screenPos.y} is the y")
+                            // Check if inside trash area
+                            val insideTrash =
+                                screenPos.x in trashAreaOffset.x..(trashAreaOffset.x + trashAreaSize.x) &&
+                                        screenPos.y in trashAreaOffset.y..(trashAreaOffset.y + trashAreaSize.y)
+                            Log.d("TrashCheck", "Inside trash: $insideTrash")
+
+                            if (insideTrash) {
+                                savedPolygons.remove(roofPolygon)
+                                totalAreaInSquareMeters -= roofPolygon.area
+                            }
+                        }
                     }.also {
                         it.isDraggable = true
                     }
                 }
-            } else {
-                Log.e("PolygonValidation", "Polygon must have exactly 4 points. Current count: ${points.size}")
+
+            // Convert Polygon to Feature first
+                val polygonFeature = Feature.fromGeometry(
+                    Polygon.fromLngLats(listOf(roofPolygon.points))
+                )
+
+                // Now use TurfMeasurement.center with the Feature
+                val centerFeature = TurfMeasurement.center(polygonFeature)
+
+                // Extract the Point from the returned Feature
+                val centerPoint = (centerFeature.geometry() as Point)
+
+                PointAnnotation(point = centerPoint) {
+                    iconImage = mapIconImage // or null if just text
+                    iconSize = 0.5
+                    textField = "${String.format("%.1f", roofPolygon.area)} m²"
+                    textColor = Color.White
+                }
             }
         }
         Column(
@@ -154,7 +243,7 @@ fun SatelliteScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Klikk for å legge til punkt på takflaten",
+                    text = "Klikk for å legge til punkt på takflaten. Drag & Drop til søppelkasta for å slette.",
                     style = TextStyle(
                         fontSize = 16.sp,
                         lineHeight = 24.sp,
@@ -165,15 +254,16 @@ fun SatelliteScreen(
                     )
                 )
             }
-            if (points.size >= 3) {
+            if (savedPolygons.isNotEmpty()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+
                     Text(
-                        text = "${String.format("%.3f", areaInSquareMeters)} m²",
+                        text = "${String.format("%.3f", totalAreaInSquareMeters)} m²",
                         style = TextStyle(
                             fontSize = 16.sp,
                             lineHeight = 24.sp,
@@ -183,12 +273,39 @@ fun SatelliteScreen(
                         )
                     )
                     Button(
-                        onClick = {onNextBtnClicked(areaInSquareMeters)},
+                        onClick = {onNextBtnClicked(Areal(areaInSquareMeters, floor(length), floor(width)))},
                         enabled = true,
                     ) {
                         Text("Neste")
                     }
                 }
+            }
+            // Trash area (bottom left)
+            Box(
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(100.dp)
+                    .background(Color.Red.copy(alpha = 0.6f), RoundedCornerShape(16.dp))
+                    .onGloballyPositioned {
+                        val position = it.localToWindow(Offset.Zero)
+                        trashAreaOffset = ScreenCoordinate(position.x.toDouble(), position.y.toDouble())
+                        trashAreaSize = ScreenCoordinate(it.size.width.toDouble(), it.size.height.toDouble())
+                        Log.d("TrashArea", "Trash area: x: ${trashAreaOffset.x}, y: ${trashAreaOffset.y}, width: ${trashAreaSize.x}, height: ${trashAreaSize.y}")
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text("🗑", fontSize = 32.sp)
+            }
+            //Undo last point button
+            Button(
+                onClick = {
+                    if (points.isNotEmpty()) {
+                        points = points.dropLast(1)
+                    }
+                },
+                enabled = points.isNotEmpty()
+            ) {
+                Text("Angre punkt")
             }
         }
     }

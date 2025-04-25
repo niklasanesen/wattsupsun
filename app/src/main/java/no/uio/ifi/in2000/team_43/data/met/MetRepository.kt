@@ -17,7 +17,6 @@ import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
 class MetRepository(private val metDataSource: MetDataSource = MetDataSource(APIClient.client)) {
-
     suspend fun getWeatherStation(coordinates: Coordinates, nearestMaxCount: Int): WeatherStation? {
         return metDataSource.getWeatherStationData(coordinates, nearestMaxCount)
     }
@@ -186,7 +185,6 @@ class MetRepository(private val metDataSource: MetDataSource = MetDataSource(API
                 )
             }
         }
-
         return WeatherList(dataList = dataForAllDays)
     }
 }

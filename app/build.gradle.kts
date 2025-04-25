@@ -110,7 +110,13 @@ dependencies {
     testImplementation (libs.mockito.kotlin)
     testImplementation(kotlin("test"))
 
+
     // Coroutine testing Turbine
     testImplementation("app.cash.turbine:turbine:1.2.0")
     testImplementation ("androidx.arch.core:core-testing:2.2.0")
+
+    //graf
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation ("androidx.compose.ui:ui:1.5.0")
+    implementation ("androidx.compose.material:material:1.5.0")
 }
