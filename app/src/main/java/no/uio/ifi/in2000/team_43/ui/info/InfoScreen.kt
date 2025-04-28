@@ -18,14 +18,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
+import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
 import no.uio.ifi.in2000.team_43.model.met.Coordinates
 import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
@@ -33,6 +36,10 @@ import no.uio.ifi.in2000.team_43.ui.strompris.StromprisViewModel
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import no.uio.ifi.in2000.team_43.data.DataStoreManager
 
 // test
 
@@ -50,6 +57,10 @@ fun InfoScreen(
     val drCalcData by pvgisViewModel.drCalcData.collectAsState() // Henter DRcalc data
     val drCalcTotalSum by pvgisViewModel.drCalcDataTotalSum.collectAsState() // Henter kalkulert totalsum
     val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata
+
+    val context = LocalContext.current
+    val dataStoreManager = remember { DataStoreManager(context) }
+
 
     val errorMessage by metViewModel.errorMessage.collectAsState()
 
@@ -328,13 +339,31 @@ fun InfoScreen(
 
         ChartWithValueDisplay() // grafen
 
+        val context = LocalContext.current
+
         Button(
-            onClick = {/*TODO*/},
-            modifier = Modifier
-                .align(alignment = Alignment.End)
+            onClick = {
+                val adresse = LagreAdresse(
+                    latitude = ctx.coords?.latitude() ?: 0.0,
+                    longitude = ctx.coords?.longitude() ?: 0.0,
+                    height = ctx.input?.length?.toDouble() ?: 0.0, // NB! endret fra 'length' til 'height'
+                    width = ctx.input?.width?.toDouble() ?: 0.0,
+                    angle = ctx.input?.angle?.toDouble() ?: 0.0,
+                    direction = ctx.input?.direction?.toDouble() ?: 0.0
+                )
+
+                // Her bruker vi DataStoreManager.saveAddress()
+                CoroutineScope(Dispatchers.IO).launch {
+                    dataStoreManager.saveAddress(adresse) // Kall på den eksisterende funksjonen
+                }
+            },
+            modifier = Modifier.align(alignment = Alignment.End)
         ) {
             Text("Lagre adresse")
         }
+
+
+
     }
 
 

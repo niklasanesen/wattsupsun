@@ -1,125 +1,99 @@
 package no.uio.ifi.in2000.team_43.ui.pages
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFromBaseline
+import android.content.Context
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import no.uio.ifi.in2000.team_43.R
+import no.uio.ifi.in2000.team_43.data.DataStoreManager
+import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SavedPage(
-    modifier: Modifier = Modifier
-) {
+fun SavedPage(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val dataStoreManager = remember { DataStoreManager(context) }
+
+    // Hente listen som State
+    val addresses by dataStoreManager.addresses.collectAsState(initial = emptyList())
+
     Scaffold(
         modifier = modifier,
-        topBar = {
-            TopAppBarSaved()
-        },
+        topBar = { TopAppBarSaved() },
+        bottomBar = {
+            // Legg til en knapp nederst som sletter alle adresser
+            Button(
+                onClick = {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        dataStoreManager.deleteAllAddresses()
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text("Slett alle adresser", color = MaterialTheme.colorScheme.onError)
+            }
+        }
     ) { innerPadding ->
 
-        var addresses = listOf("Hjem", "Hytte", "Feriehus")
-
-        LazyColumn(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 20.dp)
-                .padding(innerPadding),
-            verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            items(addresses.size) { address ->
-                if (address == 0) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
-                AddressCard(address = addresses[address])
-
-                if (address == addresses.size - 1) {
-                    Spacer(modifier = Modifier.height(16.dp))
+        if (addresses.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "Ingen adresser lagret enda.")
+            }
+        } else {
+            LazyColumn(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 20.dp)
+                    .padding(innerPadding),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(addresses) { address ->
+                    AddressCard(address = address)
                 }
             }
-
         }
     }
 }
 
 @Composable
-fun AddressCard(
-    address: String
-) {
+fun AddressCard(address: LagreAdresse) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(112.dp),
-        onClick = { /*TODO*/ },
+            .height(150.dp),
+
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Text(
-            text = address,
-            modifier = Modifier
-                .paddingFromBaseline(top = 40.dp)
-                .padding(horizontal = 20.dp),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Text(
-            text = "Eksempelveien 12b, 0310 Oslo",
-            modifier = Modifier.padding(horizontal = 20.dp)
-        )
-
-        Text(
-            text = "3 solcellepaneler",
-            modifier = Modifier.padding(horizontal = 20.dp)
-        )
-
-        /*
-        Image(
-            painter = painterResource( /*id = R.drawable.Media*/),
-            contentDescription = "image description",
-            contentScale = ContentScale.FillBounds
-        )
-         */
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = "Breddegrad: ${address.latitude}")
+            Text(text = "Lengdegrad: ${address.longitude}")
+            Text(text = "Høyde: ${address.height} m")
+            Text(text = "Bredde: ${address.width} m")
+            Text(text = "Vinkel: ${address.angle}°")
+            Text(text = "Retning: ${address.direction}°")
+        }
     }
 }
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -128,22 +102,6 @@ fun TopAppBarSaved(
 ) {
     CenterAlignedTopAppBar(
         title = { Text("Lagrede adresser") },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.primary,
-        ),
-        /*
-        actions = {
-            if (currentScreen != HomeScreen.InfoApp) {
-                IconButton(onClick = { navController.navigate(HomeScreen.InfoApp.name) }) {
-                    Icon(
-                        imageVector = Icons.Filled.Info,
-                        contentDescription = "Info"
-                    )
-                }
-            }
-        },
-
-         */
+        colors = TopAppBarDefaults.topAppBarColors()
     )
 }

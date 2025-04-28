@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+
 }
 
 android {
@@ -115,8 +117,13 @@ dependencies {
     testImplementation("app.cash.turbine:turbine:1.2.0")
     testImplementation ("androidx.arch.core:core-testing:2.2.0")
 
-    //graf
+    // graf
     implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation ("androidx.compose.ui:ui:1.5.0")
     implementation ("androidx.compose.material:material:1.5.0")
+
+    // DataStore
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+
 }
