@@ -21,6 +21,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import no.uio.ifi.in2000.team_43.ui.pages.MapPage
 import no.uio.ifi.in2000.team_43.ui.pages.ProfilePage
@@ -73,4 +74,5 @@ fun ContentScreen(modifier: Modifier = Modifier, selectedIndex: Int) {
         1 -> SavedPage(modifier)
         2 -> ProfilePage(modifier)
     }
+
 }
