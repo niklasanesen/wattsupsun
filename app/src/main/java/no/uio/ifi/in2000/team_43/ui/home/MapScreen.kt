@@ -2,8 +2,10 @@ package no.uio.ifi.in2000.team_43.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -55,16 +57,10 @@ fun MapScreen(
     onInputBtnClicked: (coords: Point?) -> Unit,
     onSatelliteBtnClicked: (coords: Point?) -> Unit,
 ) {
-    // val suggestions by viewModel.suggestions.collectAsState()
+    val suggestions by viewModel.suggestions.collectAsState()
     val coords by viewModel.coords.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     var searchIsActive by remember { mutableStateOf(false) }
-
-    val suggestions = listOf(
-        "123 Main Street, San Francisco, CA",
-        "456 Park Avenue, New York, NY",
-        "789 Ocean Boulevard, Miami, FL"
-    )
 
     // keyboard stuff
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -94,18 +90,30 @@ fun MapScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 200.dp)
+                        .heightIn(max = 256.dp)
                         .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
                         .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
                     items(suggestions) { suggestion ->
-                        Text(
-                            text = suggestion,
-                            style = MaterialTheme.typography.bodyLarge,
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp)
-                        )
+                                .height(56.dp)
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = suggestion.name,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = suggestion.city,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }
@@ -113,6 +121,7 @@ fun MapScreen(
                 value = searchQuery,
                 onValueChange = {
                     searchQuery = it
+                    viewModel.search(it)
                     searchIsActive = it.isNotEmpty()
                 },
                 modifier = Modifier
