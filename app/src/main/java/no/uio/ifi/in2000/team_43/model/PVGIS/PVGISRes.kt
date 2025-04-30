@@ -1,5 +1,7 @@
 package no.uio.ifi.in2000.team_43.model.PVGIS
 
+import com.google.gson.annotations.SerializedName
+
 
 data class PVGISRes(
     val inputs: Inputs,
@@ -86,8 +88,8 @@ data class MonthlyEntry(
     val month: Int,
     val E_d: Double,
     val E_m: Double,
-    val H_i_d: Double,
-    val H_i_m: Double,
+    @SerializedName("H(i)_d") val H_i_d: Double,
+    @SerializedName("H(i)_m") val H_i_m: Double,
     val SD_m: Double
 )
 

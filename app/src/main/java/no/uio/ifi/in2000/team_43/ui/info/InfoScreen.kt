@@ -46,11 +46,14 @@ import no.uio.ifi.in2000.team_43.ui.met.beregnStromproduksjon
 import java.time.Instant
 
 import androidx.compose.runtime.setValue
+import com.mapbox.maps.extension.style.expressions.dsl.generated.length
+import no.uio.ifi.in2000.team_43.model.PVGIS.MonthlyEntry
 
 // for måned velger
 import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.ChartWithValueDisplay //graf
 import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.GrafMeasurement
 import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.MonthSelector //side Scroll for å velge måned
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.ProductionCalc
 import java.time.ZoneId
 
 
@@ -71,10 +74,15 @@ fun InfoScreen(
     val drCalcTotalSum by pvgisViewModel.drCalcDataTotalSum.collectAsState() // Henter kalkulert totalsum
     val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata
 
+
     val produksjonsliste = mutableListOf<Pair<Instant, Double>>()  // strømproduskjon for alle dager i et år
 
     val context = LocalContext.current
     val dataStoreManager = remember { DataStoreManager(context) }
+
+    // For pvgis beregning/data
+    val pvgisSolData by pvgisViewModel.productionData.collectAsState() // Henter pvgis solinnstrålingsdata
+    val ferdigBeregnetProdData = mutableListOf<Double>() // legger inn beregnet strøm produksjonsdata
 
 
     val errorMessage by metViewModel.errorMessage.collectAsState()
@@ -82,6 +90,18 @@ fun InfoScreen(
     val scrollState = rememberScrollState()
 
     var selectedMonth by remember { mutableStateOf(0) } // 0 = Januar
+
+
+    // test
+    // For å vise hvordan man henter månedlig data fra pvgis tool
+    val dataene: List<MonthlyEntry>? = pvgisData?.outputs?.monthly?.fixed
+
+    if (dataene != null) {
+        dataene.forEachIndexed() {index, mnd ->
+            Log.d("testpvgisM", "global irradiance mnd nr. $index: ${mnd.H_i_m} kWh/m2/month")
+
+        }
+    }
 
 
     Column(modifier = modifier.padding(20.dp).verticalScroll(scrollState)) {
@@ -454,6 +474,53 @@ fun InfoScreen(
         ) {
             Text("Lagre adresse")
         }
+
+
+        // PVGIS beregninger
+        LaunchedEffect(ctx.coords) {
+            ctx.coords?.let {
+                pvgisViewModel.fetchPVGISData(Coordinates(it.latitude(), it.longitude()))
+
+            }
+        }
+
+
+        val weatherEntries = weatherList?.dailyObservation ?: emptyList()
+
+        pvgisSolData.forEachIndexed { index, solinnstraaling ->
+            val weatherIndex = index * 30  // Henter omtrent én verdi per måned
+
+            val temperatur = weatherEntries.getOrNull(weatherIndex)?.second?.dataList
+                ?.firstOrNull { it.elementId == "mean(air_temperature P1D)" }
+                ?.value ?: 25.0  //  hvis mangler temp
+
+            val length = ctx.input?.length ?: 0
+            val width = ctx.input?.width ?: 0
+            val angle = ctx.input?.angle ?: 35
+
+            val beregnet = ProductionCalc(
+                panelLengde = length,
+                panelBredde = width,
+                panelVinkel = angle,
+                luftTemperatur = temperatur,
+                solinnstraling = solinnstraaling
+            )
+
+            val avrundet = String.format("%.2f", beregnet).toDouble()
+            ferdigBeregnetProdData.add(avrundet)
+        }
+
+        ferdigBeregnetProdData.forEachIndexed{ index, data ->
+            Log.d("testpvgisBeregn", "mndnr $index: $data kWh/month")
+
+        }
+        Log.d("testpvgisBeregn", " $ferdigBeregnetProdData")
+
+        Text(
+            text = "prodData basert på PVGIS månedlig innstråling (i kwh/month): ${ferdigBeregnetProdData}"
+        )
+
+
 
 
 
