@@ -58,6 +58,7 @@ fun MapScreen(
     val suggestions by viewModel.suggestions.collectAsState()
     val coords by viewModel.coords.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
+    var searchIsActive by remember { mutableStateOf(false) }
 
     // keyboard stuff
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -77,29 +78,35 @@ fun MapScreen(
             Modifier.fillMaxSize(),
             mapViewportState = mapViewportState
         )
-        TextField(
-            value = searchQuery,
-            onValueChange = {
-                searchQuery = it
-            },
-            modifier = modifier
-                .focusRequester(focusRequester)
+        Column(
+            modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
                 .padding(24.dp)
-                .height(56.dp)
-                .clip(CircleShape),
-            placeholder = { Text("Type an address...") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "search") },
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent
-            ),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-        )
+        ) {
+            TextField(
+                value = searchQuery,
+                onValueChange = {
+                    searchQuery = it
+                    searchIsActive = it.isNotEmpty()
+                },
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .clip(if (searchIsActive) RoundedCornerShape(0.dp, 0.dp, 28.dp, 28.dp) else CircleShape),
+                placeholder = { Text("Type an address...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "search") },
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent
+                ),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+            )
+        }
     }
 }
