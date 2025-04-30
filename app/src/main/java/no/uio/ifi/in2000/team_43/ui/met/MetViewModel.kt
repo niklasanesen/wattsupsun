@@ -37,7 +37,7 @@ fun beregnStromproduksjon(
     bredde: Int,              // meter
     vinkel: Int,              // faktisk vinkel i grader
     temperatur: Double,          // lufttemperatur i grader C
-    solinnstraling: Double       // kWh/m²
+    solinnstraling: Double       // Wh/m²
 ): Double {
     val areal = lengde * bredde
     val optimalVinkel = 35.0 // Antatt optimal vinkel i Norge
@@ -45,7 +45,7 @@ fun beregnStromproduksjon(
     val tempTapPerGrad = 0.003 // 0.3 % tap per grad over 25 °C
 
     // 1. Start med forventet produksjon
-    var produksjon = solinnstraling * areal
+    var produksjon = (solinnstraling/1000) * areal
 
     // 2. Temperaturtap
     if (temperatur > optimalTemp) {
