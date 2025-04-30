@@ -46,6 +46,7 @@ import no.uio.ifi.in2000.team_43.ui.met.beregnStromproduksjon
 import java.time.Instant
 
 import androidx.compose.runtime.setValue
+import no.uio.ifi.in2000.team_43.model.PVGIS.MonthlyEntry
 
 // for måned velger
 import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.ChartWithValueDisplay //graf
@@ -82,6 +83,17 @@ fun InfoScreen(
     val scrollState = rememberScrollState()
 
     var selectedMonth by remember { mutableStateOf(0) } // 0 = Januar
+
+    // test
+    // For å vise hvordan man henter månedlig data fra pvgis tool
+    val dataene: List<MonthlyEntry>? = pvgisData?.outputs?.monthly?.fixed
+
+    if (dataene != null) {
+        dataene.forEachIndexed() {index, mnd ->
+            Log.d("testpvgisM", "mnd nr. $index: ${mnd.E_m} kWh/month")
+
+        }
+    }
 
 
     Column(modifier = modifier.padding(20.dp).verticalScroll(scrollState)) {
