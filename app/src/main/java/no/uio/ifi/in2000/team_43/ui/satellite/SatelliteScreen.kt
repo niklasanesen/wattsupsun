@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,6 +58,7 @@ import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.model.map.RoofPolygon
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.map.getBitmapFromVectorDrawable
 import kotlin.math.floor
+import kotlin.math.roundToInt
 
 @SuppressLint("DefaultLocale")
 @Composable
@@ -66,7 +68,7 @@ fun SatelliteScreen(
     onNextBtnClicked: (areal: Areal) -> (Unit)
 ) {
 
-    var areaInSquareMeters by remember { mutableDoubleStateOf(0.0) }
+    var areaInSquareMeters by remember { mutableIntStateOf(0) }
 
     // Endre til lengde og bredde istedenfor areal
     var length by remember { mutableDoubleStateOf(0.0) }
@@ -77,10 +79,6 @@ fun SatelliteScreen(
     val context = LocalContext.current
     val savedPolygon = remember { mutableStateListOf<RoofPolygon>() }
     var registeredPolygon by remember { mutableStateOf(false) }
-
-    var trashAreaOffset by remember { mutableStateOf(ScreenCoordinate(0.0, 0.0)) }
-    var trashAreaSize by remember { mutableStateOf(ScreenCoordinate(0.0, 0.0)) }
-    val mapboxMapState = remember { mutableStateOf<MapboxMap?>(null) }
 
 
     val bitmap = remember {
@@ -127,9 +125,6 @@ fun SatelliteScreen(
                 true
             }
         ) {
-            MapEffect(Unit) { mapView ->
-                mapboxMapState.value = mapView.mapboxMap
-            }
             if (mapIconImage != null && points.isNotEmpty()) {
                 points.forEachIndexed { index, point ->
                     PointAnnotation(point = point) {
@@ -151,7 +146,7 @@ fun SatelliteScreen(
                 }
 
                 val polygon = Polygon.fromLngLats(listOf(closedPoints))
-                areaInSquareMeters = TurfMeasurement.area(polygon)
+                areaInSquareMeters = TurfMeasurement.area(polygon).roundToInt()
                 Log.d("PolygonArea", "Area: $areaInSquareMeters square meters")
 
                 // Vil heller ha lengde og bredde:
@@ -204,14 +199,15 @@ fun SatelliteScreen(
             ) {
                 Box(
                     modifier = Modifier
-                        .width(231.dp)
-                        .height(78.dp)
-                        .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(size = 8.dp)),
+                        // .width(231.dp)
+                        // .height(78.dp)
+                        .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(size = 8.dp))
+                        .padding(16.dp),
                         // .align(Alignment.CenterHorizontally),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Klikk for å legge til punkt på takflaten. Drag & Drop til søppelkasta for å slette.",
+                        text = "Klikk for å legge til punkt på kartet for å tegne et rektangel av takflaten din. Det er mulig å angre punkt og slette takflaten du har tegnet for å tegne nytt.",
                         style = TextStyle(
                             fontSize = 16.sp,
                             lineHeight = 24.sp,
@@ -233,7 +229,7 @@ fun SatelliteScreen(
                             // .align(Alignment.CenterHorizontally)
                     ) {
                         Text(
-                            text = "${String.format("%.3f", areaInSquareMeters)} m²",
+                            text = "$areaInSquareMeters m²",
                             style = TextStyle(
                                 fontSize = 16.sp,
                                 lineHeight = 24.sp,
@@ -274,7 +270,7 @@ fun SatelliteScreen(
                         onClick = {
                             registeredPolygon = false
                             savedPolygon.remove(savedPolygon.first())
-                            areaInSquareMeters = 0.0
+                            areaInSquareMeters = 0
                         },
                         enabled = savedPolygon.isNotEmpty(),
                         colors = ButtonDefaults.buttonColors(Color.Red)

@@ -4,5 +4,5 @@ import com.mapbox.geojson.Point
 
 data class RoofPolygon(
     val points: List<Point>,
-    val area: Double
+    val area: Int
 )
