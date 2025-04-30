@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -43,6 +44,8 @@ import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportS
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.focus.FocusRequester
@@ -50,6 +53,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
+import no.uio.ifi.in2000.team_43.ui.theme.Purple40
+
 @Composable
 fun MapScreen(
     modifier: Modifier = Modifier,
@@ -61,6 +66,8 @@ fun MapScreen(
     val coords by viewModel.coords.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     var searchIsActive by remember { mutableStateOf(false) }
+    var addressIsSelected by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
 
     // keyboard stuff
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -75,6 +82,19 @@ fun MapScreen(
         }
     }
 
+    if (addressIsSelected) {
+        LaunchedEffect(coords) {
+            coords?.let {
+                mapViewportState.flyTo(
+                    CameraOptions.Builder()
+                        .center(it)
+                        .zoom(16.0)
+                        .build()
+                )
+            }
+        }
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         MapboxMap(
             Modifier.fillMaxSize(),
@@ -86,6 +106,38 @@ fun MapScreen(
                 .align(Alignment.BottomCenter)
                 .padding(24.dp)
         ) {
+            if (showDialog) {
+                AlertDialog(
+                    title = {
+                        Text(text = "Registrer takflate")
+                    },
+                    text = {
+                        Text(text = "Vi trenger informasjon om dine takflater for å kunne gi deg relevant info. Velg å enten tegne takflate på kart eller manuelt oppgi mål. Vi anbefaler å oppgi mål for mest korrekte beregninger.")
+                    },
+                    onDismissRequest = {
+                        showDialog = false
+                    },
+                    confirmButton = {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Button(
+                                onClick = { onInputBtnClicked(coords) },
+                                enabled = true,
+                                colors = ButtonDefaults.buttonColors(containerColor = Purple40)
+                            ) {
+                                Text("Oppgi mål")
+                            }
+                            Button(
+                                onClick = { onSatelliteBtnClicked(coords) },
+                                enabled = true,
+                                colors = ButtonDefaults.buttonColors(containerColor = Purple40)
+                            ) {
+                                Text("Tegn tagflate")
+                            }
+                        }
+                    },
+                )
+            }
+
             if (searchIsActive && suggestions.isNotEmpty()) {
                 LazyColumn(
                     modifier = Modifier
@@ -99,9 +151,16 @@ fun MapScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp)
-                                .padding(16.dp),
+                                .padding(16.dp)
+                                .clickable {
+                                    searchQuery = suggestion.name
+                                    addressIsSelected = true
+                                    viewModel.select(suggestion.name)
+                                    searchIsActive = false
+                                },
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
+
                         ) {
                             Text(
                                 text = suggestion.name,
@@ -131,6 +190,23 @@ fun MapScreen(
                     .clip(if (searchIsActive && suggestions.isNotEmpty()) RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp) else CircleShape),
                 placeholder = { Text("Type an address...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "search") },
+                trailingIcon = {
+                    if (addressIsSelected) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(Purple40)
+                                .clickable { showDialog = true },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = "Navigate to Input",
+                                tint = MaterialTheme.colorScheme.surfaceContainer
+                            )
+                        }
+                    }                },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
                     focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,

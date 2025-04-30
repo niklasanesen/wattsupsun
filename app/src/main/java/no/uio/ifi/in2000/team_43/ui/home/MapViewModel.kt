@@ -51,9 +51,9 @@ class MapViewModel() : ViewModel() {
         }
     }
 
-    fun select(suggestion: PlaceAutocompleteSuggestion) {
+    fun select(name: String) {
         searchEngine.search(
-            suggestion.name,
+            name,
             SearchOptions(limit = 1),
             object : SearchSuggestionsCallback {
                 override fun onSuggestions(suggestions: List<SearchSuggestion>, responseInfo: ResponseInfo) {
