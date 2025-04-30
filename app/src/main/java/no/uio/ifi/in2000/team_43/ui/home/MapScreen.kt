@@ -54,7 +54,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.ui.theme.Purple40
-
 @Composable
 fun MapScreen(
     modifier: Modifier = Modifier,
