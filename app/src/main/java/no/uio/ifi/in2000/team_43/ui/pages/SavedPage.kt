@@ -1,6 +1,5 @@
 package no.uio.ifi.in2000.team_43.ui.pages
 
-import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,7 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import no.uio.ifi.in2000.team_43.data.DataStoreManager
+import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
 import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

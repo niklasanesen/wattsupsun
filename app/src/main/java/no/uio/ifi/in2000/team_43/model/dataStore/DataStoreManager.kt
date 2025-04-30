@@ -1,4 +1,4 @@
-package no.uio.ifi.in2000.team_43.data
+package no.uio.ifi.in2000.team_43.model.dataStore
 
 import android.content.Context
 import androidx.datastore.preferences.core.*
