@@ -100,11 +100,13 @@ fun MapScreen(
             Modifier.fillMaxSize(),
             mapViewportState = mapViewportState
         )
+
+        // Søkefelt og resultater optimalisert for portrettvisning
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
-                .padding(24.dp)
+                .padding(horizontal = 16.dp, vertical = 24.dp)
         ) {
             if (showDialog) {
                 AlertDialog(
@@ -118,10 +120,11 @@ fun MapScreen(
                         showDialog = false
                     },
                     confirmButton = {
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Button(
                                 onClick = { onInputBtnClicked(coords) },
                                 enabled = true,
+                                modifier = Modifier.fillMaxWidth(),
                                 colors = ButtonDefaults.buttonColors(containerColor = Purple40)
                             ) {
                                 Text("Oppgi mål")
@@ -129,9 +132,10 @@ fun MapScreen(
                             Button(
                                 onClick = { onSatelliteBtnClicked(coords) },
                                 enabled = true,
+                                modifier = Modifier.fillMaxWidth(),
                                 colors = ButtonDefaults.buttonColors(containerColor = Purple40)
                             ) {
-                                Text("Tegn tagflate")
+                                Text("Tegn takflate")
                             }
                         }
                     },
@@ -142,7 +146,7 @@ fun MapScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 256.dp)
+                        .heightIn(max = 200.dp) // Litt mindre for å passe bedre i portrettmodus
                         .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
                         .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
@@ -151,21 +155,22 @@ fun MapScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp)
-                                .padding(16.dp)
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
                                 .clickable {
                                     searchQuery = suggestion.name
                                     addressIsSelected = true
                                     viewModel.select(suggestion.name)
                                     searchIsActive = false
+                                    keyboardController?.hide()
                                 },
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
-
                         ) {
                             Text(
                                 text = suggestion.name,
                                 style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1
                             )
                             Text(
                                 text = suggestion.city,
@@ -176,6 +181,7 @@ fun MapScreen(
                     }
                 }
             }
+
             TextField(
                 value = searchQuery,
                 onValueChange = {
@@ -187,9 +193,11 @@ fun MapScreen(
                     .focusRequester(focusRequester)
                     .fillMaxWidth()
                     .height(56.dp)
-                    .clip(if (searchIsActive && suggestions.isNotEmpty()) RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp) else CircleShape),
-                placeholder = { Text("Type an address...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "search") },
+                    .clip(if (searchIsActive && suggestions.isNotEmpty())
+                        RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)
+                    else CircleShape),
+                placeholder = { Text("Skriv inn en adresse...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "søk") },
                 trailingIcon = {
                     if (addressIsSelected) {
                         Box(
@@ -202,11 +210,12 @@ fun MapScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = "Navigate to Input",
+                                contentDescription = "Naviger til Input",
                                 tint = MaterialTheme.colorScheme.surfaceContainer
                             )
                         }
-                    }                },
+                    }
+                },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
                     focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
