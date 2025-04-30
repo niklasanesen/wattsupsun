@@ -31,6 +31,9 @@ class MapViewModel() : ViewModel() {
     private val _coords = MutableStateFlow<Point?>(Point.fromLngLat(12.30778, 63.99056))
     val coords: StateFlow<Point?> = _coords.asStateFlow()
 
+    private val _address = MutableStateFlow<String?>(null)
+    val address: StateFlow<String?> = _address.asStateFlow()
+
     fun search(text: String)  {
         if (text.isEmpty()) {
             _suggestions.value = emptyList()
@@ -51,15 +54,18 @@ class MapViewModel() : ViewModel() {
         }
     }
 
-    fun select(name: String) {
+    fun select(addr: String) {
         searchEngine.search(
-            name,
+            addr,
             SearchOptions(limit = 1),
             object : SearchSuggestionsCallback {
                 override fun onSuggestions(suggestions: List<SearchSuggestion>, responseInfo: ResponseInfo) {
                     val suggestion = suggestions.firstOrNull()
-                    if (suggestion != null)
+                    if (suggestion != null) {
                         _coords.value = suggestion.coordinate
+                        _address.value = suggestion.fullAddress
+                    }
+
                 }
                 override fun onError(e: Exception) {
                     _coords.value = null
