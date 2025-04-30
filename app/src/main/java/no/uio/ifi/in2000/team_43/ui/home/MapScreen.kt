@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,7 +19,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -41,13 +41,13 @@ import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportS
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
-
 @Composable
 fun MapScreen(
     modifier: Modifier = Modifier,
@@ -55,10 +55,16 @@ fun MapScreen(
     onInputBtnClicked: (coords: Point?) -> Unit,
     onSatelliteBtnClicked: (coords: Point?) -> Unit,
 ) {
-    val suggestions by viewModel.suggestions.collectAsState()
+    // val suggestions by viewModel.suggestions.collectAsState()
     val coords by viewModel.coords.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     var searchIsActive by remember { mutableStateOf(false) }
+
+    val suggestions = listOf(
+        "123 Main Street, San Francisco, CA",
+        "456 Park Avenue, New York, NY",
+        "789 Ocean Boulevard, Miami, FL"
+    )
 
     // keyboard stuff
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -84,6 +90,25 @@ fun MapScreen(
                 .align(Alignment.BottomCenter)
                 .padding(24.dp)
         ) {
+            if (searchIsActive && suggestions.isNotEmpty()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 200.dp)
+                        .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                ) {
+                    items(suggestions) { suggestion ->
+                        Text(
+                            text = suggestion,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        )
+                    }
+                }
+            }
             TextField(
                 value = searchQuery,
                 onValueChange = {
@@ -94,7 +119,7 @@ fun MapScreen(
                     .focusRequester(focusRequester)
                     .fillMaxWidth()
                     .height(56.dp)
-                    .clip(if (searchIsActive) RoundedCornerShape(0.dp, 0.dp, 28.dp, 28.dp) else CircleShape),
+                    .clip(if (searchIsActive && suggestions.isNotEmpty()) RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp) else CircleShape),
                 placeholder = { Text("Type an address...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "search") },
                 colors = TextFieldDefaults.colors(
