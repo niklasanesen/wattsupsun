@@ -514,7 +514,11 @@ fun InfoScreen(
             Log.d("testpvgisBeregn", "mndnr $index: $data kWh/month")
 
         }
-        Log.d("testpvgisBeregn", "$ferdigBeregnetProdData")
+        Log.d("testpvgisBeregn", " $ferdigBeregnetProdData")
+
+        Text(
+            text = "prodData basert på PVGIS månedlig innstråling (i kwh/month): ${ferdigBeregnetProdData}"
+        )
 
 
 
