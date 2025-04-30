@@ -18,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,7 +31,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mapbox.geojson.Feature
@@ -47,9 +45,7 @@ import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportS
 import com.mapbox.maps.extension.compose.annotation.IconImage
 import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
 import com.mapbox.maps.extension.compose.annotation.generated.PolygonAnnotation
-import com.mapbox.maps.extension.compose.rememberMapState
 import com.mapbox.maps.extension.compose.style.MapStyle
-import com.mapbox.maps.extension.style.expressions.dsl.generated.length
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import com.mapbox.turf.TurfMeasurement
@@ -69,7 +65,6 @@ fun SatelliteScreen(
 ) {
 
     var areaInSquareMeters by remember { mutableDoubleStateOf(0.0) }
-    var totalAreaInSquareMeters by remember { mutableDoubleStateOf(0.0) }
 
     // Endre til lengde og bredde istedenfor areal
     var length by remember { mutableDoubleStateOf(0.0) }
@@ -78,11 +73,13 @@ fun SatelliteScreen(
     var points by remember { mutableStateOf(listOf<Point>()) }
     val pointAnnotations = remember { mutableStateListOf<PointAnnotationOptions>() }
     val context = LocalContext.current
-    val savedPolygons = remember { mutableStateListOf<RoofPolygon>() }
+    val savedPolygon = remember { mutableStateListOf<RoofPolygon>() }
+    var registeredPolygon by remember { mutableStateOf(false) }
 
     var trashAreaOffset by remember { mutableStateOf(ScreenCoordinate(0.0, 0.0)) }
     var trashAreaSize by remember { mutableStateOf(ScreenCoordinate(0.0, 0.0)) }
     val mapboxMapState = remember { mutableStateOf<MapboxMap?>(null) }
+
 
     val bitmap = remember {
         try {
@@ -110,15 +107,18 @@ fun SatelliteScreen(
             mapViewportState = mapViewportState,
             style = { MapStyle(style = Style.SATELLITE_STREETS)},
             onMapClickListener = OnMapClickListener { point ->
-                points = points + point
-                if (bitmap != null) {
-                    pointAnnotations.add(
-                        PointAnnotationOptions()
-                            .withPoint(point)
-                            .withIconImage(bitmap)
-                            .withIconSize(1.0)
-                            .withIconColor("#FF0000")
-                    )
+                if (!registeredPolygon) {
+                    points = points + point
+
+                    if (bitmap != null) {
+                        pointAnnotations.add(
+                            PointAnnotationOptions()
+                                .withPoint(point)
+                                .withIconImage(bitmap)
+                                .withIconSize(1.0)
+                                .withIconColor("#FF0000")
+                        )
+                    }
                 }
 
                 
@@ -153,15 +153,21 @@ fun SatelliteScreen(
                 Log.d("PolygonArea", "Area: $areaInSquareMeters square meters")
 
                 // Vil heller ha lengde og bredde:
-                length = TurfMeasurement.distance(points[0], points[1], "metres")
-                width = TurfMeasurement.distance(points[1], points[2], "metres")
+                val length1 = TurfMeasurement.distance(points[0], points[1], "metres")
+                val length2 = TurfMeasurement.distance(points[2], points[3], "metres")
+                val width1 = TurfMeasurement.distance(points[1], points[2], "metres")
+                val width2 = TurfMeasurement.distance(points[3], points[0], "metres")
+
+                length = (length1 + length2)/2
+                width = (width1 + width2)/2
                 Log.i("Lengde og bredde", "$length, $width")
 
-
-                savedPolygons.add(
+                savedPolygon.add(
                     RoofPolygon(points = closedPoints, area = areaInSquareMeters)
                 )
-                totalAreaInSquareMeters += areaInSquareMeters
+
+                registeredPolygon = true
+                // totalAreaInSquareMeters += areaInSquareMeters
 
                 points = emptyList()
                 // areaInSquareMeters = 0.0 -- Kommenterer ut dette for må fikse så man ikke kan legge til flere takflater
@@ -169,7 +175,8 @@ fun SatelliteScreen(
                 Log.e("PolygonValidation", "Polygon must have exactly 4 points. Current count: ${points.size}")
             }
 
-            savedPolygons.forEach { roofPolygon ->
+
+            savedPolygon.forEach { roofPolygon ->
                 MapEffect(Unit) { }
                 PolygonAnnotation(
                     points = listOf(roofPolygon.points),
@@ -200,8 +207,9 @@ fun SatelliteScreen(
                             Log.d("TrashCheck", "Inside trash: $insideTrash")
 
                             if (insideTrash) {
-                                savedPolygons.remove(roofPolygon)
-                                totalAreaInSquareMeters -= roofPolygon.area
+                                registeredPolygon = false
+                                savedPolygon.remove(roofPolygon)
+                                areaInSquareMeters = 0.0
                             }
                         }
                     }.also {
@@ -254,7 +262,7 @@ fun SatelliteScreen(
                     )
                 )
             }
-            if (savedPolygons.isNotEmpty()) {
+            if (savedPolygon.isNotEmpty()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -263,7 +271,7 @@ fun SatelliteScreen(
                 ) {
 
                     Text(
-                        text = "${String.format("%.3f", totalAreaInSquareMeters)} m²",
+                        text = "${String.format("%.3f", areaInSquareMeters)} m²",
                         style = TextStyle(
                             fontSize = 16.sp,
                             lineHeight = 24.sp,
