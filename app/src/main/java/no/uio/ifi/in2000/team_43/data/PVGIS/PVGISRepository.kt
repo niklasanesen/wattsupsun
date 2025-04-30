@@ -3,12 +3,13 @@ package no.uio.ifi.in2000.team_43.data.PVGIS
 import android.util.Log
 import no.uio.ifi.in2000.team_43.model.DRcalcRes.DailyProfile
 import no.uio.ifi.in2000.team_43.model.PVGIS.PVGISRes
+import no.uio.ifi.in2000.team_43.model.met.Coordinates
 
 
 class PVGISRepository (private val pvgisDatasource: PVGISDatasource) {
-    suspend fun getPVGISdata(): PVGISRes? {
+    suspend fun getPVGISdata(coordinates: Coordinates): PVGISRes? {
         Log.i("TestPVGIS", "Henter data via funksjon i PVGIS Repository")
-        return pvgisDatasource.getPVGISData()
+        return pvgisDatasource.getPVGISData(coordinates)
     }
 
     // returnerer en liste med data, gjennomsnittlig solinnstråling per time

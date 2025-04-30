@@ -72,6 +72,9 @@ fun InfoScreen(
     val drCalcTotalSum by pvgisViewModel.drCalcDataTotalSum.collectAsState() // Henter kalkulert totalsum
     val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata
 
+
+    val pvgisProdData by pvgisViewModel.productionData.collectAsState() // Henter pvgis produksjonsdata
+
     val produksjonsliste = mutableListOf<Pair<Instant, Double>>()  // strømproduskjon for alle dager i et år
 
     val context = LocalContext.current
@@ -84,13 +87,14 @@ fun InfoScreen(
 
     var selectedMonth by remember { mutableStateOf(0) } // 0 = Januar
 
+
     // test
     // For å vise hvordan man henter månedlig data fra pvgis tool
     val dataene: List<MonthlyEntry>? = pvgisData?.outputs?.monthly?.fixed
 
     if (dataene != null) {
         dataene.forEachIndexed() {index, mnd ->
-            Log.d("testpvgisM", "mnd nr. $index: ${mnd.E_m} kWh/month")
+            Log.d("testpvgisM", "global irradiance mnd nr. $index: ${mnd.H_i_m} kWh/m2/month")
 
         }
     }
@@ -465,6 +469,20 @@ fun InfoScreen(
             modifier = Modifier.align(alignment = Alignment.End)
         ) {
             Text("Lagre adresse")
+        }
+
+
+        // PVGIS beregninger
+        LaunchedEffect(ctx.coords) {
+            ctx.coords?.let {
+                pvgisViewModel.fetchPVGISData(Coordinates(it.latitude(), it.longitude()))
+
+            }
+        }
+
+        pvgisProdData.forEach{ tall ->
+            Log.d("productionData", "Sjekk: $tall")
+
         }
 
 

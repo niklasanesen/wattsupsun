@@ -6,18 +6,19 @@ import io.ktor.client.request.get
 import no.uio.ifi.in2000.team_43.data.APIClient
 import no.uio.ifi.in2000.team_43.model.DRcalcRes.DRcalcRes
 import no.uio.ifi.in2000.team_43.model.PVGIS.PVGISRes
+import no.uio.ifi.in2000.team_43.model.met.Coordinates
 
 class PVGISDatasource {
-    suspend fun getPVGISData(): PVGISRes? {
+    suspend fun getPVGISData(coordinates: Coordinates): PVGISRes? {
         try {
 
             // Testdata:
 
             // Et av verktøyene som kan brukes:
             val tool_name = "PVcalc"
-            // posisjonen til Oslo
-            val lat = "59"
-            val lon = "10"
+            // valgt posisjon
+            val lat = coordinates.latitude//"59"
+            val lon = coordinates.longitude//"10"
             // Beskrevet lengre ned
             val peakpower = "3.0"
             val loss = "2.0"
@@ -33,6 +34,8 @@ class PVGISDatasource {
             url += "&outputformat=json" // Spesifiserer at man ønsker json
 
             Log.i("TestPVGIS", "Prøver å hente data fra $url")
+            Log.i("TestPVGIS", "Prøver å hente data fra lat: $lat og lon: $lon")
+
             return APIClient.client.get(url).body()
         } catch (e: Exception) {
             Log.e("TestPVGIS", "Error i Datasource: msg; ${e.message}")

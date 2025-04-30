@@ -13,7 +13,9 @@ import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.team_43.data.PVGIS.PVGISDatasource
 import no.uio.ifi.in2000.team_43.data.PVGIS.PVGISRepository
 import no.uio.ifi.in2000.team_43.model.DRcalcRes.DailyProfile
+import no.uio.ifi.in2000.team_43.model.PVGIS.MonthlyEntry
 import no.uio.ifi.in2000.team_43.model.PVGIS.PVGISRes
+import no.uio.ifi.in2000.team_43.model.met.Coordinates
 
 class PVGISViewModel : ViewModel() {
 
@@ -30,18 +32,26 @@ class PVGISViewModel : ViewModel() {
         .map { listeMedData -> listeMedData?.sumOf { it.G_i } ?: 0.0 } // Håndterer null-tilfeller
         .stateIn(viewModelScope, SharingStarted.Lazily, 0.0)
 
+    // beregner og gjennomsnittlig produksjon per mnd utifra pvgis
+    val productionData: StateFlow<List<Double>> = data
+        .map { res ->
+            res?.outputs?.monthly?.fixed?.map { it.H_i_m } ?: emptyList()
+        }
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+
     // Laster data når ViewModel opprettes
     init {
-        fetchPVGISData()
+        //fetchPVGISData()
         fetchDRcalcData()
     }
 
     // Henter PVGIS-data og lagrer det i StateFlow
-    private fun fetchPVGISData() {
+    fun fetchPVGISData(coordinates: Coordinates) {
         viewModelScope.launch {
             try {
                 Log.i("TestPVGIS", "Henter data via PVGISViewModel")
-                val response = PVGISRepo.getPVGISdata()
+                val response = PVGISRepo.getPVGISdata(coordinates)
                 _data.value = response // Setter data slik at UI kan observere det
             } catch (e: Exception) {
                 Log.e("TestPVGIS", "Feil ved henting av data: ${e.message}")
