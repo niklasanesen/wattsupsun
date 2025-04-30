@@ -46,12 +46,14 @@ import no.uio.ifi.in2000.team_43.ui.met.beregnStromproduksjon
 import java.time.Instant
 
 import androidx.compose.runtime.setValue
+import com.mapbox.maps.extension.style.expressions.dsl.generated.length
 import no.uio.ifi.in2000.team_43.model.PVGIS.MonthlyEntry
 
 // for måned velger
 import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.ChartWithValueDisplay //graf
 import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.GrafMeasurement
 import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.MonthSelector //side Scroll for å velge måned
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.ProductionCalc
 import java.time.ZoneId
 
 
@@ -73,7 +75,7 @@ fun InfoScreen(
     val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata
 
 
-    val pvgisProdData by pvgisViewModel.productionData.collectAsState() // Henter pvgis produksjonsdata
+    val pvgisSolData by pvgisViewModel.productionData.collectAsState() // Henter pvgis produksjonsdata
 
     val produksjonsliste = mutableListOf<Pair<Instant, Double>>()  // strømproduskjon for alle dager i et år
 
@@ -480,10 +482,43 @@ fun InfoScreen(
             }
         }
 
-        pvgisProdData.forEach{ tall ->
-            Log.d("productionData", "Sjekk: $tall")
+
+
+        val ferdigBeregnetProdData = mutableListOf<Double>()
+
+
+        val weatherEntries = weatherList?.dailyObservation ?: emptyList()
+
+        pvgisSolData.forEachIndexed { index, solinnstraaling ->
+            val weatherIndex = index * 30  // Henter omtrent én verdi per måned
+
+            val temperatur = weatherEntries.getOrNull(weatherIndex)?.second?.dataList
+                ?.firstOrNull { it.elementId == "mean(air_temperature P1D)" }
+                ?.value ?: 25.0  //  hvis mangler temp
+
+            val length = ctx.input?.length ?: 0
+            val width = ctx.input?.width ?: 0
+            val angle = ctx.input?.angle ?: 35
+
+            val beregnet = ProductionCalc(
+                panelLengde = length,
+                panelBredde = width,
+                panelVinkel = angle,
+                luftTemperatur = temperatur,
+                solinnstraling = solinnstraaling
+            )
+
+            val avrundet = String.format("%.2f", beregnet).toDouble()
+            ferdigBeregnetProdData.add(avrundet)
+        }
+
+        ferdigBeregnetProdData.forEachIndexed{ index, data ->
+            Log.d("testpvgisBeregn", "mndnr $index: $data kWh/month")
 
         }
+        Log.d("testpvgisBeregn", "$ferdigBeregnetProdData")
+
+
 
 
 

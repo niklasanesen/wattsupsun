@@ -35,7 +35,7 @@ class PVGISViewModel : ViewModel() {
     // beregner og gjennomsnittlig produksjon per mnd utifra pvgis
     val productionData: StateFlow<List<Double>> = data
         .map { res ->
-            res?.outputs?.monthly?.fixed?.map { it.H_i_m } ?: emptyList()
+            res?.outputs?.monthly?.fixed?.map { (it.H_i_m) } ?: emptyList()
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
