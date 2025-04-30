@@ -54,9 +54,9 @@ class MapViewModel() : ViewModel() {
         }
     }
 
-    fun select(name: String) {
+    fun select(addr: String) {
         searchEngine.search(
-            name,
+            addr,
             SearchOptions(limit = 1),
             object : SearchSuggestionsCallback {
                 override fun onSuggestions(suggestions: List<SearchSuggestion>, responseInfo: ResponseInfo) {
@@ -64,7 +64,6 @@ class MapViewModel() : ViewModel() {
                     if (suggestion != null) {
                         _coords.value = suggestion.coordinate
                         _address.value = suggestion.fullAddress
-                        Log.d("mapviewmodel", suggestion.fullAddress!!)
                     }
 
                 }

@@ -159,7 +159,7 @@ fun MapScreen(
                                 .clickable {
                                     searchQuery = suggestion.name
                                     addressIsSelected = true
-                                    viewModel.select(suggestion.name)
+                                    viewModel.select(suggestion.formattedAddress)
                                     searchIsActive = false
                                     keyboardController?.hide()
                                 },
