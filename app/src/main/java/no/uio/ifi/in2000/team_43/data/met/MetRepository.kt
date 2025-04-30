@@ -109,10 +109,10 @@ class MetRepository(private val metDataSource: MetDataSource = MetDataSource(API
         }
 
         val dailyAverage = groupedByDay.map { (date, weatherDataList) ->
-            val avgValue = weatherDataList.sumOf { it.value.coerceAtLeast(0.0) }
+            val sumValue = weatherDataList.sumOf { it.value.coerceAtLeast(0.0) }
             WeatherData(
                 elementId = validYears.elementId,
-                value = avgValue,
+                value = sumValue,
                 unit = weatherDataList.first().unit,
                 weatherStation = weatherStation,
                 timeMeasured = Instant.parse("${date}T00:00:00Z")
