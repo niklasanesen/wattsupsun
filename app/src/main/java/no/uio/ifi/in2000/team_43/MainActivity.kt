@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.team_43
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -27,6 +28,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // Lås skjermen i portrettmodus
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
         // test met api
         val viewModel = MetViewModel()
         lifecycleScope.launch {
@@ -52,23 +56,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-
-
-//        // ny test:
-//        lifecycleScope.launch {
-//            Log.i("TestStrom","stromtest nr 2 start")
-//
-//            val dataHentet = stromprisViewModel.getStromListe()
-//
-//            Log.i("TestStrom", "Hentet data: ${dataHentet.size} elementer")
-//            Log.d("TestStrom", "Data: $dataHentet")
-//
-//        }
-
-
-
-
-
 
         val pvgisViewModel = PVGISViewModel()
 
@@ -109,15 +96,11 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-
-
         setContent {
             Team_43Theme {
                 Scaffold(modifier = Modifier) { innerPadding ->
-
                     HomeScreen()
                     //InfoScreen()
-
 
                     /*
                     Greeting(

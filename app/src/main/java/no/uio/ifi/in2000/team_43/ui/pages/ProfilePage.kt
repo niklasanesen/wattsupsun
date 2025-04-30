@@ -37,7 +37,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.graphics.Color
-
 @Composable
 fun ProfilePage(modifier: Modifier = Modifier) {
     var firstName by remember { mutableStateOf("") }
@@ -45,6 +44,9 @@ fun ProfilePage(modifier: Modifier = Modifier) {
     var showDialog by remember { mutableStateOf(false) }
     var tempFirstName by remember { mutableStateOf(firstName) }
     var tempLastName by remember { mutableStateOf(lastName) }
+
+    // Tilstand for personvernerklærings-popup
+    var showPrivacyDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -89,9 +91,15 @@ fun ProfilePage(modifier: Modifier = Modifier) {
         ) {
             Text("Instillinger")
         }
+
         Spacer(modifier = Modifier.padding(8.dp))
+
+        // Personvernerklæringsknapp
         Button(
-            onClick = {},
+            onClick = {
+                // Når knappen trykkes, vis personvernerklæringen i en popup
+                showPrivacyDialog = true
+            },
             enabled = true,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Purple40
@@ -102,6 +110,30 @@ fun ProfilePage(modifier: Modifier = Modifier) {
         ) {
             Text("Personvernerklæring")
         }
+
+        // Popup for personvernerklæring
+        if (showPrivacyDialog) {
+            AlertDialog(
+                onDismissRequest = { showPrivacyDialog = false },
+                title = {
+                    Text("Personvernerklæring")
+                },
+                text = {
+                    Text(
+                        "Vi samler ikke inn noen informasjon om deg.\n\n" +
+                                "All data du legger inn lagres kun lokalt på mobilen din og deles aldri med noen.",
+                        lineHeight = 20.sp
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { showPrivacyDialog = false }) {
+                        Text("Lukk")
+                    }
+                }
+            )
+        }
+
+        // Dialog for å redigere navn
         if (showDialog) {
             AlertDialog(
                 title = {
@@ -149,7 +181,7 @@ fun ProfilePage(modifier: Modifier = Modifier) {
                             tempLastName = lastName
                         },
                         colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.LightGray
+                            containerColor = Color.LightGray
                         )
                     ) {
                         Text("Cancel")
