@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -182,104 +184,105 @@ fun SatelliteScreen(
                     points = listOf(roofPolygon.points),
                 ) {
                     fillColor = Color.LightGray
-                    fillOpacity = 0.5
-                    fillOutlineColor = Color.Yellow
-                    interactionsState.onClicked {
-                        true
-                    }.onLongClicked {
-                        true
-                    }.onDragged { dragEvent ->
-                        // Access the polygon's current geometry
-                        val currentGeometry = dragEvent.geometry
-
-                        // If you need a specific point (like the center), you can calculate it
-                        val polygonFeature = Feature.fromGeometry(currentGeometry)
-                        val centerFeature = TurfMeasurement.center(polygonFeature)
-                        val centerPoint = centerFeature.geometry() as Point
-
-                        mapboxMapState.value?.let { mapboxMap ->
-                            val screenPos = mapboxMap.pixelForCoordinate(centerPoint)
-                            Log.d("position", "${screenPos.x} is the x, ${screenPos.y} is the y")
-                            // Check if inside trash area
-                            val insideTrash =
-                                screenPos.x in trashAreaOffset.x..(trashAreaOffset.x + trashAreaSize.x) &&
-                                        screenPos.y in trashAreaOffset.y..(trashAreaOffset.y + trashAreaSize.y)
-                            Log.d("TrashCheck", "Inside trash: $insideTrash")
-
-                            if (insideTrash) {
-                                registeredPolygon = false
-                                savedPolygon.remove(roofPolygon)
-                                areaInSquareMeters = 0.0
-                            }
-                        }
-                    }.also {
-                        it.isDraggable = true
-                    }
-                }
-
-            // Convert Polygon to Feature first
-                val polygonFeature = Feature.fromGeometry(
-                    Polygon.fromLngLats(listOf(roofPolygon.points))
-                )
-
-                // Now use TurfMeasurement.center with the Feature
-                val centerFeature = TurfMeasurement.center(polygonFeature)
-
-                // Extract the Point from the returned Feature
-                val centerPoint = (centerFeature.geometry() as Point)
-
-                PointAnnotation(point = centerPoint) {
-                    iconImage = mapIconImage // or null if just text
-                    iconSize = 0.5
-                    textField = "${String.format("%.1f", roofPolygon.area)} m²"
-                    textColor = Color.White
+                    fillOpacity = 0.7
+                    fillOutlineColor = Color.White
                 }
             }
         }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(42.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Box(
+            Column (
                 modifier = Modifier
-                    .width(231.dp)
-                    .height(78.dp)
-                    .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(size = 8.dp))
-                    .align(Alignment.CenterHorizontally),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth(),
+                    // .padding(bottom = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "Klikk for å legge til punkt på takflaten. Drag & Drop til søppelkasta for å slette.",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        lineHeight = 24.sp,
-                        fontWeight = FontWeight(500),
-                        color = Color(0xFF000000),
-                        textAlign = TextAlign.Center,
-                        letterSpacing = 0.15.sp,
-                    )
-                )
-            }
-            if (savedPolygon.isNotEmpty()) {
-                Row(
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .width(231.dp)
+                        .height(78.dp)
+                        .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(size = 8.dp)),
+                        // .align(Alignment.CenterHorizontally),
+                    contentAlignment = Alignment.Center
                 ) {
-
                     Text(
-                        text = "${String.format("%.3f", areaInSquareMeters)} m²",
+                        text = "Klikk for å legge til punkt på takflaten. Drag & Drop til søppelkasta for å slette.",
                         style = TextStyle(
                             fontSize = 16.sp,
                             lineHeight = 24.sp,
                             fontWeight = FontWeight(500),
-                            color = Color(0xFFFFFFFF),
+                            color = Color(0xFF000000),
+                            textAlign = TextAlign.Center,
                             letterSpacing = 0.15.sp,
                         )
                     )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (savedPolygon.isNotEmpty()) {
+                    Box (
+                        modifier = Modifier
+                            .background(color = Color(0xff394d3e), shape = RoundedCornerShape(size = 8.dp))
+                            .padding(8.dp)
+                            // .align(Alignment.CenterHorizontally)
+                    ) {
+                        Text(
+                            text = "${String.format("%.3f", areaInSquareMeters)} m²",
+                            style = TextStyle(
+                                fontSize = 16.sp,
+                                lineHeight = 24.sp,
+                                fontWeight = FontWeight(500),
+                                color = Color(0xFFFFFFFF),
+                                letterSpacing = 0.15.sp,
+                            )
+                        )
+                    }
+                }
+            }
+
+
+            //Undo last point button
+            if (points.isNotEmpty()) {
+                Button(
+                    onClick = {
+                        if (points.isNotEmpty()) {
+                            points = points.dropLast(1)
+                        }
+                    },
+                    enabled = points.isNotEmpty(),
+                ) {
+                    Text("Angre punkt")
+                }
+            }
+
+            else if (savedPolygon.isNotEmpty()) {
+                // Trash button
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Button(
+                        onClick = {
+                            registeredPolygon = false
+                            savedPolygon.remove(savedPolygon.first())
+                            areaInSquareMeters = 0.0
+                        },
+                        enabled = savedPolygon.isNotEmpty(),
+                        colors = ButtonDefaults.buttonColors(Color.Red)
+
+                    ) {
+                        Text("Slett takflate")
+                    }
+
                     Button(
                         onClick = {onNextBtnClicked(Areal(areaInSquareMeters, floor(length), floor(width)))},
                         enabled = true,
@@ -287,33 +290,6 @@ fun SatelliteScreen(
                         Text("Neste")
                     }
                 }
-            }
-            // Trash area (bottom left)
-            Box(
-                modifier = Modifier
-                    .width(100.dp)
-                    .height(100.dp)
-                    .background(Color.Red.copy(alpha = 0.6f), RoundedCornerShape(16.dp))
-                    .onGloballyPositioned {
-                        val position = it.localToWindow(Offset.Zero)
-                        trashAreaOffset = ScreenCoordinate(position.x.toDouble(), position.y.toDouble())
-                        trashAreaSize = ScreenCoordinate(it.size.width.toDouble(), it.size.height.toDouble())
-                        Log.d("TrashArea", "Trash area: x: ${trashAreaOffset.x}, y: ${trashAreaOffset.y}, width: ${trashAreaSize.x}, height: ${trashAreaSize.y}")
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Text("🗑", fontSize = 32.sp)
-            }
-            //Undo last point button
-            Button(
-                onClick = {
-                    if (points.isNotEmpty()) {
-                        points = points.dropLast(1)
-                    }
-                },
-                enabled = points.isNotEmpty()
-            ) {
-                Text("Angre punkt")
             }
         }
     }
