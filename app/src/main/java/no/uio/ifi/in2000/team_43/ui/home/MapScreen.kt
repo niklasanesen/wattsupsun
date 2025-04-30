@@ -58,11 +58,12 @@ import no.uio.ifi.in2000.team_43.ui.theme.Purple40
 fun MapScreen(
     modifier: Modifier = Modifier,
     viewModel: MapViewModel = viewModel(),
-    onInputBtnClicked: (coords: Point?) -> Unit,
-    onSatelliteBtnClicked: (coords: Point?) -> Unit,
+    onInputBtnClicked: (coords: Point?, address: String?) -> Unit,
+    onSatelliteBtnClicked: (coords: Point?, address: String?) -> Unit,
 ) {
     val suggestions by viewModel.suggestions.collectAsState()
     val coords by viewModel.coords.collectAsState()
+    val address by viewModel.address.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     var searchIsActive by remember { mutableStateOf(false) }
     var addressIsSelected by remember { mutableStateOf(false) }
@@ -121,7 +122,7 @@ fun MapScreen(
                     confirmButton = {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Button(
-                                onClick = { onInputBtnClicked(coords) },
+                                onClick = { onInputBtnClicked(coords, address) },
                                 enabled = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = ButtonDefaults.buttonColors(containerColor = Purple40)
@@ -129,7 +130,7 @@ fun MapScreen(
                                 Text("Oppgi mål")
                             }
                             Button(
-                                onClick = { onSatelliteBtnClicked(coords) },
+                                onClick = { onSatelliteBtnClicked(coords, address) },
                                 enabled = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = ButtonDefaults.buttonColors(containerColor = Purple40)

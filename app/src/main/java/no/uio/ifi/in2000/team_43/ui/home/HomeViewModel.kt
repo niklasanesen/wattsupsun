@@ -14,7 +14,7 @@ class HomeViewModel() : ViewModel() {
     /**
      * app state
      */
-    private val _ctx = MutableStateFlow<Ctx>(Ctx(coords = null, input = null, areal = null))
+    private val _ctx = MutableStateFlow<Ctx>(Ctx(coords = null, input = null, areal = null, address = null))
     val ctx: StateFlow<Ctx> = _ctx.asStateFlow()
 
     fun resetCtx() {
@@ -50,4 +50,13 @@ class HomeViewModel() : ViewModel() {
             )
         }
     }
+
+    fun setAddress(newAddress: String?) {
+        _ctx.update { currentState ->
+            currentState.copy(
+                address = newAddress
+            )
+        }
+    }
+
 }

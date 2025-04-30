@@ -82,12 +82,14 @@ fun MapPage(
             composable(route = HomeScreen.Start.name) {
                 viewModel.resetCtx()
                 MapScreen(
-                    onInputBtnClicked = {
-                        viewModel.setCoords(it)
+                    onInputBtnClicked = { coords, address ->
+                        viewModel.setCoords(coords)
+                        viewModel.setAddress(address)
                         navController.navigate(HomeScreen.Input.name)
                     },
-                    onSatelliteBtnClicked = {
-                        viewModel.setCoords(it)
+                    onSatelliteBtnClicked = { coords, address ->
+                        viewModel.setCoords(coords)
+                        viewModel.setAddress(address)
                         navController.navigate(HomeScreen.Satellite.name)
                     }
                 )
