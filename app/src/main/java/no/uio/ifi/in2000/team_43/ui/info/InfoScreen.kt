@@ -39,7 +39,20 @@ import java.time.format.DateTimeParseException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import no.uio.ifi.in2000.team_43.data.DataStoreManager
+import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
+import android.util.Log
+import androidx.compose.runtime.mutableStateOf
+import no.uio.ifi.in2000.team_43.ui.met.beregnStromproduksjon
+import java.time.Instant
+
+import androidx.compose.runtime.setValue
+
+// for måned velger
+import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.ChartWithValueDisplay //graf
+import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.GrafMeasurement
+import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.MonthSelector //side Scroll for å velge måned
+import java.time.ZoneId
+
 
 // test
 
@@ -58,6 +71,8 @@ fun InfoScreen(
     val drCalcTotalSum by pvgisViewModel.drCalcDataTotalSum.collectAsState() // Henter kalkulert totalsum
     val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata
 
+    val produksjonsliste = mutableListOf<Pair<Instant, Double>>()  // strømproduskjon for alle dager i et år
+
     val context = LocalContext.current
     val dataStoreManager = remember { DataStoreManager(context) }
 
@@ -65,6 +80,10 @@ fun InfoScreen(
     val errorMessage by metViewModel.errorMessage.collectAsState()
 
     val scrollState = rememberScrollState()
+
+    var selectedMonth by remember { mutableStateOf(0) } // 0 = Januar
+
+
     Column(modifier = modifier.padding(20.dp).verticalScroll(scrollState)) {
 
         // Tittel for skjermen
@@ -290,6 +309,36 @@ fun InfoScreen(
             }
         }
 
+        weatherList?.dailyObservation?.forEach { (date, weatherDataList) ->
+            var temperatur: Double? = null
+            var solinnstraling: Double? = null
+
+            weatherDataList.dataList.forEach { weatherData ->
+                when (weatherData.elementId) {
+                    "mean(air_temperature P1D)" -> temperatur = weatherData.value
+                    "mean(solar_irradiance P1D)" -> solinnstraling = weatherData.value
+                }
+            }
+
+            val length = ctx.input?.length
+            val width = ctx.input?.width
+            val angle = ctx.input?.angle
+
+            if (temperatur != null && solinnstraling != null && length != null && width != null && angle != null) {
+                val produksjon = beregnStromproduksjon(
+                    lengde = length,
+                    bredde = width,
+                    vinkel = angle,
+                    temperatur = temperatur,
+                    solinnstraling = solinnstraling
+                )
+
+                // Legg til i lista
+                produksjonsliste.add(Pair(date, produksjon))
+            }
+        }
+        Log.d("produksjonsliste", produksjonsliste.toString())
+
         when {
             errorMessage != null -> {
                 Text(
@@ -337,7 +386,51 @@ fun InfoScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        ChartWithValueDisplay() // grafen
+
+        Text(text = "Valgt måned: ${selectedMonth + 1}") // Viser måned som 1–12
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Column {
+            // Månedvelger
+            MonthSelector(
+                selectedMonth = selectedMonth,
+                onMonthSelected = { newMonth ->
+                    selectedMonth = newMonth
+                }
+            )
+
+            // Filtrer og transformer data for valgt måned
+            val measurements = produksjonsliste
+                .map { (instant, value) ->
+                    val zdt = instant.atZone(ZoneId.systemDefault())
+                    zdt to value
+                }
+                .filter { (zdt, _) -> zdt.monthValue == selectedMonth + 1 }
+                .map { (zdt, value) ->
+                    GrafMeasurement(
+                        time = zdt.dayOfMonth.toFloat(),
+                        value = value.toFloat()
+                    )
+                }
+
+            // Vis graf
+            if (measurements.isNotEmpty()) {
+                ChartWithValueDisplay(
+                    selectedMonth = selectedMonth,
+                    allMeasurements = measurements
+                )
+            } else {
+                Text(
+                    text = "Ingen data for valgt måned.",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        }
+
+
+
 
         val context = LocalContext.current
 

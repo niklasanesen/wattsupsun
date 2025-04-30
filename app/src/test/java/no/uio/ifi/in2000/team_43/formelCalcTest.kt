@@ -1,10 +1,6 @@
 package no.uio.ifi.in2000.team_43
 
 import no.uio.ifi.in2000.team_43.ui.met.beregnStromproduksjon
-import kotlin.math.min
-import no.uio.ifi.in2000.team_43.ui.met.calcCCF
-import no.uio.ifi.in2000.team_43.ui.met.calcSCF
-import no.uio.ifi.in2000.team_43.ui.met.calcGHI
 
 
 import org.junit.Test

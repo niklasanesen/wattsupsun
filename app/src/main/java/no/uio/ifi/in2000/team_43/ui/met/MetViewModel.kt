@@ -1,6 +1,5 @@
 package no.uio.ifi.in2000.team_43.ui.met
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,8 +16,6 @@ import no.uio.ifi.in2000.team_43.model.met.WeatherStation
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import kotlin.math.min
-import kotlin.math.cos
-import kotlin.math.PI
 
 fun calcInsolation(cloudData: Double, snowData: Double, globalRadiation: Double): Double {
     val calcCloud = 1 - (cloudData.toDouble() / 8) * 0.75
@@ -35,42 +32,43 @@ fun calcInsolation(cloudData: Double, snowData: Double, globalRadiation: Double)
 // (sidenote: ved under 25 grad kan man få økt produksjon men ikke funnet kilde som begrunner enda)
 // 4. Man må anta at bruker har valgt anbefalt optimalvinkel, HVIS IKKE: egen formel som justerer
 
-
 fun beregnStromproduksjon(
-    solinnstraling: Double, // data hentet via calcGHI i kwh/m2
-    paneletsKvadratmeter: Double, // i m2
-    temperatur: Double, // fra met?
-    anbefaltVinkelValgt: Boolean, // Legg inn false hvis bruker IKKE har valgt optimal vinkel
-    avvikVinkel: Double // Antall grader vinkelen avviker fra
+    lengde: Int,              // meter
+    bredde: Int,              // meter
+    vinkel: Int,              // faktisk vinkel i grader
+    temperatur: Double,          // lufttemperatur i grader C
+    solinnstraling: Double       // kWh/m²
 ): Double {
+    val areal = lengde * bredde
+    val optimalVinkel = 35.0 // Antatt optimal vinkel i Norge
+    val optimalTemp = 25.0
+    val tempTapPerGrad = 0.003 // 0.3 % tap per grad over 25 °C
 
-    val OPTIMAL_TEMP: Double = 25.0;
-    val FEIL_TEMP_KORREKSJON: Double = 0.003; // 0.3%
-    var beregnetSum: Double = 0.0; // kwh/m2
+    // 1. Start med forventet produksjon
+    var produksjon = solinnstraling * areal
 
-    beregnetSum = solinnstraling  * paneletsKvadratmeter;
-
-    if (temperatur > OPTIMAL_TEMP) {
-        val tempOverOptimal = temperatur - OPTIMAL_TEMP;
-        val korreksjonsfaktor = 1 - (tempOverOptimal * FEIL_TEMP_KORREKSJON);
-
-        beregnetSum = beregnetSum * korreksjonsfaktor
-
+    // 2. Temperaturtap
+    if (temperatur > optimalTemp) {
+        val tempOver = temperatur - optimalTemp
+        val korreksjonsfaktor = 1 - (tempOver * tempTapPerGrad)
+        produksjon *= korreksjonsfaktor
     }
 
-    if(!anbefaltVinkelValgt) {
-        beregnetSum = beregnEffekttap(beregnetSum, avvikVinkel)
-    }
+    // 3. Vinkelavvik (effekttap hvis vinkel ≠ optimal)
+    val vinkelAvvik = kotlin.math.abs(vinkel - optimalVinkel)
+    produksjon = beregnEffekttap(produksjon, vinkelAvvik)
 
-    return beregnetSum;
+    return produksjon
 }
 
-// Hjelpefunksjon for beregnStromproduksjon()
-fun beregnEffekttap(optimalEffekt: Double, avvikVinkelGrader: Double): Double {
-    val vinkelRad = avvikVinkelGrader * PI / 180  // konverter til radianer (altså fra grader til tallverdi)
-    val effekt = optimalEffekt * cos(vinkelRad)
-    return effekt.coerceAtLeast(0.0)
+
+fun beregnEffekttap(produksjon: Double, avvikVinkel: Double): Double {
+    // Grov tilnærming: 1 % effekttap per 1 grads avvik
+    val tapPerGrad = 0.01
+    val effektTap = 1 - (avvikVinkel * tapPerGrad)
+    return produksjon * effektTap.coerceAtLeast(0.0) // unngå negativt resultat
 }
+
 
 class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewModel() {
 
