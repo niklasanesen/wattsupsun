@@ -2,21 +2,26 @@ package no.uio.ifi.in2000.team_43.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -39,12 +44,16 @@ import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportS
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
+import no.uio.ifi.in2000.team_43.ui.theme.Purple40
 
 @Composable
 fun MapScreen(
@@ -56,9 +65,9 @@ fun MapScreen(
     val suggestions by viewModel.suggestions.collectAsState()
     val coords by viewModel.coords.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
-    var isSearchActive by remember { mutableStateOf(false) }
+    var searchIsActive by remember { mutableStateOf(false) }
     var addressIsSelected by remember { mutableStateOf(false) }
-    var addressIsConfirmed by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
 
     // keyboard stuff
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -91,63 +100,79 @@ fun MapScreen(
             Modifier.fillMaxSize(),
             mapViewportState = mapViewportState
         )
-
-        if (addressIsConfirmed) {
-            AlertDialog(
-                title = {
-                    Text(text = "Registrer takflate")
-                },
-                text = {
-                    Text(text = "Vi trenger informasjon om dine takflater for å kunne gi deg relevant info. Velg å enten tegne takflate på kart eller manuelt oppgi mål. Vi anbefaler å oppgi mål for mest korrekte beregninger.")
-                },
-                onDismissRequest = {},
-                confirmButton = {
-                    TextButton(
-                        onClick = { onInputBtnClicked(coords) },
-                        enabled = true
-                    ) {
-                        Text("Oppgi mål")
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = { onSatelliteBtnClicked(coords) },
-                        enabled = true
-                    ) {
-                        Text("Tegn takflate")
-                    }
-                }
-            )
-        }
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
-                .padding(16.dp)
+                .padding(24.dp)
         ) {
-            if (isSearchActive && suggestions.isNotEmpty()) {
+            if (showDialog) {
+                AlertDialog(
+                    title = {
+                        Text(text = "Registrer takflate")
+                    },
+                    text = {
+                        Text(text = "Vi trenger informasjon om dine takflater for å kunne gi deg relevant info. Velg å enten tegne takflate på kart eller manuelt oppgi mål. Vi anbefaler å oppgi mål for mest korrekte beregninger.")
+                    },
+                    onDismissRequest = {
+                        showDialog = false
+                    },
+                    confirmButton = {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Button(
+                                onClick = { onInputBtnClicked(coords) },
+                                enabled = true,
+                                colors = ButtonDefaults.buttonColors(containerColor = Purple40)
+                            ) {
+                                Text("Oppgi mål")
+                            }
+                            Button(
+                                onClick = { onSatelliteBtnClicked(coords) },
+                                enabled = true,
+                                colors = ButtonDefaults.buttonColors(containerColor = Purple40)
+                            ) {
+                                Text("Tegn tagflate")
+                            }
+                        }
+                    },
+                )
+            }
+
+            if (searchIsActive && suggestions.isNotEmpty()) {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 200.dp)
-                        .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
-                        .background(Color.White)
+                        .heightIn(max = 256.dp)
+                        .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
                     items(suggestions) { suggestion ->
-                        Text(
-                            text = suggestion.name,
-                            style = MaterialTheme.typography.bodyLarge,
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .height(56.dp)
+                                .padding(16.dp)
                                 .clickable {
                                     searchQuery = suggestion.name
                                     addressIsSelected = true
-                                    viewModel.select(suggestion)
-                                    isSearchActive = false
-                                }
-                                .padding(16.dp)
-                        )
+                                    viewModel.select(suggestion.name)
+                                    searchIsActive = false
+                                },
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+
+                        ) {
+                            Text(
+                                text = suggestion.name,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = suggestion.city,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }
@@ -156,34 +181,37 @@ fun MapScreen(
                 onValueChange = {
                     searchQuery = it
                     viewModel.search(it)
-                    isSearchActive = it.isNotEmpty()
+                    searchIsActive = it.isNotEmpty()
                 },
                 modifier = Modifier
                     .focusRequester(focusRequester)
                     .fillMaxWidth()
-                    .clip(
-                        if (isSearchActive && suggestions.isNotEmpty())
-                            RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)
-                        else
-                            RoundedCornerShape(8.dp)
-                    ),
-                placeholder = { Text("Search location...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                    .height(56.dp)
+                    .clip(if (searchIsActive && suggestions.isNotEmpty()) RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp) else CircleShape),
+                placeholder = { Text("Type an address...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "search") },
                 trailingIcon = {
                     if (addressIsSelected) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = "Navigate to Input",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.clickable {
-                                addressIsConfirmed = true
-                            }
-                        )
-                    }
-                },
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(Purple40)
+                                .clickable { showDialog = true },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = "Navigate to Input",
+                                tint = MaterialTheme.colorScheme.surfaceContainer
+                            )
+                        }
+                    }                },
                 colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent
                 ),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
