@@ -75,12 +75,14 @@ fun InfoScreen(
     val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata
 
 
-    val pvgisSolData by pvgisViewModel.productionData.collectAsState() // Henter pvgis produksjonsdata
-
     val produksjonsliste = mutableListOf<Pair<Instant, Double>>()  // strømproduskjon for alle dager i et år
 
     val context = LocalContext.current
     val dataStoreManager = remember { DataStoreManager(context) }
+
+    // For pvgis beregning/data
+    val pvgisSolData by pvgisViewModel.productionData.collectAsState() // Henter pvgis solinnstrålingsdata
+    val ferdigBeregnetProdData = mutableListOf<Double>() // legger inn beregnet strøm produksjonsdata
 
 
     val errorMessage by metViewModel.errorMessage.collectAsState()
@@ -481,10 +483,6 @@ fun InfoScreen(
 
             }
         }
-
-
-
-        val ferdigBeregnetProdData = mutableListOf<Double>()
 
 
         val weatherEntries = weatherList?.dailyObservation ?: emptyList()
