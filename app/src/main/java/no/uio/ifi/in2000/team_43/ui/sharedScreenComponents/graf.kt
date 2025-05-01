@@ -37,7 +37,7 @@ class MonthValueFormatter : ValueFormatter() {
 
 @Composable
 fun ChartWithValueDisplay(
-    selectedMonth: Int,
+    selectedMonth: Int?, // Nullable
     allMeasurements: List<GrafMeasurement>
 ) {
     var selectedValue by remember { mutableStateOf<String?>(null) }
@@ -52,7 +52,7 @@ fun ChartWithValueDisplay(
             selectedMonth = selectedMonth,
             allMeasurements = allMeasurements,
             onValueSelected = { x, y ->
-                selectedValue = "Dag: ${x.toInt()}, Verdi: $y kWh"
+                selectedValue = "Måned: ${x.toInt()}, Verdi: $y kWh"
             }
         )
 
@@ -65,25 +65,20 @@ fun ChartWithValueDisplay(
     }
 }
 
-
-
-
 @Composable
 fun LineChartComposable(
-    selectedMonth: Int,
+    selectedMonth: Int?, // Nullable
     allMeasurements: List<GrafMeasurement>,
     onValueSelected: (Float, Float) -> Unit
 ) {
     val isDarkMode = isSystemInDarkTheme()
     val txtColor = if (isDarkMode) Color.WHITE else Color.BLACK
 
-    val measurements = allMeasurements
-
-    key(selectedMonth) { // 👈 tving re-komposisjon når måned endres
+    key(allMeasurements) {
         AndroidView(
             factory = { ctx ->
                 LineChart(ctx).apply {
-                    val entries = measurements.mapIndexed { index, m -> Entry(index.toFloat(), m.value) }
+                    val entries = allMeasurements.map { Entry(it.time, it.value) }
 
                     val dataSet = LineDataSet(entries, "Produksjon").apply {
                         mode = LineDataSet.Mode.CUBIC_BEZIER
@@ -105,14 +100,10 @@ fun LineChartComposable(
                         setDrawGridLines(false)
                         textColor = txtColor
                         granularity = 1f
-                        setLabelCount(measurements.size, true)
-                        axisMinimum = -0.5f
-                        axisMaximum = measurements.size.toFloat() + 0.5f
-                        valueFormatter = object : ValueFormatter() {
-                            override fun getFormattedValue(value: Float): String {
-                                return value.toInt().toString()
-                            }
-                        }
+                        setLabelCount(allMeasurements.size, true)
+                        axisMinimum = allMeasurements.minOfOrNull { it.time }?.minus(0.5f) ?: 0f
+                        axisMaximum = allMeasurements.maxOfOrNull { it.time }?.plus(0.5f) ?: 12f
+                        valueFormatter = MonthValueFormatter()
                     }
 
                     axisLeft.isEnabled = false
