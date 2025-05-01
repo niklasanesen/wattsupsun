@@ -48,13 +48,14 @@ import java.time.Instant
 import androidx.compose.runtime.setValue
 import com.mapbox.maps.extension.style.expressions.dsl.generated.length
 import no.uio.ifi.in2000.team_43.model.PVGIS.MonthlyEntry
+import no.uio.ifi.in2000.team_43.ui.PVGIS.convertPVGISToMeasurements
 
 // for måned velger
 import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.ChartWithValueDisplay //graf
-import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.GrafMeasurement
-import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.MonthSelector //side Scroll for å velge måned
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.ProductionCalc
 import java.time.ZoneId
+import no.uio.ifi.in2000.team_43.ui.met.generateMonthlyMeasurements
+import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.DataSourceSwitch
 
 
 // test
@@ -74,8 +75,10 @@ fun InfoScreen(
     val drCalcTotalSum by pvgisViewModel.drCalcDataTotalSum.collectAsState() // Henter kalkulert totalsum
     val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata
 
+    var isMetSelected by remember { mutableStateOf(true) }
 
     val produksjonsliste = mutableListOf<Pair<Instant, Double>>()  // strømproduskjon for alle dager i et år
+
 
     val context = LocalContext.current
     val dataStoreManager = remember { DataStoreManager(context) }
@@ -411,69 +414,17 @@ fun InfoScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Column {
-            // Månedvelger
-            MonthSelector(
-                selectedMonth = selectedMonth,
-                onMonthSelected = { newMonth ->
-                    selectedMonth = newMonth
-                }
-            )
-
-            // Filtrer og transformer data for valgt måned
-            val measurements = produksjonsliste
-                .map { (instant, value) ->
-                    val zdt = instant.atZone(ZoneId.systemDefault())
-                    zdt to value
-                }
-                .filter { (zdt, _) -> zdt.monthValue == selectedMonth + 1 }
-                .map { (zdt, value) ->
-                    GrafMeasurement(
-                        time = zdt.dayOfMonth.toFloat(),
-                        value = value.toFloat()
-                    )
-                }
-
-            // Vis graf
-            if (measurements.isNotEmpty()) {
-                ChartWithValueDisplay(
-                    selectedMonth = selectedMonth,
-                    allMeasurements = measurements
-                )
-            } else {
-                Text(
-                    text = "Ingen data for valgt måned.",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodyLarge
-                )
+        val groupedByMonth = produksjonsliste
+            .map { (instant, value) ->
+                val zdt = instant.atZone(ZoneId.systemDefault())
+                zdt.monthValue to value
             }
-        }
+            .groupBy { it.first }
+            .mapValues { entry ->
+                entry.value.sumOf { it.second }
+            }
 
 
-
-
-        val context = LocalContext.current
-
-        Button(
-            onClick = {
-                val adresse = LagreAdresse(
-                    latitude = ctx.coords?.latitude() ?: 0.0,
-                    longitude = ctx.coords?.longitude() ?: 0.0,
-                    height = ctx.input?.length?.toDouble() ?: 0.0, // NB! endret fra 'length' til 'height'
-                    width = ctx.input?.width?.toDouble() ?: 0.0,
-                    angle = ctx.input?.angle?.toDouble() ?: 0.0,
-                    direction = ctx.input?.direction?.toDouble() ?: 0.0
-                )
-
-                // Her bruker vi DataStoreManager.saveAddress()
-                CoroutineScope(Dispatchers.IO).launch {
-                    dataStoreManager.saveAddress(adresse) // Kall på den eksisterende funksjonen
-                }
-            },
-            modifier = Modifier.align(alignment = Alignment.End)
-        ) {
-            Text("Lagre adresse")
-        }
 
 
         // PVGIS beregninger
@@ -516,12 +467,72 @@ fun InfoScreen(
         }
         Log.d("testpvgisBeregn", " $ferdigBeregnetProdData")
 
+        /*
         Text(
             text = "prodData basert på PVGIS månedlig innstråling (i kwh/month): ${ferdigBeregnetProdData}"
         )
+        */
+
+        // Generere månedlige målinger
+        val monthlyMeasurements = remember(produksjonsliste) {
+            generateMonthlyMeasurements(produksjonsliste)
+        }
+        val pvgisData = remember(ferdigBeregnetProdData) {
+            convertPVGISToMeasurements(ferdigBeregnetProdData)
+        }
+
+
+        val displayedData by remember(isMetSelected) {
+            mutableStateOf(if (isMetSelected) monthlyMeasurements else pvgisData)
+        }
+
+        Column {
+            DataSourceSwitch(
+                isMetSelected = isMetSelected,
+                onToggle = { isMetSelected = it }
+            )
+
+            if (displayedData.isNotEmpty()) {
+                ChartWithValueDisplay(
+                    selectedMonth = null,
+                    allMeasurements = displayedData
+                )
+            } else {
+                Text(
+                    text = "Ingen data tilgjengelig.",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        }
 
 
 
+
+
+
+        val context = LocalContext.current
+
+        Button(
+            onClick = {
+                val adresse = LagreAdresse(
+                    latitude = ctx.coords?.latitude() ?: 0.0,
+                    longitude = ctx.coords?.longitude() ?: 0.0,
+                    height = ctx.input?.length?.toDouble() ?: 0.0, // NB! endret fra 'length' til 'height'
+                    width = ctx.input?.width?.toDouble() ?: 0.0,
+                    angle = ctx.input?.angle?.toDouble() ?: 0.0,
+                    direction = ctx.input?.direction?.toDouble() ?: 0.0
+                )
+
+                // Her bruker vi DataStoreManager.saveAddress()
+                CoroutineScope(Dispatchers.IO).launch {
+                    dataStoreManager.saveAddress(adresse) // Kall på den eksisterende funksjonen
+                }
+            },
+            modifier = Modifier.align(alignment = Alignment.End)
+        ) {
+            Text("Lagre adresse")
+        }
 
 
     }
@@ -542,6 +553,8 @@ Text("Inputverdier av takflate: \nLengde: ${ctx.input?.length} \nBredde: ${ctx.i
 
 */
 }
+
+
 
 
 

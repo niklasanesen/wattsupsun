@@ -5,31 +5,66 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
 import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.google.gson.Gson
+import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
+import no.uio.ifi.in2000.team_43.ui.info.AddressDetailPage
+import androidx.compose.ui.Alignment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SavedPage(modifier: Modifier = Modifier) {
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = "saved") {
+        composable("saved") {
+            SavedPageScreen(
+                modifier = modifier,
+                onCardClick = { address ->
+                    val json = Gson().toJson(address)
+                    navController.navigate("detail/$json")
+                }
+            )
+        }
+        composable(
+            "detail/{addressJson}",
+            arguments = listOf(navArgument("addressJson") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val json = backStackEntry.arguments?.getString("addressJson")
+            val address = Gson().fromJson(json, LagreAdresse::class.java)
+            AddressDetailPage(address = address)
+        }
+    }
+}
+
+
+
+
+@Composable
+fun SavedPageScreen(
+    modifier: Modifier = Modifier,
+    onCardClick: (LagreAdresse) -> Unit = {}
+) {
     val context = LocalContext.current
     val dataStoreManager = remember { DataStoreManager(context) }
-
-    // Hente listen som State
     val addresses by dataStoreManager.addresses.collectAsState(initial = emptyList())
 
     Scaffold(
-        modifier = modifier,
         topBar = { TopAppBarSaved() },
         bottomBar = {
-            // Legg til en knapp nederst som sletter alle adresser
+            // Knapp for å slette alle adresser
             Button(
                 onClick = {
                     CoroutineScope(Dispatchers.IO).launch {
@@ -45,13 +80,12 @@ fun SavedPage(modifier: Modifier = Modifier) {
                 Text("Slett alle adresser", color = MaterialTheme.colorScheme.onError)
             }
         }
-    ) { innerPadding ->
-
+    ) { padding ->
         if (addresses.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding),
+                    .padding(padding),
                 contentAlignment = Alignment.Center
             ) {
                 Text(text = "Ingen adresser lagret enda.")
@@ -61,25 +95,26 @@ fun SavedPage(modifier: Modifier = Modifier) {
                 modifier = modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp, vertical = 20.dp)
-                    .padding(innerPadding),
+                    .padding(padding),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 items(addresses) { address ->
-                    AddressCard(address = address)
+                    AddressCard(address = address, onClick = { onCardClick(address) })
                 }
             }
         }
     }
 }
 
+
 @Composable
-fun AddressCard(address: LagreAdresse) {
+fun AddressCard(address: LagreAdresse, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp),
-
+            .height(150.dp)
+            .clickable(onClick = onClick), // Gjør kortet klikkbart
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
@@ -93,6 +128,7 @@ fun AddressCard(address: LagreAdresse) {
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

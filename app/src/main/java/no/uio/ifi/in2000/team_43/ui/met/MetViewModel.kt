@@ -13,7 +13,9 @@ import no.uio.ifi.in2000.team_43.model.met.ValidYears
 import no.uio.ifi.in2000.team_43.model.met.WeatherData
 import no.uio.ifi.in2000.team_43.model.met.WeatherList
 import no.uio.ifi.in2000.team_43.model.met.WeatherStation
+import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.GrafMeasurement
 import java.time.Instant
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import kotlin.math.min
 
@@ -67,6 +69,25 @@ fun beregnEffekttap(produksjon: Double, avvikVinkel: Double): Double {
     val tapPerGrad = 0.01
     val effektTap = 1 - (avvikVinkel * tapPerGrad)
     return produksjon * effektTap.coerceAtLeast(0.0) // unngå negativt resultat
+}
+
+fun generateMonthlyMeasurements(data: List<Pair<Instant, Double>>): List<GrafMeasurement> {
+    return data
+        .map { (instant, value) ->
+            val zdt = instant.atZone(ZoneId.systemDefault())
+            zdt.monthValue to value
+        }
+        .groupBy { it.first }
+        .mapValues { entry ->
+            entry.value.sumOf { it.second }
+        }
+        .map { (month, totalValue) ->
+            GrafMeasurement(
+                time = month.toFloat(),
+                value = totalValue.toFloat()
+            )
+        }
+        .sortedBy { it.time }
 }
 
 
