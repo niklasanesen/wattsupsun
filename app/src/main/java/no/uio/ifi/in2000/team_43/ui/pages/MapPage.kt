@@ -32,6 +32,7 @@ import no.uio.ifi.in2000.team_43.ui.home.HomeViewModel
 import no.uio.ifi.in2000.team_43.ui.home.MapScreen
 import no.uio.ifi.in2000.team_43.ui.info.InfoScreen
 import no.uio.ifi.in2000.team_43.ui.input.InputScreen
+import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.satellite.SatelliteScreen
 
 /**
@@ -48,8 +49,10 @@ enum class HomeScreen(val route: String) {
 @Composable
 fun MapPage(
     modifier: Modifier = Modifier,
+    metViewModel: MetViewModel = viewModel(),
     viewModel: HomeViewModel = viewModel(),
     navController: NavHostController = rememberNavController()
+
 ) {
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -97,6 +100,7 @@ fun MapPage(
             composable(route = HomeScreen.Input.name) {
                 InputScreen(
                     ctx = ctx,
+                    metViewModel = metViewModel,
                     onNextBtnClicked = {
                         viewModel.setInput(it)
                         navController.navigate(HomeScreen.Info.name)
@@ -118,6 +122,7 @@ fun MapPage(
             composable(route = HomeScreen.Info.name) {
                 InfoScreen(
                     ctx = ctx,
+                    metViewModel = metViewModel,
                     modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
                 )
             }

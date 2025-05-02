@@ -22,6 +22,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,12 +36,15 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.model.input.Direction
 import no.uio.ifi.in2000.team_43.model.input.Input
+import no.uio.ifi.in2000.team_43.model.met.Coordinates
+import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.pages.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
 import no.uio.ifi.in2000.team_43.ui.satellite.SatelliteScreen
@@ -54,6 +58,7 @@ import kotlin.math.floor
 @Composable
 fun InputScreen(
     ctx: Ctx,
+    metViewModel: MetViewModel,
     onNextBtnClicked: (input: Input) -> Unit,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
@@ -66,6 +71,11 @@ fun InputScreen(
     val previousBackStackEntry = navController.previousBackStackEntry
     val previousRoute = previousBackStackEntry?.destination?.route
 
+    LaunchedEffect(ctx.coords) {
+        ctx.coords?.let {
+            metViewModel.fetchWeatherData(Coordinates(it.latitude(), it.longitude()))
+        }
+    }
 
     Scaffold(
         modifier = Modifier

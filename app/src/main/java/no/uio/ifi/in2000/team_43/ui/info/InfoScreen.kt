@@ -65,10 +65,10 @@ import java.math.RoundingMode
 @Composable
 fun InfoScreen(
     modifier: Modifier = Modifier,
+    metViewModel: MetViewModel,
     pvgisViewModel: PVGISViewModel = viewModel(),
     stromprisViewModel: StromprisViewModel = viewModel(),
-    ctx: Ctx,
-    metViewModel: MetViewModel = viewModel()
+    ctx: Ctx
 ) {
     // Samler data fra ViewModels
     val pvgisData by pvgisViewModel.data.collectAsState()
@@ -327,12 +327,6 @@ fun InfoScreen(
 //        }
 //
 //        Spacer(modifier = Modifier.height(16.dp))
-
-        LaunchedEffect(ctx.coords) {
-            ctx.coords?.let {
-                metViewModel.fetchWeatherData(Coordinates(it.latitude(), it.longitude()))
-            }
-        }
 
         weatherList?.dailyObservation?.forEach { (date, weatherDataList) ->
             var temperatur: Double? = null
