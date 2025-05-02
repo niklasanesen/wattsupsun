@@ -1,6 +1,7 @@
 package no.uio.ifi.in2000.team_43.ui.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,8 +49,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
@@ -146,7 +150,7 @@ fun MapScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 200.dp) // Litt mindre for å passe bedre i portrettmodus
+                        .heightIn(max = 256.dp)
                         .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
                         .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
@@ -155,7 +159,14 @@ fun MapScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp)
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .drawBehind {
+                                    drawLine(
+                                        color = Color.LightGray,
+                                        start = Offset(0f, size.height),
+                                        end = Offset(size.width, size.height),
+                                        strokeWidth = 1.dp.toPx()
+                                    )
+                                }
                                 .clickable {
                                     searchQuery = suggestion.name
                                     addressIsSelected = true
@@ -167,12 +178,14 @@ fun MapScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
+                                modifier = Modifier.padding(horizontal = 16.dp),
                                 text = suggestion.name,
-                                style = MaterialTheme.typography.titleMedium,
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 maxLines = 1
                             )
                             Text(
+                                modifier = Modifier.padding(horizontal = 16.dp),
                                 text = suggestion.city,
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
