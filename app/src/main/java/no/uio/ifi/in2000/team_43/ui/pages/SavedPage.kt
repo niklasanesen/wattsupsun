@@ -44,7 +44,10 @@ fun SavedPage(modifier: Modifier = Modifier) {
         ) { backStackEntry ->
             val json = backStackEntry.arguments?.getString("addressJson")
             val address = Gson().fromJson(json, LagreAdresse::class.java)
-            AddressDetailPage(address = address)
+            AddressDetailPage(
+                address = address,
+                modifier = Modifier
+            )
         }
     }
 }
