@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -55,7 +56,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.sp
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.ui.theme.Purple40
 @Composable
@@ -104,8 +107,6 @@ fun MapScreen(
             Modifier.fillMaxSize(),
             mapViewportState = mapViewportState
         )
-
-        // Søkefelt og resultater optimalisert for portrettvisning
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -145,7 +146,6 @@ fun MapScreen(
                     },
                 )
             }
-
             if (searchIsActive && suggestions.isNotEmpty()) {
                 LazyColumn(
                     modifier = Modifier
@@ -194,51 +194,79 @@ fun MapScreen(
                     }
                 }
             }
-
-            TextField(
-                value = searchQuery,
-                onValueChange = {
-                    searchQuery = it
-                    viewModel.search(it)
-                    searchIsActive = it.isNotEmpty()
-                },
-                modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .clip(if (searchIsActive && suggestions.isNotEmpty())
-                        RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)
-                    else CircleShape),
-                placeholder = { Text("Skriv inn en adresse...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "søk") },
-                trailingIcon = {
-                    if (addressIsSelected) {
-                        Box(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clip(CircleShape)
-                                .background(Purple40)
-                                .clickable { showDialog = true },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = "Naviger til Input",
-                                tint = MaterialTheme.colorScheme.surfaceContainer
-                            )
-                        }
+            if (addressIsSelected) {
+                Row(modifier = Modifier.fillMaxWidth().height(56.dp)) {
+                    Button(
+                        onClick = { addressIsSelected = false },
+                        enabled = true,
+                        shape = RoundedCornerShape(
+                            topStart = 28.dp,
+                            topEnd = 0.dp,
+                            bottomStart = 28.dp,
+                            bottomEnd = 0.dp
+                        ),
+                        modifier = Modifier
+                            .weight(0.275f)
+                            .fillMaxHeight(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.LightGray,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    ) {
+                        Text(
+                            "Avbryt",
+                            fontSize = 16.sp,
+                        )
                     }
-                },
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent
-                ),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-            )
+                    Button(
+                        onClick = { showDialog = true },
+                        enabled = true,
+                        shape = RoundedCornerShape(
+                            topStart = 0.dp,
+                            topEnd = 28.dp,
+                            bottomStart = 0.dp,
+                            bottomEnd = 28.dp
+                        ),
+                        modifier = Modifier
+                            .weight(0.725f)
+                            .fillMaxHeight(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Purple40)
+                    ) {
+                        Text(
+                            "Velg adresse",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+            } else {
+                TextField(
+                    value = searchQuery,
+                    onValueChange = {
+                        searchQuery = it
+                        viewModel.search(it)
+                        searchIsActive = it.isNotEmpty()
+                    },
+                    modifier = Modifier
+                        .focusRequester(focusRequester)
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .clip(if (searchIsActive && suggestions.isNotEmpty())
+                            RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)
+                        else CircleShape),
+                    placeholder = { Text("Skriv inn en adresse...") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "søk") },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent
+                    ),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                )
+            }
         }
     }
 }
