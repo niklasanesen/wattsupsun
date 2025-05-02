@@ -56,6 +56,8 @@ import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.ProductionCal
 import java.time.ZoneId
 import no.uio.ifi.in2000.team_43.ui.met.generateMonthlyMeasurements
 import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.DataSourceSwitch
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 
 // test
@@ -457,7 +459,7 @@ fun InfoScreen(
                 solinnstraling = solinnstraaling
             )
 
-            val avrundet = String.format("%.2f", beregnet).toDouble()
+            val avrundet =  BigDecimal(beregnet).setScale(2, RoundingMode.HALF_UP).toDouble()
             ferdigBeregnetProdData.add(avrundet)
         }
 
