@@ -46,7 +46,6 @@ import no.uio.ifi.in2000.team_43.ui.met.beregnStromproduksjon
 import java.time.Instant
 
 import androidx.compose.runtime.setValue
-import com.mapbox.maps.extension.style.expressions.dsl.generated.length
 import no.uio.ifi.in2000.team_43.model.PVGIS.MonthlyEntry
 import no.uio.ifi.in2000.team_43.ui.PVGIS.convertPVGISToMeasurements
 
