@@ -11,4 +11,6 @@ WattsUpSun er en app designet for huseiere som ønsker å vurdere lønnsomheten 
 
 ## Arkitektur
 
+Dataflyten og filstrukturen vår er inspirert av [Model–view–viewmodel](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel) arkitekturen, som blant annet hjelper oss å holde UI og API logikk separat. Dette er viktig for å holde kodebasen enkel og oversiktig når prosjektet blir mer komplekst.
+
 <img src="app/src/main/res/drawable/arkitektur.png" alt="arkitektur">
