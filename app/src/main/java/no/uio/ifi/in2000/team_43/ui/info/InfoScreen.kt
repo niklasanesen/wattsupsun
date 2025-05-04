@@ -203,7 +203,7 @@ fun InfoScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Nord: Det lønner seg ikke å ha solcellepaneler, basert på retningen du har valgt.",
+                            text = "Nord: Basert på retningen du har valgt lønner det seg ikke å ha solcellepaneler.",
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 20.sp,
@@ -223,7 +223,7 @@ fun InfoScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Øst: Du genererer mest strøm på starten av dagen, basert på retningen du har valgt.",
+                            text = "Øst: Basert på retningen du har valgt genererer du mest strøm på starten av dagen.",
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 20.sp,
@@ -243,7 +243,7 @@ fun InfoScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Sør: Det lønner seg å ha solcellepaneler, basert på retningen du har valgt.",
+                            text = "Sør: Basert på retningen  du har valgt lønner det seg å ha solcellepaneler.",
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 20.sp,
@@ -263,7 +263,7 @@ fun InfoScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Vest: Du genererer mest strøm på slutten av dagen, basert på retningen du har valgt.",
+                            text = "Vest: Basert på retningen du har valgt genererer du mest strøm på slutten av dagen.",
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 20.sp,
