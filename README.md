@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="app/src/main/res/drawable/logo-circle.png" width="200" height="200" alt="logo">
+  <img src="app/src/main/res/drawable/logo_circle.png" width="200" height="200" alt="logo">
 </p>
 <h1 align="center">WattsUpSun</h1>
 <p align="center">En solcellepanel app fra prosjektarbeidet i IN2000 - Vår 2025</p>
@@ -9,3 +9,6 @@
 
 WattsUpSun er en app designet for huseiere som ønsker å vurdere lønnsomheten av solcellepaneler. Appen lar huseier enkelt slå opp adresse, tegne takflate og legge inn areal/vinkel/retning for å beregne forventet strømproduksjon.
 
+## Arkitektur
+
+<img src="app/src/main/res/drawable/arkitektur.png" alt="arkitektur">
