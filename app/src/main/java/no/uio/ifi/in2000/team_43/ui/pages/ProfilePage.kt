@@ -42,8 +42,12 @@ import no.uio.ifi.in2000.team_43.ui.theme.Purple40
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -128,195 +132,216 @@ fun ProfilePage(modifier: Modifier = Modifier) {
         }
     }
 
-
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier
-                .width(200.dp)
-                .height(200.dp)
-                .clip(CircleShape)
-                .clickable { showPhotoOptDialog = true }
-                .background(Color(0xFFE0E0E0)),
-            contentAlignment = Alignment.Center,
+    Scaffold (
+        topBar = { TopAppBarProfile() }
+    ) { padding ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(padding),
+            // verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (profilePhotoUri.isNotEmpty()) {
-                Image(
-                    painter = rememberAsyncImagePainter(Uri.parse(profilePhotoUri)),
-                    contentDescription = "profile",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+            Spacer(modifier = Modifier.height(40.dp))
+            Box(
+                modifier = Modifier
+                    .width(200.dp)
+                    .height(200.dp)
+                    .clip(CircleShape)
+                    .clickable { showPhotoOptDialog = true }
+                    .background(Color(0xFFE0E0E0)),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (profilePhotoUri.isNotEmpty()) {
+                    Image(
+                        painter = rememberAsyncImagePainter(Uri.parse(profilePhotoUri)),
+                        contentDescription = "profile",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "profile",
+                        tint = Purple40,
+                        modifier = Modifier.size(125.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.padding(16.dp))
+            Box(modifier = Modifier.clickable { showDialog = true }) {
+                Text(
+                    text = if (firstname.isBlank() && lastname.isBlank()) "Fornavn Etternavn" else "$firstname $lastname",
+                    fontSize = 28.sp,
+                    modifier = Modifier.padding(end = 20.dp)
                 )
-            } else {
                 Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "profile",
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "edit name",
                     tint = Purple40,
-                    modifier = Modifier.size(125.dp)
+                    modifier = Modifier
+                        .size(16.dp)
+                        .align(Alignment.TopEnd)
+                )
+            }
+            Spacer(modifier = Modifier.padding(16.dp))
+            Button(
+                onClick = {},
+                enabled = true,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xff3b7d9c)
+                ),
+                modifier = Modifier
+                    .fillMaxWidth(0.7f)
+                    .height(48.dp)
+            ) {
+                Text("Innstillinger")
+            }
+
+            Spacer(modifier = Modifier.padding(4.dp))
+
+            // Personvernerklæringsknapp
+            Button(
+                onClick = {
+                    // Når knappen trykkes, vis personvernerklæringen i en popup
+                    showPrivacyDialog = true
+                },
+                enabled = true,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xff3b7d9c)
+                ),
+                modifier = Modifier
+                    .fillMaxWidth(0.7f)
+                    .height(48.dp)
+            ) {
+                Text("Personvernerklæring")
+            }
+
+            // Popup for personvernerklæring
+            if (showPrivacyDialog) {
+                AlertDialog(
+                    onDismissRequest = { showPrivacyDialog = false },
+                    title = {
+                        Text("Personvernerklæring")
+                    },
+                    text = {
+                        Text(
+                            "Vi samler ikke inn noen informasjon om deg.\n\n" +
+                                    "All data du legger inn lagres kun lokalt på mobilen din og deles aldri med noen.",
+                            lineHeight = 20.sp
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showPrivacyDialog = false }) {
+                            Text("Lukk")
+                        }
+                    }
+                )
+            }
+
+            if (showPhotoOptDialog) {
+                AlertDialog(
+                    onDismissRequest = { showPhotoOptDialog = false },
+                    title = { Text("Profilbilde") },
+                    text = { Text("Velg hvordan du vil legge til profilbilde") },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                photoPickerLauncher.launch("image/*")
+                                showPhotoOptDialog = false
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Purple40)
+                        ) {
+                            Text("Velg fra galleri")
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = {
+                                cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+                                showPhotoOptDialog = false
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Purple40)
+                        ) {
+                            Text("Ta nytt bilde")
+                        }
+                    }
+                )
+            }
+
+            // Dialog for å redigere navn
+            if (showDialog) {
+                AlertDialog(
+                    title = {
+                        Text(text = "Rediger navn")
+                    },
+                    text = {
+                        Column {
+                            OutlinedTextField(
+                                value = tempFirstname,
+                                onValueChange = { tempFirstname = it },
+                                label = { Text("Fornavn") },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = tempLastname,
+                                onValueChange = { tempLastname = it },
+                                label = { Text("Etternavn") },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    },
+                    onDismissRequest = {
+                        showDialog = false
+                        tempFirstname = ""
+                        tempLastname = ""
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    dataStoreManager.saveFirstname(tempFirstname)
+                                    dataStoreManager.saveLastname(tempLastname)
+                                }
+                                showDialog = false
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Purple40)
+                        ) {
+                            Text("Lagre")
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = {
+                                showDialog = false
+                                tempFirstname = ""
+                                tempLastname = ""
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.LightGray
+                            )
+                        ) {
+                            Text("Avbryt")
+                        }
+                    }
                 )
             }
         }
-        Spacer(modifier = Modifier.padding(16.dp))
-        Box(modifier = Modifier.clickable { showDialog = true }) {
-            Text(
-                text = if (firstname.isBlank() && lastname.isBlank()) "Fornavn Etternavn" else "$firstname $lastname",
-                fontSize = 28.sp,
-                modifier = Modifier.padding(end = 20.dp)
-            )
-            Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = "edit name",
-                tint = Purple40,
-                modifier = Modifier
-                    .size(16.dp)
-                    .align(Alignment.TopEnd)
-            )
-        }
-        Spacer(modifier = Modifier.padding(16.dp))
-        Button(
-            onClick = {},
-            enabled = true,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Purple40
-            ),
-            modifier = Modifier
-                .fillMaxWidth(0.7f)
-                .height(48.dp)
-        ) {
-            Text("Innstillinger")
-        }
-
-        Spacer(modifier = Modifier.padding(8.dp))
-
-        // Personvernerklæringsknapp
-        Button(
-            onClick = {
-                // Når knappen trykkes, vis personvernerklæringen i en popup
-                showPrivacyDialog = true
-            },
-            enabled = true,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Purple40
-            ),
-            modifier = Modifier
-                .fillMaxWidth(0.7f)
-                .height(48.dp)
-        ) {
-            Text("Personvernerklæring")
-        }
-
-        // Popup for personvernerklæring
-        if (showPrivacyDialog) {
-            AlertDialog(
-                onDismissRequest = { showPrivacyDialog = false },
-                title = {
-                    Text("Personvernerklæring")
-                },
-                text = {
-                    Text(
-                        "Vi samler ikke inn noen informasjon om deg.\n\n" +
-                                "All data du legger inn lagres kun lokalt på mobilen din og deles aldri med noen.",
-                        lineHeight = 20.sp
-                    )
-                },
-                confirmButton = {
-                    TextButton(onClick = { showPrivacyDialog = false }) {
-                        Text("Lukk")
-                    }
-                }
-            )
-        }
-
-        if (showPhotoOptDialog) {
-            AlertDialog(
-                onDismissRequest = { showPhotoOptDialog = false },
-                title = { Text("Profilbilde") },
-                text = { Text("Velg hvordan du vil legge til profilbilde") },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            photoPickerLauncher.launch("image/*")
-                            showPhotoOptDialog = false
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Purple40)
-                    ) {
-                        Text("Velg fra galleri")
-                    }
-                },
-                dismissButton = {
-                    Button(
-                        onClick = {
-                            cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
-                            showPhotoOptDialog = false
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Purple40)
-                    ) {
-                        Text("Ta nytt bilde")
-                    }
-                }
-            )
-        }
-
-        // Dialog for å redigere navn
-        if (showDialog) {
-            AlertDialog(
-                title = {
-                    Text(text = "Rediger navn")
-                },
-                text = {
-                    Column {
-                        OutlinedTextField(
-                            value = tempFirstname,
-                            onValueChange = { tempFirstname = it },
-                            label = { Text("Fornavn") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        OutlinedTextField(
-                            value = tempLastname,
-                            onValueChange = { tempLastname = it },
-                            label = { Text("Etternavn") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                },
-                onDismissRequest = {
-                    showDialog = false
-                    tempFirstname = ""
-                    tempLastname = ""
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                dataStoreManager.saveFirstname(tempFirstname)
-                                dataStoreManager.saveLastname(tempLastname)
-                            }
-                            showDialog = false
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Purple40)
-                    ) {
-                        Text("Lagre")
-                    }
-                },
-                dismissButton = {
-                    Button(
-                        onClick = {
-                            showDialog = false
-                            tempFirstname = ""
-                            tempLastname = ""
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.LightGray
-                        )
-                    ) {
-                        Text("Avbryt")
-                    }
-                }
-            )
-        }
     }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopAppBarProfile(
+    modifier: Modifier = Modifier,
+) {
+    CenterAlignedTopAppBar(
+        title = { Text("Profil") },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color(0xff88aabd),
+            titleContentColor = Color.White
+        )
+    )
 }
