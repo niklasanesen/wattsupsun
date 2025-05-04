@@ -19,6 +19,13 @@ git clone https://github.uio.no/IN2000-V25/team-43.git
 
 Deretter kan du åpne prosjektet i Android Studio, og kjøre appen i en emulator med API-level 34.
 
+## Datakilder
+
+- Værdata fra [Frost](https://frost.met.no).
+- Kart fra [Mapbox](https://mapbox.com).
+- Strømpriser fra [HvaKosterStrømmen](https://www.hvakosterstrommen.no/strompris-api).
+- [PVGIS](https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en) til å sammenlinke solstrålingsdata.
+
 ## Arkitektur
 
 Dataflyten og filstrukturen vår er inspirert av [Model–view–viewmodel](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel) arkitekturen, noe som blant annet hjelper oss å holde UI og API logikk separat. Dette er viktig for å holde kodebasen enkel og oversiktig når prosjektet blir mer komplekst.
@@ -29,3 +36,4 @@ Dataflyten og filstrukturen vår er inspirert av [Model–view–viewmodel](http
 
 - Vi har tatt litt inspirasjon fra [otovo](https://www.otovo.no).
 - Takk til Fredrik Løvoll som hjalp oss med `reverseGeocode` koden.
+- TODO: legg til link til den sida med alt av beregninger!
