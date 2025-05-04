@@ -24,3 +24,7 @@ Deretter kan du åpne prosjektet i Android Studio, og kjøre appen i en emulator
 Dataflyten og filstrukturen vår er inspirert av [Model–view–viewmodel](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel) arkitekturen, noe som blant annet hjelper oss å holde UI og API logikk separat. Dette er viktig for å holde kodebasen enkel og oversiktig når prosjektet blir mer komplekst.
 
 <img src="app/src/main/res/drawable/arkitektur.png" alt="arkitektur">
+
+## Credits
+
+- Takk til Fredrik Løvoll som hjalp oss med `reverseGeocode` koden.
