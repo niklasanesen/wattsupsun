@@ -4,6 +4,6 @@
 <h1 align="center">WattsUpSun</h1>
 <p align="center">En solcellepanel app fra prosjektarbeidet i IN2000 - Vår 2025</p>
 <p align="center">
-    <i>~ Laget av Kristin, Niklas, Jonatan, Dania, Affaq og Kavin ~</i>
+    <i>~ Laget av Kristin, Niklas, Jonatan, Danial, Affaq og Kavin ~</i>
 </p>
 
