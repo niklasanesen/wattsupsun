@@ -11,16 +11,16 @@ WattsUpSun er en app designet for huseiere som ønsker å vurdere lønnsomheten 
 
 ## Installasjon
 
-For å laste ned og kjøre appen trenger du [git](https://git-scm.com) og [Android Studio](https://developer.android.com/studio). Når du har disse to lastet ned, kan du starte ved å klone prosjektet:
+For å laste ned og kjøre appen trenger du [git](https://git-scm.com) og [Android Studio](https://developer.android.com/studio). Når begge er installert, kan du klone prosjektet ved å kjøre følgende kommando i terminalen:
 
 ```
 git clone https://github.uio.no/IN2000-V25/team-43.git
 ```
 
-Også åpne appen i Android Studio, og kjøre den i en emulator med API-level 34.
+Deretter kan du åpne prosjektet i Android Studio, og kjøre appen i en emulator med API-level 34.
 
 ## Arkitektur
 
-Dataflyten og filstrukturen vår er inspirert av [Model–view–viewmodel](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel) arkitekturen, som blant annet hjelper oss å holde UI og API logikk separat. Dette er viktig for å holde kodebasen enkel og oversiktig når prosjektet blir mer komplekst.
+Dataflyten og filstrukturen vår er inspirert av [Model–view–viewmodel](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel) arkitekturen, noe som blant annet hjelper oss å holde UI og API logikk separat. Dette er viktig for å holde kodebasen enkel og oversiktig når prosjektet blir mer komplekst.
 
 <img src="app/src/main/res/drawable/arkitektur.png" alt="arkitektur">
