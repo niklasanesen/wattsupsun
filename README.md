@@ -24,7 +24,7 @@ Deretter kan du åpne prosjektet i Android Studio, og kjøre appen i en emulator
 - Værdata fra [Frost](https://frost.met.no).
 - Kart fra [Mapbox](https://mapbox.com).
 - Strømpriser fra [HvaKosterStrømmen](https://www.hvakosterstrommen.no/strompris-api).
-- [PVGIS](https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en) til å sammenlinke solstrålingsdata.
+- [PVGIS](https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en) for å sammenlinke solstrålingsdata.
 
 ## Arkitektur
 
@@ -36,4 +36,4 @@ Dataflyten og filstrukturen vår er inspirert av [Model–view–viewmodel](http
 
 - Vi har tatt litt inspirasjon fra [otovo](https://www.otovo.no).
 - Takk til Fredrik Løvoll som hjalp oss med `reverseGeocode` koden.
-- TODO: legg til link til den sida med alt av beregninger!
+- TODO: legg til link til den sida med alt av beregninger...
