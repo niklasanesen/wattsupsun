@@ -3,6 +3,7 @@ package no.uio.ifi.in2000.team_43.model.dataStore
 import android.content.Context
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
 
@@ -10,6 +11,12 @@ val Context.dataStore by preferencesDataStore(name = "addresses")
 class DataStoreManager(private val context: Context) {
 
     private val ADDRESSES_KEY = stringSetPreferencesKey("addresses")
+
+    companion object {
+        val FIRSTNAME = stringPreferencesKey("firstname")
+        val LASTNAME = stringPreferencesKey("lastname")
+        val PROFILE_PHOTO_URI = stringPreferencesKey("profile_photo_uri")
+    }
 
     // Lagre en adresse
     suspend fun saveAddress(adresse: LagreAdresse) {
@@ -46,6 +53,39 @@ class DataStoreManager(private val context: Context) {
     suspend fun deleteAllAddresses() {
         context.dataStore.edit { preferences ->
             preferences.remove(ADDRESSES_KEY) // Fjerner alle adresser
+        }
+    }
+
+    val firstnameFlow: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[FIRSTNAME] ?: ""
+        }
+
+    val lastnameFlow: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[LASTNAME] ?: ""
+        }
+
+    val profilePhotoUriFlow: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[PROFILE_PHOTO_URI] ?: ""
+        }
+
+    suspend fun saveFirstname(firstname: String) {
+        context.dataStore.edit { preferences ->
+            preferences[FIRSTNAME] = firstname
+        }
+    }
+
+    suspend fun saveLastname(lastname: String) {
+        context.dataStore.edit { preferences ->
+            preferences[LASTNAME] = lastname
+        }
+    }
+
+    suspend fun saveProfilePhotoUri(uri: String) {
+        context.dataStore.edit { preferences ->
+            preferences[PROFILE_PHOTO_URI] = uri
         }
     }
 }
