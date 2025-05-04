@@ -180,7 +180,7 @@ fun ProfilePage(modifier: Modifier = Modifier) {
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Purple40)
                     ) {
-                        Text("Save")
+                        Text("Lagre")
                     }
                 },
                 dismissButton = {
@@ -194,7 +194,7 @@ fun ProfilePage(modifier: Modifier = Modifier) {
                             containerColor = Color.LightGray
                         )
                     ) {
-                        Text("Cancel")
+                        Text("Avbryt")
                     }
                 }
             )
