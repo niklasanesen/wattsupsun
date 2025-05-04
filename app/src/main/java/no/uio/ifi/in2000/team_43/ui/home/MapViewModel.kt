@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.team_43.model.map.Suggestion
 
 private const val MAX_SUGGESTIONS = 4;
-private const val MAX_NAME_LEN = 48;
+private const val MAX_NAME_LEN = 56;
 
 class MapViewModel() : ViewModel() {
     private val placeAutocomplete = PlaceAutocomplete.create()
