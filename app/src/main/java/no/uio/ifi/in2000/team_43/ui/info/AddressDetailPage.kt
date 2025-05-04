@@ -52,22 +52,22 @@ fun directionText(direction: Double): DirectionInfo {
         0.0 -> DirectionInfo(
             backgroundColor = Color(0xFFFFCDD2), // Lys rød
             textColor = Color(0xFFB71C1C),       // Mørk rød
-            message = "Nord: Det lønner seg ikke å ha solcellepaneler, basert på retningen du har valgt."
+            message = "Nord: Basert på retningen du har valgt lønner det seg ikke å ha solcellepaneler."
         )
         90.0 -> DirectionInfo(
             backgroundColor = Color(0xFFC8E6C9), // Lys grønn
             textColor = Color(0xFF388E3C),       // Mørk grønn
-            message = "Øst: Du genererer mest strøm på starten av dagen, basert på retningen du har valgt."
+            message = "Øst: Basert på retningen du har valgt genererer du mest strøm på starten av dagen."
         )
         180.0 -> DirectionInfo(
             backgroundColor = Color(0xFFC8E6C9), // Lys grønn
             textColor = Color(0xFF388E3C),       // Mørk grønn
-            message = "Sør: Det lønner seg å ha solcellepaneler, basert på retningen du har valgt."
+            message = "Sør: Basert på retningen  du har valgt lønner det seg å ha solcellepaneler."
         )
         270.0 -> DirectionInfo(
             backgroundColor = Color(0xFFC8E6C9), // Lys grønn
             textColor = Color(0xFF388E3C),       // Mørk grønn
-            message = "Vest: Du genererer mest strøm på slutten av dagen, basert på retningen du har valgt."
+            message = "Vest: Basert på retningen du har valgt genererer du mest strøm på slutten av dagen."
         )
         else -> DirectionInfo(
             backgroundColor = Color.LightGray,

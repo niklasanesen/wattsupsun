@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -39,11 +40,11 @@ import no.uio.ifi.in2000.team_43.ui.satellite.SatelliteScreen
  * enum values that represent the screens in the app
  */
 enum class HomeScreen(val route: String) {
-    Start("app_name"),
-    Input("input"),
-    Info("info"),
-    Satellite("satellite"),
-    InfoApp("app_info")
+    Start("Kart"),
+    Input("Registrer takflate"),
+    Info("Info"),
+    Satellite("Tegn takflate"),
+    InfoApp("App Info")
 }
 
 @Composable
@@ -152,7 +153,8 @@ fun TopAppBar(
      */
 ) {
     CenterAlignedTopAppBar(
-        title = { Text(currentScreen.name) },
+        title = { Text(currentScreen.route) },
+        //colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xff83c1eb)),
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             titleContentColor = MaterialTheme.colorScheme.primary,

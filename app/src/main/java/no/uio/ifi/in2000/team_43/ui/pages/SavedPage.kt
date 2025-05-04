@@ -23,10 +23,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 
 
 @Composable
-fun SavedPage(modifier: Modifier = Modifier) {
+fun SavedPage(
+    modifier: Modifier = Modifier
+) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "saved") {
         composable("saved") {
@@ -65,47 +69,89 @@ fun SavedPageScreen(
     val addresses by dataStoreManager.addresses.collectAsState(initial = emptyList())
 
     Scaffold(
+        modifier = modifier,
         topBar = { TopAppBarSaved() },
-        bottomBar = {
-            // Knapp for å slette alle adresser
-            Button(
-                onClick = {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        dataStoreManager.deleteAllAddresses()
+    ) { innerPadding ->
+        Column (
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (addresses.isEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(28.dp),
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    Card (
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xffe8ca89),
+                        ),
+                        modifier = Modifier
+                    ) {
+                        Text(
+                            text = "Ingen adresser lagret enda.",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xff9c2d17),
+                            modifier = Modifier
+                                .paddingFromBaseline(top = 40.dp)
+                                .padding(horizontal = 20.dp),
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Gå til kart, velg adresse og registrer takflater for å lagre en adresse!",
+                            modifier = Modifier
+                                .paddingFromBaseline(bottom = 24.dp)
+                                .padding(horizontal = 20.dp),
+                        )
                     }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-            ) {
-                Text("Slett alle adresser", color = MaterialTheme.colorScheme.onError)
-            }
-        }
-    ) { padding ->
-        if (addresses.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "Ingen adresser lagret enda.")
-            }
-        } else {
-            LazyColumn(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 20.dp)
-                    .padding(padding),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                items(addresses) { address ->
-                    AddressCard(address = address, onClick = { onCardClick(address) })
+                }
+            } else {
+                LazyColumn(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 20.dp)
+                        .padding(innerPadding),
+                    verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    items(addresses) { address ->
+                        // For å legge til padding over (så skyggene blir riktig)
+                        if (address == addresses[0]) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+
+                        AddressCard(address = address, onClick = { onCardClick(address) })
+
+                        // For å legge til padding under (så skyggene blir riktig)
+                        if (address == addresses[addresses.size -1]) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                    }
+                }
+
+                // Knapp for å slette alle adresser
+                Button(
+                    onClick = {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            dataStoreManager.deleteAllAddresses()
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp)
+                        .height(72.dp)
+                        .paddingFromBaseline(bottom = innerPadding.calculateBottomPadding()),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Slett alle adresser", color = MaterialTheme.colorScheme.onError)
                 }
             }
+
+
         }
     }
 }
@@ -140,6 +186,9 @@ fun TopAppBarSaved(
 ) {
     CenterAlignedTopAppBar(
         title = { Text("Lagrede adresser") },
-        colors = TopAppBarDefaults.topAppBarColors()
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color(0xff88aabd),
+            titleContentColor = Color.White
+        )
     )
 }

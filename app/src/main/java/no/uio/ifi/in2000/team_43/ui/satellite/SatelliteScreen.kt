@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -273,7 +274,7 @@ fun SatelliteScreen(
                             areaInSquareMeters = 0
                         },
                         enabled = savedPolygon.isNotEmpty(),
-                        colors = ButtonDefaults.buttonColors(Color.Red)
+                        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error)
 
                     ) {
                         Text("Slett takflate")
