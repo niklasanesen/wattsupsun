@@ -36,16 +36,24 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
+
 @Composable
 fun ProfilePage(modifier: Modifier = Modifier) {
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var showDialog by remember { mutableStateOf(false) }
-    var tempFirstName by remember { mutableStateOf(firstName) }
-    var tempLastName by remember { mutableStateOf(lastName) }
+    val context = LocalContext.current
+    val dataStoreManager = remember { DataStoreManager(context) }
 
-    // Tilstand for personvernerklærings-popup
+    val firstname by dataStoreManager.firstnameFlow.collectAsState(initial = "")
+    val lastname by dataStoreManager.lastnameFlow.collectAsState(initial = "")
+    var tempFirstname by remember { mutableStateOf(firstname) }
+    var tempLastname by remember { mutableStateOf(lastname) }
+    var showDialog by remember { mutableStateOf(false) }
     var showPrivacyDialog by remember { mutableStateOf(false) }
 
     Column(
@@ -65,7 +73,7 @@ fun ProfilePage(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.padding(16.dp))
         Box(modifier = Modifier.clickable { showDialog = true }) {
             Text(
-                text = if (firstName.isBlank() && lastName.isBlank()) "Firstname Lastname" else "$firstName $lastName",
+                text = if (firstname.isBlank() && lastname.isBlank()) "Fornavn Etternavn" else "$firstname $lastname",
                 fontSize = 28.sp,
                 modifier = Modifier.padding(end = 20.dp)
             )
@@ -137,35 +145,37 @@ fun ProfilePage(modifier: Modifier = Modifier) {
         if (showDialog) {
             AlertDialog(
                 title = {
-                    Text(text = "Edit name")
+                    Text(text = "Rediger navn")
                 },
                 text = {
                     Column {
                         OutlinedTextField(
-                            value = tempFirstName,
-                            onValueChange = { tempFirstName = it },
-                            label = { Text("First name") },
+                            value = tempFirstname,
+                            onValueChange = { tempFirstname = it },
+                            label = { Text("Fornavn") },
                             modifier = Modifier.fillMaxWidth()
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(
-                            value = tempLastName,
-                            onValueChange = { tempLastName = it },
-                            label = { Text("Last name") },
+                            value = tempLastname,
+                            onValueChange = { tempLastname = it },
+                            label = { Text("Etternavn") },
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
                 },
                 onDismissRequest = {
                     showDialog = false
-                    tempFirstName = firstName
-                    tempLastName = lastName
+                    tempFirstname = ""
+                    tempLastname = ""
                 },
                 confirmButton = {
                     Button(
                         onClick = {
-                            firstName = tempFirstName
-                            lastName = tempLastName
+                            CoroutineScope(Dispatchers.IO).launch {
+                                dataStoreManager.saveFirstname(tempFirstname)
+                                dataStoreManager.saveLastname(tempLastname)
+                            }
                             showDialog = false
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Purple40)
@@ -177,8 +187,8 @@ fun ProfilePage(modifier: Modifier = Modifier) {
                     Button(
                         onClick = {
                             showDialog = false
-                            tempFirstName = firstName
-                            tempLastName = lastName
+                            tempFirstname = ""
+                            tempLastname = ""
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.LightGray
