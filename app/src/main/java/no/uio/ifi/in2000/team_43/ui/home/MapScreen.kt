@@ -233,7 +233,7 @@ fun MapScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = Purple40)
                     ) {
                         Text(
-                            "Velg adresse",
+                            "Bekreft adresse",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
                         )
