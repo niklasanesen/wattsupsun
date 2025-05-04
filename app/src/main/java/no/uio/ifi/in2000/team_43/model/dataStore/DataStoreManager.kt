@@ -15,6 +15,7 @@ class DataStoreManager(private val context: Context) {
     companion object {
         val FIRSTNAME = stringPreferencesKey("firstname")
         val LASTNAME = stringPreferencesKey("lastname")
+        val PROFILE_PHOTO_URI = stringPreferencesKey("profile_photo_uri")
     }
 
     // Lagre en adresse
@@ -65,6 +66,11 @@ class DataStoreManager(private val context: Context) {
             preferences[LASTNAME] ?: ""
         }
 
+    val profilePhotoUriFlow: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[PROFILE_PHOTO_URI] ?: ""
+        }
+
     suspend fun saveFirstname(firstname: String) {
         context.dataStore.edit { preferences ->
             preferences[FIRSTNAME] = firstname
@@ -74,6 +80,12 @@ class DataStoreManager(private val context: Context) {
     suspend fun saveLastname(lastname: String) {
         context.dataStore.edit { preferences ->
             preferences[LASTNAME] = lastname
+        }
+    }
+
+    suspend fun saveProfilePhotoUri(uri: String) {
+        context.dataStore.edit { preferences ->
+            preferences[PROFILE_PHOTO_URI] = uri
         }
     }
 }
