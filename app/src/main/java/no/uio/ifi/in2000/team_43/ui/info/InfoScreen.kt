@@ -42,12 +42,17 @@ import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Surface
+
 import androidx.compose.runtime.mutableStateOf
 import no.uio.ifi.in2000.team_43.ui.met.beregnStromproduksjon
 import java.time.Instant
 
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.tooling.preview.Preview
 import no.uio.ifi.in2000.team_43.model.PVGIS.MonthlyEntry
 import no.uio.ifi.in2000.team_43.ui.PVGIS.convertPVGISToMeasurements
 
@@ -59,6 +64,8 @@ import no.uio.ifi.in2000.team_43.ui.met.generateMonthlyMeasurements
 import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.DataSourceSwitch
 import java.math.BigDecimal
 import java.math.RoundingMode
+
+
 
 
 // test
@@ -134,35 +141,44 @@ fun InfoScreen(
 
         // Takflate-verdier boks
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             elevation = 8.dp,
             shape = RoundedCornerShape(16.dp),
-            backgroundColor = Color.White // Hvit bakgrunn
+            backgroundColor = Color.White
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "Takflate-verdier:",
+                    text = "Dette vet vi om taket ditt:",
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp, // Økt størrelse på takflate overskrift
+                        fontSize = 24.sp,
                         color = MaterialTheme.colorScheme.onSurface
                     ),
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
-                Text(
-                    text = """
-                    Lengde: ${ctx.input?.length} m
-                    Bredde: ${ctx.input?.width} m
-                    Vinkel: ${ctx.input?.angle}°
-                    Retning: ${ctx.input?.direction}°
-                """.trimIndent(),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 20.sp, // Økt størrelse på tekstinnhold
-                        color = MaterialTheme.colorScheme.onSurface,
-                        letterSpacing = 0.5.sp
-                    ),
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+
+                // Første rad
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ValueBox(label = "Lengde", value = "${ctx.input?.length} m", modifier = Modifier.weight(1f))
+                    ValueBox(label = "Bredde", value = "${ctx.input?.width} m", modifier = Modifier.weight(1f))
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Andre rad
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ValueBox(label = "Vinkel", value = "${ctx.input?.angle}°", modifier = Modifier.weight(1f))
+                    ValueBox(label = "Retning", value = "${ctx.input?.direction}°", modifier = Modifier.weight(1f))
+                }
             }
         }
 
@@ -487,24 +503,51 @@ fun InfoScreen(
 
     }
 
-
-
-    /*
-Box(modifier = modifier
-.fillMaxSize()
-.padding(20.dp)
-) {
-Column {
-Text("coords: ${ctx.coords?.coordinates()}")
-Spacer(modifier = Modifier.height(16.dp))
-Text("Inputverdier av takflate: \nLengde: ${ctx.input?.length} \nBredde: ${ctx.input?.width} \nVinkel: ${ctx.input?.angle}° \nRetning: ${ctx.input?.direction}°")
-}
 }
 
-*/
+@Composable
+fun ValueBox(label: String, value: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .background(color = Color(0xFFF0F0F0), shape = RoundedCornerShape(12.dp))
+            .padding(vertical = 12.dp, horizontal = 8.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium.copy(
+                color = Color(0xFF6D6D8D),
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp
+            )
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                color = Color.Black
+            )
+        )
+    }
 }
 
-
+@Preview(showBackground = true)
+@Composable
+fun PreviewValueBox() {
+    MaterialTheme {
+        Surface {
+            ValueBox(
+                label = "Lengde",
+                value = "34 m",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
+        }
+    }
+}
 
 
 
