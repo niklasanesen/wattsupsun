@@ -5,18 +5,24 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mapbox.geojson.Point
 import com.mapbox.search.ResponseInfo
+import com.mapbox.search.ReverseGeoOptions
+import com.mapbox.search.SearchCallback
 import com.mapbox.search.SearchEngine
 import com.mapbox.search.SearchEngineSettings
 import com.mapbox.search.SearchOptions
 import com.mapbox.search.SearchSuggestionsCallback
 import com.mapbox.search.autocomplete.PlaceAutocomplete
 import com.mapbox.search.autocomplete.PlaceAutocompleteSuggestion
+import com.mapbox.search.common.IsoCountryCode
+import com.mapbox.search.result.SearchResult
 import com.mapbox.search.result.SearchSuggestion
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.team_43.model.map.Suggestion
+import no.uio.ifi.in2000.team_43.model.stromdistrikt.Fylker
+import no.uio.ifi.in2000.team_43.model.stromdistrikt.StromDistrikt
 
 private const val MAX_SUGGESTIONS = 4;
 private const val MAX_NAME_LEN = 56;
@@ -33,6 +39,9 @@ class MapViewModel() : ViewModel() {
 
     private val _address = MutableStateFlow<String?>(null)
     val address: StateFlow<String?> = _address.asStateFlow()
+
+    private val _stromdistrikt = MutableStateFlow<StromDistrikt?>(null)
+    val stromdistrikt: StateFlow<StromDistrikt?> = _stromdistrikt.asStateFlow()
 
     fun search(text: String)  {
         if (text.isEmpty()) {
@@ -63,6 +72,7 @@ class MapViewModel() : ViewModel() {
                     val suggestion = suggestions.firstOrNull()
                     if (suggestion != null) {
                         _coords.value = suggestion.coordinate
+                        setStromdistrikt(suggestion.coordinate)
                         _address.value = suggestion.fullAddress
                     }
 
@@ -105,5 +115,73 @@ class MapViewModel() : ViewModel() {
             city = city,
             country = country
         )
+    }
+
+    // creds: fredrik
+    fun setStromdistrikt(point: Point?) {
+        if (point == null) {
+            return
+        }
+        searchEngine.search(
+            ReverseGeoOptions(
+                center = point,
+                limit = 1,
+                countries = listOf(IsoCountryCode.NORWAY)
+            ),
+            object : SearchCallback {
+                override fun onResults(results: List<SearchResult>, responseInfo: ResponseInfo) {
+                    if (results.isNotEmpty()) {
+                        val result = results[0]
+                        val fylke =
+                            getFylke(result.address?.place, result.address?.region) ?: return
+                        _stromdistrikt.value = getStromdistrikt(fylke)
+
+                        // INTE FJERN FOR SVINGENDE
+                        // Ikke vær en slyngel og fjern dette meget pedagogiske kommentaren under:
+                        Log.d("MapViewModel", "Full address: ${result.address}")
+                        Log.d("MapViewModel", "Street: ${result.address?.street}")
+                        Log.d("MapViewModel", "Place: ${result.address?.place}")
+                        Log.d("MapViewModel", "Region: ${result.address?.region}")
+                        Log.d("MapViewModel", "Country: ${result.address?.country}")
+                        Log.d("MapViewModel", "Postcode: ${result.address?.postcode}")
+                        Log.d("MapViewModel", "Coordinates: ${result.coordinate}")
+                    }
+                }
+
+                override fun onError(e: Exception) {
+                    throw Exception("Error in reverseGeocode", e)
+                }
+            }
+        )
+    }
+
+    fun getFylke(place: String?, region: String?): Fylker? {
+        val text = region ?: place ?: return null
+        val normalizedText = text.trim().lowercase()
+
+        return Fylker.entries.find { fylke ->
+            val normalizedFylke = fylke.name.replace("_", " ").lowercase()
+            normalizedText == normalizedFylke
+        }
+    }
+
+    fun getStromdistrikt(fylke: Fylker): StromDistrikt? {
+        return when (fylke) {
+            Fylker.OSLO -> StromDistrikt.NO1
+            Fylker.AKERSHUS -> StromDistrikt.NO1
+            Fylker.ØSTFOLD -> StromDistrikt.NO1
+            Fylker.BUSKERUD -> StromDistrikt.NO1
+            Fylker.INNLANDET -> StromDistrikt.NO1
+            Fylker.VESTFOLD -> StromDistrikt.NO2
+            Fylker.TELEMARK -> StromDistrikt.NO2
+            Fylker.AGDER -> StromDistrikt.NO2
+            Fylker.ROGALAND -> StromDistrikt.NO2
+            Fylker.VESTLAND -> StromDistrikt.NO5
+            Fylker.MØRE_OG_ROMSDAL -> StromDistrikt.NO3
+            Fylker.TRØNDELAG -> StromDistrikt.NO3
+            Fylker.NORDLAND -> StromDistrikt.NO4
+            Fylker.TROMS -> StromDistrikt.NO4
+            Fylker.FINNMARK -> StromDistrikt.NO4
+        }
     }
 }
