@@ -5,11 +5,12 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import no.uio.ifi.in2000.team_43.data.APIClient
 import no.uio.ifi.in2000.team_43.model.stromPris.StromprisRes
+import no.uio.ifi.in2000.team_43.model.stromdistrikt.StromDistrikt
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class StromprisDataSource {
-    suspend fun getStromprisData(): List<StromprisRes>? {
+    suspend fun getStromprisData(stromdistrikt: StromDistrikt?): List<StromprisRes>? {
         try {
 
             // Henter inn dagens dato:):
@@ -17,7 +18,7 @@ class StromprisDataSource {
             val year = today.year.toString()
             val month = today.format(DateTimeFormatter.ofPattern("MM"))
             val day = today.format(DateTimeFormatter.ofPattern("dd"))
-            val priceLocationCode = "NO1" // Totalt 5 prisområder i Norge, NO1 er ment for Oslo NB; bokstaven O ikke tallet
+            val priceLocationCode = stromdistrikt?.name ?: "NO1" // Totalt 5 prisområder i Norge, NO1 er ment for Oslo NB; bokstaven O ikke tallet
 
             Log.i("TestStrom", "Dagens dato: $year-$month-$day")
 

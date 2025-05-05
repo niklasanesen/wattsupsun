@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.team_43.data.stromPris.StromprisDataSource
 import no.uio.ifi.in2000.team_43.data.stromPris.StromprisRepository
 import no.uio.ifi.in2000.team_43.model.stromPris.StromprisRes
+import no.uio.ifi.in2000.team_43.model.stromdistrikt.StromDistrikt
 
 class StromprisViewModel : ViewModel() {
 
@@ -18,16 +19,11 @@ class StromprisViewModel : ViewModel() {
     private val _data = MutableStateFlow<List<StromprisRes>?>(null)
     val data: StateFlow<List<StromprisRes>?> = _data.asStateFlow()
 
-    // Henter data
-    init {
-        fetchStromData()
-    }
-
-    private fun fetchStromData() {
+    public fun fetchStromData(stromdistrikt: StromDistrikt?) {
         viewModelScope.launch {
             try {
                 Log.i("TestStrompris", "Henter strømprisdata fra API...")
-                val response = stromprisRepo.getStromPrisListe()
+                val response = stromprisRepo.getStromPrisListe(stromdistrikt)
                 _data.value = response
             } catch (e: Exception) {
                 Log.e("TestStrompris", "Feil ved henting av strømprisdata: ${e.message}")
