@@ -107,6 +107,10 @@ fun InfoScreen(
         }
     }
 
+    LaunchedEffect(ctx.stromdistrikt) {
+        stromprisViewModel.fetchStromData(ctx.stromdistrikt)
+    }
+
 
     Column(modifier = modifier.padding(20.dp).verticalScroll(scrollState)) {
 
