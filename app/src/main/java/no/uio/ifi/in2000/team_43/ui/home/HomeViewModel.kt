@@ -9,12 +9,13 @@ import kotlinx.coroutines.flow.update
 import no.uio.ifi.in2000.team_43.model.areal.Areal
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.model.input.Input
+import no.uio.ifi.in2000.team_43.model.stromdistrikt.StromDistrikt
 
 class HomeViewModel() : ViewModel() {
     /**
      * app state
      */
-    private val _ctx = MutableStateFlow<Ctx>(Ctx(coords = null, input = null, areal = null, address = null))
+    private val _ctx = MutableStateFlow<Ctx>(Ctx(coords = null, input = null, areal = null, address = null, stromdistrikt = null))
     val ctx: StateFlow<Ctx> = _ctx.asStateFlow()
 
     fun resetCtx() {
@@ -59,4 +60,11 @@ class HomeViewModel() : ViewModel() {
         }
     }
 
+    fun setStromdistrikt(newStromdistrikt: StromDistrikt?) {
+        _ctx.update { currentState ->
+            currentState.copy(
+                stromdistrikt = newStromdistrikt
+            )
+        }
+    }
 }
