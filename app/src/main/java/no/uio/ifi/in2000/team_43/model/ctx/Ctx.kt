@@ -9,5 +9,6 @@ data class Ctx(
     val coords: Point?,
     val input: Input?,
     var areal: Areal?,
-    var address: String?
+    var address: String?,
+    var stromdistrikt: String?
 )

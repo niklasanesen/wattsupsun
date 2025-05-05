@@ -14,7 +14,7 @@ class HomeViewModel() : ViewModel() {
     /**
      * app state
      */
-    private val _ctx = MutableStateFlow<Ctx>(Ctx(coords = null, input = null, areal = null, address = null))
+    private val _ctx = MutableStateFlow<Ctx>(Ctx(coords = null, input = null, areal = null, address = null, stromdistrikt = null))
     val ctx: StateFlow<Ctx> = _ctx.asStateFlow()
 
     fun resetCtx() {
@@ -59,4 +59,11 @@ class HomeViewModel() : ViewModel() {
         }
     }
 
+    fun setStromdistrikt(newStromdistrikt: String?) {
+        _ctx.update { currentState ->
+            currentState.copy(
+                stromdistrikt = newStromdistrikt
+            )
+        }
+    }
 }
