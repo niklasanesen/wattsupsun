@@ -66,6 +66,7 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 
+import androidx.compose.material3.*
 
 
 // test
@@ -86,6 +87,9 @@ fun InfoScreen(
     val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata
 
     var isMetSelected by remember { mutableStateOf(true) }
+
+    var showDialog by remember { mutableStateOf(false) }
+
 
     val produksjonsliste = mutableListOf<Pair<Instant, Double>>()  // strømproduskjon for alle dager i et år
 
@@ -485,28 +489,34 @@ fun InfoScreen(
 
         Button(
             onClick = {
-                val adresse = LagreAdresse(
-                    latitude = ctx.coords?.latitude() ?: 0.0,
-                    longitude = ctx.coords?.longitude() ?: 0.0,
-                    height = ctx.input?.length?.toDouble() ?: 0.0, // NB! endret fra 'length' til 'height'
-                    width = ctx.input?.width?.toDouble() ?: 0.0,
-                    angle = ctx.input?.angle?.toDouble() ?: 0.0,
-                    direction = ctx.input?.direction?.toDouble() ?: 0.0
-                )
-
-                // Her bruker vi DataStoreManager.saveAddress()
-                CoroutineScope(Dispatchers.IO).launch {
-                    dataStoreManager.saveAddress(adresse) // Kall på den eksisterende funksjonen
-                }
+                showDialog = true
             },
             modifier = Modifier.align(alignment = Alignment.End)
         ) {
             Text("Lagre adresse")
         }
 
+        AddressNamePopup(
+            showDialog = showDialog,
+            onDismiss = { showDialog = false },
+            onConfirm = { userGivenName ->
+                val adresse = LagreAdresse(
+                    latitude = ctx.coords?.latitude() ?: 0.0,
+                    longitude = ctx.coords?.longitude() ?: 0.0,
+                    height = ctx.input?.length?.toDouble() ?: 0.0,
+                    width = ctx.input?.width?.toDouble() ?: 0.0,
+                    angle = ctx.input?.angle?.toDouble() ?: 0.0,
+                    direction = ctx.input?.direction?.toDouble() ?: 0.0,
+                    addressString = ctx.address ?: "Ukjent adresse",
+                    lagretNavn = userGivenName
+                )
 
+                CoroutineScope(Dispatchers.IO).launch {
+                    dataStoreManager.saveAddress(adresse)
+                }
+            }
+        )
     }
-
 }
 
 @Composable
@@ -554,6 +564,48 @@ fun PreviewValueBox() {
 }
 
 
+@Composable
+fun AddressNamePopup(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var input by remember { mutableStateOf("") }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { onDismiss() },
+            title = { Text("Navngi adresse") },
+            text = {
+                Column {
+                    Text("Skriv inn et navn for denne adressen")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextField(
+                        value = input,
+                        onValueChange = { input = it },
+                        placeholder = { Text("F.eks. Hjem, Hytta, Jobb...") },
+                        singleLine = true
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (input.isNotBlank()) {
+                        onConfirm(input.trim())
+                        onDismiss()
+                    }
+                }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("Avbryt")
+                }
+            }
+        )
+    }
+}
 
 
 // Parser tidspunktdataene fra stromAPI til leselig klokkeslett

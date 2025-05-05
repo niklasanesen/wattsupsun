@@ -19,12 +19,6 @@ import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import kotlin.math.min
 
-fun calcInsolation(cloudData: Double, snowData: Double, globalRadiation: Double): Double {
-    val calcCloud = 1 - (cloudData.toDouble() / 8) * 0.75
-    val calcSnow = 1 - min(snowData.toDouble() / 30, 1.0) * 0.3
-    return (calcCloud * calcSnow * globalRadiation).toDouble()
-}
-
 // Beregninger for stromproduksjon
 
 // kort forklart:
@@ -35,9 +29,9 @@ fun calcInsolation(cloudData: Double, snowData: Double, globalRadiation: Double)
 // 4. Man må anta at bruker har valgt anbefalt optimalvinkel, HVIS IKKE: egen formel som justerer
 
 fun beregnStromproduksjon(
-    lengde: Int,              // meter
-    bredde: Int,              // meter
-    vinkel: Int,              // faktisk vinkel i grader
+    lengde: Int,                 // meter
+    bredde: Int,                 // meter
+    vinkel: Int,                 // faktisk vinkel i grader
     temperatur: Double,          // lufttemperatur i grader C
     solinnstraling: Double       // Wh/m²
 ): Double {
