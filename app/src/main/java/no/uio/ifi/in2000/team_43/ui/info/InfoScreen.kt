@@ -80,7 +80,6 @@ fun InfoScreen(
 ) {
     // Samler data fra ViewModels
     val pvgisData by pvgisViewModel.data.collectAsState()
-    val stromprisData by stromprisViewModel.data.collectAsState()
     val drCalcData by pvgisViewModel.drCalcData.collectAsState() // Henter DRcalc data
     val drCalcTotalSum by pvgisViewModel.drCalcDataTotalSum.collectAsState() // Henter kalkulert totalsum
     val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata
@@ -97,13 +96,15 @@ fun InfoScreen(
     val pvgisSolData by pvgisViewModel.productionData.collectAsState() // Henter pvgis solinnstrålingsdata
     val ferdigBeregnetProdData = mutableListOf<Double>() // legger inn beregnet strøm produksjonsdata
 
+    // Strompris data:
+    val stromprisData by stromprisViewModel.data.collectAsState()
+    val stromprisDataPerMnd by stromprisViewModel.dataPerMnd.collectAsState()
 
     val errorMessage by metViewModel.errorMessage.collectAsState()
 
     val scrollState = rememberScrollState()
 
     var selectedMonth by remember { mutableStateOf(0) } // 0 = Januar
-
 
     // test
     // For å vise hvordan man henter månedlig data fra pvgis tool
@@ -116,9 +117,20 @@ fun InfoScreen(
         }
     }
 
+    // Fetcher fra stromAPI
     LaunchedEffect(ctx.stromdistrikt) {
         stromprisViewModel.fetchStromData(ctx.stromdistrikt)
     }
+
+    // Testing if it works to fetch stromprisen per month
+    LaunchedEffect(stromprisDataPerMnd) {
+        Log.i("TestStromPris", "Sjekker ${stromprisDataPerMnd?.get(0)}")
+        stromprisDataPerMnd?.forEachIndexed { index, data ->
+            Log.i("TestStrompris", "mndnr: $index, Strompris kl 12: ${data?.getOrNull(12)?.NOK_per_kWh}")
+        }
+    }
+
+
 
 
     Column(modifier = modifier.padding(20.dp).verticalScroll(scrollState)) {

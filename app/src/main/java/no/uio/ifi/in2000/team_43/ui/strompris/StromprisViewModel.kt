@@ -19,6 +19,9 @@ class StromprisViewModel : ViewModel() {
     private val _data = MutableStateFlow<List<StromprisRes>?>(null)
     val data: StateFlow<List<StromprisRes>?> = _data.asStateFlow()
 
+    private val _dataPerMnd = MutableStateFlow<List<List<StromprisRes>?>?>(null)
+    val dataPerMnd: StateFlow<List<List<StromprisRes>?>?> = _dataPerMnd.asStateFlow()
+
     public fun fetchStromData(stromdistrikt: StromDistrikt?) {
         viewModelScope.launch {
             try {
@@ -27,6 +30,15 @@ class StromprisViewModel : ViewModel() {
                 _data.value = response
             } catch (e: Exception) {
                 Log.e("TestStrompris", "Feil ved henting av strømprisdata: ${e.message}")
+            }
+
+
+            try {
+                Log.i("TestStrompris", "HENTER STROMPRIS PER MND... (viewmodel)")
+                val responsePerMnd = stromprisRepo.getStromPrisPerMnd(stromdistrikt)
+                _dataPerMnd.value = responsePerMnd
+            } catch (e: Exception) {
+                Log.e("TestStrompris", "Feil ved henting av strømprisdata per mnd: ${e.message}")
             }
         }
     }

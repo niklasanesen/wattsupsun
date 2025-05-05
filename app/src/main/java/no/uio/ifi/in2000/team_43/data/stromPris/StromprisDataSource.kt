@@ -38,4 +38,41 @@ class StromprisDataSource {
             return null
         }
     }
+
+
+    suspend fun getStromprisDataMedDato(stromdistrikt: StromDistrikt?, dato: LocalDate): List<StromprisRes>? {
+        try {
+
+            // For å formattere måned:
+            val formatter = DateTimeFormatter.ofPattern("MM")
+
+            // Henter inn på valgt dato
+            val year = dato.year
+            val month = dato.format(formatter)
+            val day = "%02d".format(dato.dayOfMonth)
+            val priceLocationCode = stromdistrikt?.name ?: "NO1" // Totalt 5 prisområder i Norge, NO1 er ment for Oslo NB; bokstaven O ikke tallet
+
+
+
+            Log.i("TestStrompris", "Henter fra dato: $year-$month-$day")
+
+
+            var url = "https://www.hvakosterstrommen.no/api/v1/prices/"
+            url += "$year/"
+            url += "$month-"
+            url +=  day + "_"
+            url += priceLocationCode
+
+            url += ".json" // Json format
+
+            //Log.i("TestStrompris", "Prøver å hente data fra: $url")
+            return APIClient.client.get(url).body()
+        } catch (e: Exception) {
+            Log.e("TestStrom", "error i datasource")
+            Log.e("TestStrom", "Feilmelding: ${e.message}")
+            return null
+        }
+    }
+
+
 }
