@@ -88,6 +88,7 @@ fun InfoScreen(
 
     var isMetSelected by remember { mutableStateOf(true) }
 
+
     var showDialog by remember { mutableStateOf(false) }
 
 
@@ -386,7 +387,6 @@ fun InfoScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
 
-        Text(text = "Valgt måned: ${selectedMonth + 1}") // Viser måned som 1–12
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -449,15 +449,24 @@ fun InfoScreen(
         )
         */
 
-        // Generere månedlige målinger
+// Generere månedlige målinger
         val monthlyMeasurements = remember(produksjonsliste) {
             generateMonthlyMeasurements(produksjonsliste)
         }
         val pvgisData = remember(ferdigBeregnetProdData) {
             convertPVGISToMeasurements(ferdigBeregnetProdData)
         }
-        val displayedData by remember(isMetSelected) {
-            mutableStateOf(if (isMetSelected) monthlyMeasurements else pvgisData)
+
+        // Legg til en isLoading-tilstand
+        var isLoading by remember { mutableStateOf(true) }
+
+        val displayedData = if (isMetSelected) monthlyMeasurements else pvgisData
+
+        // Når dataene er lastet inn, sett isLoading til false
+        LaunchedEffect(displayedData) {
+            if (displayedData.isNotEmpty()) {
+                isLoading = false
+            }
         }
 
         Column {
@@ -466,26 +475,29 @@ fun InfoScreen(
                 onToggle = { isMetSelected = it }
             )
 
-            if (displayedData.isNotEmpty()) {
-                ChartWithValueDisplay(
-                    selectedMonth = null,
-                    allMeasurements = displayedData
-                )
-            } else {
-                Text(
-                    text = "Ingen data tilgjengelig.",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodyLarge
-                )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                when {
+                    displayedData.isNotEmpty() -> {
+                        ChartWithValueDisplay(
+                            selectedMonth = null,
+                            allMeasurements = displayedData,
+                        )
+                    }
+                    else -> {
+                        CircularProgressIndicator()
+                    }
+                }
             }
         }
 
 
 
 
-
-
-        val context = LocalContext.current
 
         Button(
             onClick = {

@@ -31,10 +31,13 @@ import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.strompris.StromprisViewModel
 import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.mutableStateOf
 import no.uio.ifi.in2000.team_43.ui.met.beregnStromproduksjon
 import java.time.Instant
 import androidx.compose.runtime.setValue
+import androidx.navigation.NavController
 import com.mapbox.geojson.Point
 import no.uio.ifi.in2000.team_43.model.PVGIS.MonthlyEntry
 import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
@@ -44,6 +47,16 @@ import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.ProductionCal
 import java.time.ZoneId
 import no.uio.ifi.in2000.team_43.ui.met.generateMonthlyMeasurements
 import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.DataSourceSwitch
+import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.GrafMeasurement
+import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.MonthSelector
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+
 
 data class DirectionInfo(val backgroundColor: Color, val textColor: Color, val message: String)
 
@@ -80,13 +93,13 @@ fun directionText(direction: Double): DirectionInfo {
 
 
 
-
+@OptIn(ExperimentalMaterial3Api::class) // If using Experimental APIs
 @Composable
 fun AddressDetailPage(
     address: LagreAdresse,
+    navController: NavController,
     modifier: Modifier = Modifier,
     pvgisViewModel: PVGISViewModel = viewModel(),
-    //stromprisViewModel: StromprisViewModel = viewModel(),
     metViewModel: MetViewModel = viewModel()
 ) {
 
@@ -116,85 +129,67 @@ fun AddressDetailPage(
         }
     }
 
+    TopAppBar(
+        title = { Text(address.addressString) },
+        navigationIcon = {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Tilbake")
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color(0xff88aabd),
+            titleContentColor = Color.White
+        )
+    )
+
 
     Column(modifier = modifier.padding(20.dp).verticalScroll(scrollState)) {
-
-        // Tittel for skjermen
-        Text(
-            text = "Info Screen",
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = 28.sp, // Større skrift for å matche den boblete stilen
-                color = MaterialTheme.colorScheme.onBackground
-            ),
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
 
         // Skillelinje
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-        // Koordinater boks
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = 8.dp,
-            shape = RoundedCornerShape(16.dp),
-            backgroundColor = Color.White // Hvit bakgrunn
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Koordinater:",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 22.sp, // Økt størrelse på overskriften
-                        color = MaterialTheme.colorScheme.onSurface
-                    ),
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                Text(
-                    text = "Coords: \n latitude: ${address.latitude}$ \n longitude: ${address.longitude}$",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontSize = 20.sp, // Økt skriftstørrelse for bedre lesbarhet
-                        color = MaterialTheme.colorScheme.primary,
-                        letterSpacing = 0.5.sp
-                    ),
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(80.dp)) // avstand fra toppen av kjermen
 
         // Takflate-verdier boks
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             elevation = 8.dp,
             shape = RoundedCornerShape(16.dp),
-            backgroundColor = Color.White // Hvit bakgrunn
+            backgroundColor = Color.White
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "Takflate-verdier:",
+                    text = "Dette vet vi om taket ditt:",
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp, // Økt størrelse på takflate overskrift
+                        fontSize = 24.sp,
                         color = MaterialTheme.colorScheme.onSurface
                     ),
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
-                Text(
-                    text = """
-                    Lengde: ${address.height} m
-                    Bredde: ${address.width} m
-                    Vinkel: ${address.angle}°
-                    Retning: ${address.direction}°
-                """.trimIndent(),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 20.sp, // Økt størrelse på tekstinnhold
-                        color = MaterialTheme.colorScheme.onSurface,
-                        letterSpacing = 0.5.sp
-                    ),
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+
+                // Første rad
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ValueBox(label = "Lengde", value = "${address.height} m", modifier = Modifier.weight(1f))
+                    ValueBox(label = "Bredde", value = "${address.width} m", modifier = Modifier.weight(1f))
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Andre rad
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ValueBox(label = "Vinkel", value = "${address.angle}°", modifier = Modifier.weight(1f))
+                    ValueBox(label = "Retning", value = "${address.direction}°", modifier = Modifier.weight(1f))
+                }
             }
         }
 
@@ -224,11 +219,8 @@ fun AddressDetailPage(
             }
         }
 
-        address.longitude
-        address.latitude
+
         val point: Point = Point.fromLngLat(address.latitude, address.longitude)
-
-
         LaunchedEffect(point.coordinates()) {
             address.let {
                 metViewModel.fetchWeatherData(Coordinates(it.latitude, it.longitude))
@@ -266,56 +258,6 @@ fun AddressDetailPage(
             }
         }
         Log.d("produksjonsliste", produksjonsliste.toString())
-
-        when {
-            errorMessage != null -> {
-                Text(
-                    text = "Error: $errorMessage",
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-
-            weatherList?.dailyObservation?.isNotEmpty() == true -> {
-                val weatherDataForFirstDay = weatherList!!.dailyObservation[1] //dato og værliste i en pair, alle datoer er sortert fra 1 januar til 31 desember
-
-                Text(
-                    text = "Dato: ${weatherDataForFirstDay.first}",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                val weatherDataList = weatherDataForFirstDay.second //dette aksesserer værlisten med alle målinger for relevant dag
-                val observationForTemp = weatherDataList.dataList[0]
-
-                Text(
-                    text = "Temperatur: ${observationForTemp.value} ${observationForTemp.unit}",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                val insolationWeatherData = weatherDataList.dataList[1] //solinnstråling
-
-                Text(
-                    text = "Solinnstråling: ${insolationWeatherData.value} ${insolationWeatherData.unit}",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-            }
-
-            else -> {
-                CircularProgressIndicator()
-            }
-
-
-            // NED HIT
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-
-        Text(text = "Valgt måned: ${selectedMonth + 1}") // Viser måned som 1–12
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -361,32 +303,38 @@ fun AddressDetailPage(
         Log.d("testpvgisBeregn", " $ferdigBeregnetProdData")
 
 
-        val monthlyMeasurements = remember(produksjonsliste) {
-            generateMonthlyMeasurements(produksjonsliste)
-        }
-        val pvgisData = remember(ferdigBeregnetProdData) {
-            convertPVGISToMeasurements(ferdigBeregnetProdData)
-        }
-
-
-        val displayedData by remember(isMetSelected) {
-            mutableStateOf(if (isMetSelected) monthlyMeasurements else pvgisData)
-        }
 
         Column {
-            DataSourceSwitch(
-                isMetSelected = isMetSelected,
-                onToggle = { isMetSelected = it }
+            MonthSelector(
+                selectedMonth = selectedMonth,
+                onMonthSelected = { newMonth ->
+                    selectedMonth = newMonth
+                }
             )
 
-            if (displayedData.isNotEmpty()) {
+            // Filtrer og transformer data for valgt måned
+            val measurements = produksjonsliste
+                .map { (instant, value) ->
+                    val zdt = instant.atZone(ZoneId.systemDefault())
+                    zdt to value
+                }
+                .filter { (zdt, _) -> zdt.monthValue == selectedMonth + 1 }
+                .map { (zdt, value) ->
+                    GrafMeasurement(
+                        time = zdt.dayOfMonth.toFloat(),
+                        value = value.toFloat()
+                    )
+                }
+
+            // Vis graf
+            if (measurements.isNotEmpty()) {
                 ChartWithValueDisplay(
-                    selectedMonth = null,
-                    allMeasurements = displayedData
+                    selectedMonth = selectedMonth,
+                    allMeasurements = measurements
                 )
             } else {
                 Text(
-                    text = "Ingen data tilgjengelig.",
+                    text = "Ingen data for valgt måned.",
                     modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.bodyLarge
                 )
