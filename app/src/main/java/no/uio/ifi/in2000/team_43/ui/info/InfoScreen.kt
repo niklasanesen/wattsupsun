@@ -41,6 +41,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.mutableStateOf
 import no.uio.ifi.in2000.team_43.ui.met.beregnStromproduksjon
 import java.time.Instant
@@ -110,50 +112,25 @@ fun InfoScreen(
 
     Column(modifier = modifier.padding(20.dp).verticalScroll(scrollState)) {
 
-        // Tittel for skjermen
         Text(
-            text = "Info Screen",
-            style = MaterialTheme.typography.titleLarge.copy(
+            text = "Viser data for ${ctx.address}",
+            style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 28.sp, // Større skrift for å matche den boblete stilen
-                color = MaterialTheme.colorScheme.onBackground
+                fontSize = 26.sp,
+                color = MaterialTheme.colorScheme.onBackground // Sørger for god kontrast
             ),
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier
+                .padding(top = 16.dp, bottom = 8.dp)
         )
 
-        // Skillelinje
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
 
         // Koordinater boks
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = 8.dp,
-            shape = RoundedCornerShape(16.dp),
-            backgroundColor = Color.White // Hvit bakgrunn
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Koordinater:",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 22.sp, // Økt størrelse på overskriften
-                        color = MaterialTheme.colorScheme.onSurface
-                    ),
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                Text(
-                    text = "Coords: ${ctx.coords?.coordinates()}",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontSize = 20.sp, // Økt skriftstørrelse for bedre lesbarhet
-                        color = MaterialTheme.colorScheme.primary,
-                        letterSpacing = 0.5.sp
-                    ),
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-            }
-        }
+       // slettet
 
         Spacer(modifier = Modifier.height(16.dp))
+
+
 
         // Takflate-verdier boks
         Card(
@@ -278,6 +255,29 @@ fun InfoScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        when {
+            errorMessage != null -> {
+                Text(
+                    text = "Error: $errorMessage",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+            weatherList?.dailyObservation?.isNotEmpty() == true -> {
+                val weatherDataForFirstDay = weatherList!!.dailyObservation[1] //dato og værliste i en pair, alle datoer er sortert fra 1 januar til 31 desember
+                val weatherDataList = weatherDataForFirstDay.second //dette aksesserer værlisten med alle målinger for relevant dag
+                val observationForTemp = weatherDataList.dataList[0]
+                val insolationWeatherData = weatherDataList.dataList[1] //solinnstråling
+            }
+
+            else -> {
+                CircularProgressIndicator()
+            }
+
+
+            // NED HIT
+        }
+
 //        // Vise PVGIS-data hvis tilgjengelig
 //        Text(text = "PVGIS StrømproduksjonsData: (PVGIS) ", style = MaterialTheme.typography.titleMedium)
 //        Text(text = "(Har ikke kobla så den søker etter en adresse sin posisjon, dette er en random pos i oslo)", style = MaterialTheme.typography.titleSmall)
@@ -357,50 +357,7 @@ fun InfoScreen(
         }
         Log.d("produksjonsliste", produksjonsliste.toString())
 
-        when {
-            errorMessage != null -> {
-                Text(
-                    text = "Error: $errorMessage",
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
 
-            weatherList?.dailyObservation?.isNotEmpty() == true -> {
-                val weatherDataForFirstDay = weatherList!!.dailyObservation[1] //dato og værliste i en pair, alle datoer er sortert fra 1 januar til 31 desember
-
-                Text(
-                    text = "Dato: ${weatherDataForFirstDay.first}",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                val weatherDataList = weatherDataForFirstDay.second //dette aksesserer værlisten med alle målinger for relevant dag
-                val observationForTemp = weatherDataList.dataList[0]
-
-                Text(
-                    text = "Temperatur: ${observationForTemp.value} ${observationForTemp.unit}",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                val insolationWeatherData = weatherDataList.dataList[1] //solinnstråling
-
-                Text(
-                    text = "Solinnstråling: ${insolationWeatherData.value} ${insolationWeatherData.unit}",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-            }
-
-            else -> {
-                CircularProgressIndicator()
-            }
-
-
-            // NED HIT
-        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -475,8 +432,6 @@ fun InfoScreen(
         val pvgisData = remember(ferdigBeregnetProdData) {
             convertPVGISToMeasurements(ferdigBeregnetProdData)
         }
-
-
         val displayedData by remember(isMetSelected) {
             mutableStateOf(if (isMetSelected) monthlyMeasurements else pvgisData)
         }
@@ -571,5 +526,8 @@ fun getTimeFromDate(dateString: String): String? {
         null
     }
 }
+
+
+
 
 
