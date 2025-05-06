@@ -1,24 +1,33 @@
 package no.uio.ifi.in2000.team_43.ui.input
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,7 +45,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -47,9 +55,12 @@ import no.uio.ifi.in2000.team_43.model.met.Coordinates
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.pages.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
-import no.uio.ifi.in2000.team_43.ui.satellite.SatelliteScreen
-import kotlin.math.floor
-
+import no.uio.ifi.in2000.team_43.model.panel.SunPanel
+import no.uio.ifi.in2000.team_43.R
+import androidx.compose.foundation.Image
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 
 // Vil ha en sånn ?hjelp knapp som gir bruker en guide med hva som menes med de forskjellige input-feltene
 // Vil også legge til en knapp så man kan legge til flere takflater
@@ -70,6 +81,14 @@ fun InputScreen(
 
     val previousBackStackEntry = navController.previousBackStackEntry
     val previousRoute = previousBackStackEntry?.destination?.route
+
+    val paneler = listOf(
+        SunPanel("Sunwind 405W", pris = 3000, effekt = 405, bildeResId = R.drawable.sunwind405w_panel),
+        SunPanel("Economy", pris = 3730, effekt = 455, bildeResId = R.drawable.economy_panel),
+        SunPanel("Performance", pris = 2906, effekt = 435, bildeResId = R.drawable.performance_panel),
+        SunPanel("Premium", pris = 2547, effekt = 405, bildeResId = R.drawable.premium_panel),
+        SunPanel("Sunwind 380W", pris = 3190, effekt = 380, bildeResId = R.drawable.sunwind380w_panel),
+    )
 
     LaunchedEffect(ctx.coords) {
         ctx.coords?.let {
@@ -118,10 +137,10 @@ fun InputScreen(
                 modifier = modifier
                     // .wrapContentSize(Alignment.Center)
                     .fillMaxWidth()
-                    .paddingFromBaseline(top = 52.dp),
-                //.padding(40.dp),
-                // verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .paddingFromBaseline(top = 32.dp),
+                    //.padding(40.dp),
+                    //verticalArrangement = Arrangement.Center
+                    horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = "Takflate 1",
@@ -253,10 +272,21 @@ fun InputScreen(
 
             Spacer(Modifier.height(12.dp))
 
+
+            var selectedPanel by remember { mutableStateOf<SunPanel?>(null) }
+
+            PanelSelector(
+                selectedPanel = selectedPanel,
+                onPanelSelected = { selectedPanel = it }
+            )
+
+            Spacer(Modifier.height(12.dp))
+
             Button(
                 onClick = {
-                    if (length != "" && width != "" && angle != "") {
-                        onNextBtnClicked(Input(length.toInt(), width.toInt(), angle.toInt(), getDegrees(direction)))
+                    if (length != "" && width != "" && angle != "" && selectedPanel != null) {
+                        onNextBtnClicked(Input(length.toInt(), width.toInt(), angle.toInt(), getDegrees(direction), selectedPanel!!))
+
                     } else {
                         error = "Vennligst fyll ut alle feltene"
                     }
@@ -294,6 +324,75 @@ fun getDegrees(direction: Direction): Int =
         Direction.SOUTH -> 180
         Direction.WEST -> 270
     }
+
+
+
+@Composable
+fun PanelSelector(
+    selectedPanel: SunPanel?,
+    onPanelSelected: (SunPanel?) -> Unit
+) {
+    val paneler = listOf(
+        SunPanel("Sunwind 405W", pris = 3000, effekt = 405, bildeResId = R.drawable.sunwind405w_panel),
+        SunPanel("Economy", pris = 3730, effekt = 455, bildeResId = R.drawable.economy_panel),
+        SunPanel("Performance", pris = 2906, effekt = 435, bildeResId = R.drawable.performance_panel),
+        SunPanel("Premium", pris = 2547, effekt = 405, bildeResId = R.drawable.premium_panel),
+        SunPanel("Sunwind 380W", pris = 3190, effekt = 380, bildeResId = R.drawable.sunwind380w_panel),
+    )
+
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // Using itemsIndexed instead of items
+        itemsIndexed(paneler) { index, panel ->
+            val isSelected = selectedPanel == panel
+
+            // Card for each panel
+            Card(
+                onClick = { onPanelSelected(if (isSelected) null else panel) },
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isSelected)
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                    else
+                        MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(4.dp),
+                modifier = Modifier.width(180.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Image of the panel
+                    Image(
+                        painter = painterResource(id = panel.bildeResId),
+                        contentDescription = panel.navn,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Panel name
+                    Text(
+                        text = panel.navn,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    // Panel specifications (effect and price)
+                    Text("• Effekt: ${panel.effekt} W", style = MaterialTheme.typography.bodySmall)
+                    Text("• Pris: ${panel.pris} kr", style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+    }
+}
+
 
 
 

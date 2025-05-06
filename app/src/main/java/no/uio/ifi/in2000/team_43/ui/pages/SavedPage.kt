@@ -50,7 +50,7 @@ fun SavedPage(
             val address = Gson().fromJson(json, LagreAdresse::class.java)
             AddressDetailPage(
                 address = address,
-                navController = navController, // send med
+                navController = navController,
                 modifier = Modifier
             )
         }
