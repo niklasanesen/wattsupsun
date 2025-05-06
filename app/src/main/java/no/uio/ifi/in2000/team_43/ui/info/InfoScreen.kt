@@ -605,7 +605,7 @@ fun AddressNamePopup(
 fun EnovaCard(supportAmount: Int) {
     val isZeroSupport = supportAmount <= 0
     val backgroundColor = if (isZeroSupport) Color(0xFFFFCDD2) else Color(0xFF304745)
-    val textColor = if (isZeroSupport) Color(0xFFD32F2F) else Color(0xFF388E3C)
+    val textColor = if (isZeroSupport) Color(0xFFD32F2F) else Color(0xFFFFFFFF)
     val context = LocalContext.current
     val enovaInfoLink = "https://www.enova.no/privat/alle-energitiltak/solenergi/solcelleanlegg/?gad_source=1&gad_campaignid=16624425572&gbraid=0AAAAADLywwiacDJN5I7llRB-oOuYbvBmW&gclid=Cj0KCQjw5ubABhDIARIsAHMighb65GEWXVeJy3jCq8CYd0rcsR4L1n7G4GHf9wBGVB-ngIYtISqzJIIaAp3fEALw_wcB"
 
