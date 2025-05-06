@@ -58,7 +58,7 @@ import kotlin.math.floor
 @Composable
 fun InputScreen(
     ctx: Ctx,
-    metViewModel: MetViewModel,
+    metViewModel: MetViewModel? = null,
     onNextBtnClicked: (input: Input) -> Unit,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
@@ -73,7 +73,7 @@ fun InputScreen(
 
     LaunchedEffect(ctx.coords) {
         ctx.coords?.let {
-            metViewModel.fetchWeatherData(Coordinates(it.latitude(), it.longitude()))
+            metViewModel?.fetchWeatherData(Coordinates(it.latitude(), it.longitude()))
         }
     }
 
@@ -262,7 +262,7 @@ fun InputScreen(
                     }
                 },
             ) {
-                Text("Neste ")
+                Text("Neste")
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = "Navigate to Info"
