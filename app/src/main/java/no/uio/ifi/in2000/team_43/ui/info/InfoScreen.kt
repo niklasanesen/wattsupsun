@@ -1,6 +1,10 @@
 package no.uio.ifi.in2000.team_43.ui.info
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -11,14 +15,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,50 +33,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import no.uio.ifi.in2000.team_43.model.ctx.Ctx
-import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
-import no.uio.ifi.in2000.team_43.model.met.Coordinates
-import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
-import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
-import no.uio.ifi.in2000.team_43.ui.strompris.StromprisViewModel
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
-import android.util.Log
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.Surface
-
-import androidx.compose.runtime.mutableStateOf
-import no.uio.ifi.in2000.team_43.ui.met.beregnStromproduksjon
-import java.time.Instant
-
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.tooling.preview.Preview
-import no.uio.ifi.in2000.team_43.model.PVGIS.MonthlyEntry
+import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
+import no.uio.ifi.in2000.team_43.model.met.Coordinates
+import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
 import no.uio.ifi.in2000.team_43.ui.PVGIS.convertPVGISToMeasurements
-
-// for måned velger
-import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.ChartWithValueDisplay //graf
-import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.ProductionCalc
-import java.time.ZoneId
+import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
+import no.uio.ifi.in2000.team_43.ui.met.calculateProduction
 import no.uio.ifi.in2000.team_43.ui.met.generateMonthlyMeasurements
+import no.uio.ifi.in2000.team_43.ui.met.preloadProductionCalculations
+import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.ChartWithValueDisplay
 import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.DataSourceSwitch
+import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.GrafMeasurement
+import no.uio.ifi.in2000.team_43.ui.strompris.StromprisViewModel
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.ProductionCalc
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.time.Instant
+import java.time.ZoneId
 
-
-import androidx.compose.material3.*
-
-
-// test
-
+/**
+ * Optimized version of InfoScreen that loads and displays data more efficiently
+ */
 @Composable
 fun InfoScreen(
     modifier: Modifier = Modifier,
@@ -79,91 +67,135 @@ fun InfoScreen(
     stromprisViewModel: StromprisViewModel = viewModel(),
     ctx: Ctx
 ) {
-    // Samler data fra ViewModels
-    val pvgisData by pvgisViewModel.data.collectAsState()
-    val drCalcData by pvgisViewModel.drCalcData.collectAsState() // Henter DRcalc data
-    val drCalcTotalSum by pvgisViewModel.drCalcDataTotalSum.collectAsState() // Henter kalkulert totalsum
-    val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata
-
-    var isMetSelected by remember { mutableStateOf(true) }
-
-
+    // Basic UI state
     var showDialog by remember { mutableStateOf(false) }
-
-
-    val produksjonsliste = mutableListOf<Pair<Instant, Double>>()  // strømproduskjon for alle dager i et år
-
-
+    var isMetSelected by remember { mutableStateOf(true) }
+    val scrollState = rememberScrollState()
     val context = LocalContext.current
     val dataStoreManager = remember { DataStoreManager(context) }
 
-    // For pvgis beregning/data
-    val pvgisSolData by pvgisViewModel.productionData.collectAsState() // Henter pvgis solinnstrålingsdata
-    val ferdigBeregnetProdData = mutableListOf<Double>() // legger inn beregnet strøm produksjonsdata
+    // State for tracking data loading
+    var isChartDataReady by remember { mutableStateOf(false) }
+    var monthlyMeasurements by remember { mutableStateOf(emptyList<GrafMeasurement>()) }
+    var pvgisData by remember { mutableStateOf(emptyList<GrafMeasurement>()) }
 
-    // Strompris data:
-    val stromprisData by stromprisViewModel.data.collectAsState()
-    val stromprisDataPerMnd by stromprisViewModel.dataPerMnd.collectAsState()
-
-    val errorMessage by metViewModel.errorMessage.collectAsState()
-
-    val scrollState = rememberScrollState()
-
-    var selectedMonth by remember { mutableStateOf(0) } // 0 = Januar
-
-    // test
-    // For å vise hvordan man henter månedlig data fra pvgis tool
-    val dataene: List<MonthlyEntry>? = pvgisData?.outputs?.monthly?.fixed
-
-    if (dataene != null) {
-        dataene.forEachIndexed() {index, mnd ->
-            Log.d("testpvgisM", "global irradiance mnd nr. $index: ${mnd.H_i_m} kWh/m2/month")
-
+    // Preload calculations
+    LaunchedEffect(ctx.input) {
+        ctx.input?.let {
+            metViewModel.preloadProductionCalculations(
+                length = it.length,
+                width = it.width,
+                angle = it.angle
+            )
         }
     }
 
-    // Fetcher fra stromAPI
-    LaunchedEffect(ctx.stromdistrikt) {
-        stromprisViewModel.fetchStromData(ctx.stromdistrikt)
-    }
+    // Trigger API calls once
+    LaunchedEffect(ctx.coords) {
+        ctx.coords?.let {
+            pvgisViewModel.fetchPVGISData(Coordinates(it.latitude(), it.longitude()))
+        }
 
-    // Testing if it works to fetch stromprisen per month
-    LaunchedEffect(stromprisDataPerMnd) {
-        Log.i("TestStromPris", "Sjekker ${stromprisDataPerMnd?.get(0)}")
-        stromprisDataPerMnd?.forEachIndexed { index, data ->
-            Log.i("TestStrompris", "mndnr: $index, Strompris kl 12: ${data?.getOrNull(12)?.NOK_per_kWh}")
+        ctx.stromdistrikt?.let {
+            stromprisViewModel.fetchStromData(it)
         }
     }
 
+    // Process data in the background
+    LaunchedEffect(
+        ctx.input,
+        metViewModel.dataSortedByDate.collectAsState().value,
+        pvgisViewModel.productionData.collectAsState().value
+    ) {
+        val weatherList = metViewModel.dataSortedByDate.value
+        val pvgisSolData = pvgisViewModel.productionData.value
 
+        // Only process if we have the essential data
+        if (weatherList != null && ctx.input != null && pvgisSolData.isNotEmpty()) {
+            // Calculate monthly measurements from weather data
+            val productionList = mutableListOf<Pair<Instant, Double>>()
 
+            weatherList.dailyObservation.forEach { (date, weatherDataList) ->
+                var temperatur: Double? = null
+                var solinnstraling: Double? = null
 
+                weatherDataList.dataList.forEach { weatherData ->
+                    when (weatherData.elementId) {
+                        "mean(air_temperature P1D)" -> temperatur = weatherData.value
+                        "mean(solar_irradiance P1D)" -> solinnstraling = weatherData.value
+                    }
+                }
+
+                val length = ctx.input?.length
+                val width = ctx.input?.width
+                val angle = ctx.input?.angle
+
+                if (temperatur != null && solinnstraling != null && length != null && width != null && angle != null) {
+                    // Use cached calculations
+                    val produksjon = metViewModel.calculateProduction(
+                        length = length,
+                        width = width,
+                        angle = angle,
+                        temperature = temperatur,
+                        solarIrradiance = solinnstraling
+                    )
+                    productionList.add(Pair(date, produksjon))
+                }
+            }
+
+            // Transform to monthly format
+            monthlyMeasurements = generateMonthlyMeasurements(productionList)
+
+            // Calculate PVGIS data
+            val weatherEntries = weatherList.dailyObservation
+            val ferdigBeregnetProdData = mutableListOf<Double>()
+
+            pvgisSolData.forEachIndexed { index, solinnstraaling ->
+                val weatherIndex = index * 30  // Approximate monthly value
+
+                val temperatur = weatherEntries.getOrNull(weatherIndex)?.second?.dataList
+                    ?.firstOrNull { it.elementId == "mean(air_temperature P1D)" }
+                    ?.value ?: 25.0  // Default if missing
+
+                val length = ctx.input?.length ?: 0
+                val width = ctx.input?.width ?: 0
+                val angle = ctx.input?.angle ?: 35
+
+                val beregnet = ProductionCalc(
+                    panelLengde = length,
+                    panelBredde = width,
+                    panelVinkel = angle,
+                    luftTemperatur = temperatur,
+                    solinnstraling = solinnstraaling
+                )
+
+                val avrundet = BigDecimal(beregnet).setScale(2, RoundingMode.HALF_UP).toDouble()
+                ferdigBeregnetProdData.add(avrundet)
+            }
+
+            pvgisData = convertPVGISToMeasurements(ferdigBeregnetProdData)
+            isChartDataReady = true
+        }
+    }
+
+    // UI Rendering
     Column(modifier = modifier.padding(20.dp).verticalScroll(scrollState)) {
-
+        // Header with address
         Text(
             text = "Viser data for ${ctx.address}",
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 26.sp,
-                color = MaterialTheme.colorScheme.onBackground // Sørger for god kontrast
+                color = MaterialTheme.colorScheme.onBackground
             ),
-            modifier = Modifier
-                .padding(top = 16.dp, bottom = 8.dp)
+            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
         )
-
-
-
-        // Koordinater boks
-       // slettet
 
         Spacer(modifier = Modifier.height(16.dp))
 
-
-
-        // Takflate-verdier boks
+        // Roof data card
         Card(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             elevation = 8.dp,
             shape = RoundedCornerShape(16.dp),
             backgroundColor = Color.White
@@ -179,10 +211,9 @@ fun InfoScreen(
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
-                // Første rad
+                // First row of values
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     ValueBox(label = "Lengde", value = "${ctx.input?.length} m", modifier = Modifier.weight(1f))
@@ -191,10 +222,9 @@ fun InfoScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Andre rad
+                // Second row of values
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     ValueBox(label = "Vinkel", value = "${ctx.input?.angle}°", modifier = Modifier.weight(1f))
@@ -203,17 +233,16 @@ fun InfoScreen(
             }
         }
 
-
         Spacer(modifier = Modifier.height(12.dp))
 
-        // NED HIT
+        // Direction-based recommendation card
         when (ctx.input?.direction) {
             0 -> {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     elevation = 8.dp,
                     shape = RoundedCornerShape(16.dp),
-                    backgroundColor = Color(0xFFFFCDD2) // Lys rød bakgrunn
+                    backgroundColor = Color(0xFFFFCDD2)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
@@ -221,7 +250,7 @@ fun InfoScreen(
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 20.sp,
-                                color = Color(0xFFB71C1C) // Mørkere rød tekst
+                                color = Color(0xFFB71C1C)
                             ),
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
@@ -233,7 +262,7 @@ fun InfoScreen(
                     modifier = Modifier.fillMaxWidth(),
                     elevation = 8.dp,
                     shape = RoundedCornerShape(16.dp),
-                    backgroundColor = Color(0xFFC8E6C9) // Lys grønn bakgrunn
+                    backgroundColor = Color(0xFFC8E6C9)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
@@ -241,7 +270,7 @@ fun InfoScreen(
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 20.sp,
-                                color = Color(0xFF388E3C) // Mørkere grønn tekst
+                                color = Color(0xFF388E3C)
                             ),
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
@@ -253,15 +282,15 @@ fun InfoScreen(
                     modifier = Modifier.fillMaxWidth(),
                     elevation = 8.dp,
                     shape = RoundedCornerShape(16.dp),
-                    backgroundColor = Color(0xFFC8E6C9) // Lys grønn bakgrunn
+                    backgroundColor = Color(0xFFC8E6C9)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Sør: Basert på retningen  du har valgt lønner det seg å ha solcellepaneler.",
+                            text = "Sør: Basert på retningen du har valgt lønner det seg å ha solcellepaneler.",
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 20.sp,
-                                color = Color(0xFF388E3C) // Mørkere grønn tekst
+                                color = Color(0xFF388E3C)
                             ),
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
@@ -273,7 +302,7 @@ fun InfoScreen(
                     modifier = Modifier.fillMaxWidth(),
                     elevation = 8.dp,
                     shape = RoundedCornerShape(16.dp),
-                    backgroundColor = Color(0xFFC8E6C9) // Lys grønn bakgrunn
+                    backgroundColor = Color(0xFFC8E6C9)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
@@ -281,7 +310,7 @@ fun InfoScreen(
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 20.sp,
-                                color = Color(0xFF388E3C) // Mørkere grønn tekst
+                                color = Color(0xFF388E3C)
                             ),
                             modifier = Modifier.padding(bottom = 16.dp)
                         )
@@ -292,195 +321,7 @@ fun InfoScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        when {
-            errorMessage != null -> {
-                Text(
-                    text = "Error: $errorMessage",
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-            weatherList?.dailyObservation?.isNotEmpty() == true -> {
-                val weatherDataForFirstDay = weatherList!!.dailyObservation[1] //dato og værliste i en pair, alle datoer er sortert fra 1 januar til 31 desember
-                val weatherDataList = weatherDataForFirstDay.second //dette aksesserer værlisten med alle målinger for relevant dag
-                val observationForTemp = weatherDataList.dataList[0]
-                val insolationWeatherData = weatherDataList.dataList[1] //solinnstråling
-            }
-
-            else -> {
-                CircularProgressIndicator()
-            }
-
-
-            // NED HIT
-        }
-
-//        // Vise PVGIS-data hvis tilgjengelig
-//        Text(text = "PVGIS StrømproduksjonsData: (PVGIS) ", style = MaterialTheme.typography.titleMedium)
-//        Text(text = "(Har ikke kobla så den søker etter en adresse sin posisjon, dette er en random pos i oslo)", style = MaterialTheme.typography.titleSmall)
-//        if (pvgisData != null) {
-//            pvgisData?.outputs?.totals?.fixed?.let { totals ->
-//                Text(text = "Estimert daglig produksjon: ${totals.E_d} kWh")
-//                Text(text = "Estimert månedlig produksjon: ${totals.E_m} kWh")
-//                Text(text = "Estimert årlig produksjon: ${totals.E_y} kWh")
-//            }
-//        } else {
-//            Text(text = "Laster PVGIS data...")
-//        }
-//
-//
-//
-//
-//        // Vise Strømpris-data hvis tilgjengelig
-//        Spacer(modifier = Modifier.height(16.dp))
-//        Text(text = "Strømpris (dato 29.03.2025 prisområde NO1 er selvvalgt) (StromPris):", style = MaterialTheme.typography.titleMedium)
-//        Text(text = "Trenger å fikse så den viser etter dagens dato og adresse sitt prisområde", style = MaterialTheme.typography.titleSmall)
-//
-//        if (stromprisData != null) {
-//            stromprisData?.forEach { strompris ->
-//                Text(text = "Kl: ${getTimeFromDate(strompris.time_start)} - Pris: ${strompris.NOK_per_kWh} kr/kWh")
-//            }
-//        } else {
-//            Text(text = "Laster strømpris data...")
-//        }
-//
-//
-//        // Viser DRcalc data (sol innstråling)
-//        Spacer(modifier = Modifier.height(16.dp))
-//        Text(text = "Gjennomsnittlig stråling i Juli (DRcalc):", style = MaterialTheme.typography.titleMedium)
-//        Text(text = "Trenger å fikse så den viser etter en adresse sin pos og selvvalgt mnd", style = MaterialTheme.typography.titleSmall)
-//
-//        if (drCalcData != null) {
-//            drCalcData!!.forEach { data ->
-//                Text(text = "Kl: ${data.time} - Solinnstråling: ${data.G_i} W/m²")
-//            }
-//
-//            // Beregn total solinnstråling for dagen
-//            val drcalcTotal = drCalcTotalSum
-//            Text(text = "Totalt for hele dagen: $drcalcTotal W/m²")
-//        } else {
-//            Text(text = "Laster DRcalc data...")
-//        }
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-
-        weatherList?.dailyObservation?.forEach { (date, weatherDataList) ->
-            var temperatur: Double? = null
-            var solinnstraling: Double? = null
-
-            weatherDataList.dataList.forEach { weatherData ->
-                when (weatherData.elementId) {
-                    "mean(air_temperature P1D)" -> temperatur = weatherData.value
-                    "mean(solar_irradiance P1D)" -> solinnstraling = weatherData.value
-                }
-            }
-
-            val length = ctx.input?.length
-            val width = ctx.input?.width
-            val angle = ctx.input?.angle
-
-            if (temperatur != null && solinnstraling != null && length != null && width != null && angle != null) {
-                val produksjon = beregnStromproduksjon(
-                    lengde = length,
-                    bredde = width,
-                    vinkel = angle,
-                    temperatur = temperatur,
-                    solinnstraling = solinnstraling
-                )
-
-                // Legg til i lista
-                produksjonsliste.add(Pair(date, produksjon))
-            }
-        }
-        Log.d("produksjonsliste", produksjonsliste.toString())
-
-
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        val groupedByMonth = produksjonsliste
-            .map { (instant, value) ->
-                val zdt = instant.atZone(ZoneId.systemDefault())
-                zdt.monthValue to value
-            }
-            .groupBy { it.first }
-            .mapValues { entry ->
-                entry.value.sumOf { it.second }
-            }
-
-
-
-
-        // PVGIS beregninger
-        LaunchedEffect(ctx.coords) {
-            ctx.coords?.let {
-                pvgisViewModel.fetchPVGISData(Coordinates(it.latitude(), it.longitude()))
-
-            }
-        }
-
-
-        val weatherEntries = weatherList?.dailyObservation ?: emptyList()
-
-        pvgisSolData.forEachIndexed { index, solinnstraaling ->
-            val weatherIndex = index * 30  // Henter omtrent én verdi per måned
-
-            val temperatur = weatherEntries.getOrNull(weatherIndex)?.second?.dataList
-                ?.firstOrNull { it.elementId == "mean(air_temperature P1D)" }
-                ?.value ?: 25.0  //  hvis mangler temp
-
-            val length = ctx.input?.length ?: 0
-            val width = ctx.input?.width ?: 0
-            val angle = ctx.input?.angle ?: 35
-
-            val beregnet = ProductionCalc(
-                panelLengde = length,
-                panelBredde = width,
-                panelVinkel = angle,
-                luftTemperatur = temperatur,
-                solinnstraling = solinnstraaling
-            )
-
-            val avrundet =  BigDecimal(beregnet).setScale(2, RoundingMode.HALF_UP).toDouble()
-            ferdigBeregnetProdData.add(avrundet)
-        }
-
-        ferdigBeregnetProdData.forEachIndexed{ index, data ->
-            Log.d("testpvgisBeregn", "mndnr $index: $data kWh/month")
-
-        }
-        Log.d("testpvgisBeregn", " $ferdigBeregnetProdData")
-
-        /*
-        Text(
-            text = "prodData basert på PVGIS månedlig innstråling (i kwh/month): ${ferdigBeregnetProdData}"
-        )
-        */
-
-// Generere månedlige målinger
-        val monthlyMeasurements = remember(produksjonsliste) {
-            generateMonthlyMeasurements(produksjonsliste)
-        }
-        val pvgisData = remember(ferdigBeregnetProdData) {
-            convertPVGISToMeasurements(ferdigBeregnetProdData)
-        }
-
-        // Legg til en isLoading-tilstand
-        var isLoading by remember { mutableStateOf(true) }
-
-        val displayedData = if (isMetSelected) monthlyMeasurements else pvgisData
-
-        // Når dataene er lastet inn, sett isLoading til false
-        LaunchedEffect(displayedData) {
-            if (displayedData.isNotEmpty()) {
-                isLoading = false
-            }
-        }
-
+        // Chart section
         Column {
             DataSourceSwitch(
                 isMetSelected = isMetSelected,
@@ -493,33 +334,32 @@ fun InfoScreen(
                     .height(300.dp),
                 contentAlignment = Alignment.Center
             ) {
-                when {
-                    displayedData.isNotEmpty() -> {
-                        ChartWithValueDisplay(
-                            selectedMonth = null,
-                            allMeasurements = displayedData,
-                        )
-                    }
-                    else -> {
-                        CircularProgressIndicator()
-                    }
+                if (isChartDataReady) {
+                    val displayedData = if (isMetSelected) monthlyMeasurements else pvgisData
+                    ChartWithValueDisplay(
+                        selectedMonth = null,
+                        allMeasurements = displayedData,
+                    )
+                } else {
+                    // Show loading indicator and load the chart data in background
+                    CircularProgressIndicator()
                 }
             }
         }
 
-
-
-
-
+        // Save address button
         Button(
             onClick = {
                 showDialog = true
             },
-            modifier = Modifier.align(alignment = Alignment.End)
+            modifier = Modifier
+                .align(alignment = Alignment.End)
+                .padding(top = 16.dp)
         ) {
             Text("Lagre adresse")
         }
 
+        // Dialog for saving address
         AddressNamePopup(
             showDialog = showDialog,
             onDismiss = { showDialog = false },
@@ -571,23 +411,6 @@ fun ValueBox(label: String, value: String, modifier: Modifier = Modifier) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewValueBox() {
-    MaterialTheme {
-        Surface {
-            ValueBox(
-                label = "Lengde",
-                value = "34 m",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
-        }
-    }
-}
-
-
 @Composable
 fun AddressNamePopup(
     showDialog: Boolean,
@@ -597,14 +420,14 @@ fun AddressNamePopup(
     var input by remember { mutableStateOf("") }
 
     if (showDialog) {
-        AlertDialog(
+        androidx.compose.material3.AlertDialog(
             onDismissRequest = { onDismiss() },
             title = { Text("Navngi adresse") },
             text = {
                 Column {
                     Text("Skriv inn et navn for denne adressen")
                     Spacer(modifier = Modifier.height(8.dp))
-                    TextField(
+                    androidx.compose.material3.TextField(
                         value = input,
                         onValueChange = { input = it },
                         placeholder = { Text("F.eks. Hjem, Hytta, Jobb...") },
@@ -630,27 +453,3 @@ fun AddressNamePopup(
         )
     }
 }
-
-
-// Parser tidspunktdataene fra stromAPI til leselig klokkeslett
-fun getTimeFromDate(dateString: String): String? {
-    return try {
-        // Definerer formatet på inngangsstrengen
-        val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
-
-        // Parser datoen og tiden til et ZonedDateTime-objekt
-        val dateTime = ZonedDateTime.parse(dateString, formatter)
-
-        // Henter ut klokkeslettet i ønsket format
-        dateTime.toLocalTime().toString() // For eksempel "23:00:00"
-    } catch (e: DateTimeParseException) {
-        e.printStackTrace()
-        // Håndterer feil hvis strengen ikke kan parses
-        null
-    }
-}
-
-
-
-
-
