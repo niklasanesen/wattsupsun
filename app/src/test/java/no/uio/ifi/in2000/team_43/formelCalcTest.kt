@@ -1,29 +1,31 @@
 package no.uio.ifi.in2000.team_43
 
+import io.mockk.mockk
+import no.uio.ifi.in2000.team_43.data.met.MetRepository
+import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.met.beregnStromproduksjon
-
 
 import org.junit.Test
 import org.junit.Assert.assertEquals
 
-
 class FormelTester {
 
-    val x = (0..100).random()
+    private val metRepo = mockk<MetRepository>()
+    private val metViewModel = MetViewModel(metRepo)
 
     @Test
     fun beregnSolinnstråling() {
         //arrange
-        val skydekke = 8
-        val snøtykkelse = 90
-        val globalstråling = 20
-      
-         //act
-         val resultat = calcInsolation(skydekke, snøtykkelse, globalstråling)
-         
-         //assert
-         val forventet = 3.5
-         assertEquals(forventet, resultat, 0.01)
+        val skydekke = 8.0
+        val snøtykkelse = 90.0
+        val globalstråling = 20.0
+
+        //act
+        val resultat = metViewModel.calcInsolation(skydekke, snøtykkelse, globalstråling)
+
+        //assert
+        val forventet = 3.5
+        assertEquals(forventet, resultat, 0.01)
     }
 
     // Tester strømproduksjonsberegningene:
@@ -32,102 +34,92 @@ class FormelTester {
     @Test
     fun beregnOptimalProduksjon() {
         // arrange
-        val solinnstraling = 1000.0
-        val areal = 10.0
-        val temperatur = 25.0
-        val anbefaltVinkel = true
-        val avvikVinkel = 0.0
-
+        val lengde = 10
+        val bredde = 5
+        val vinkel = 35
+        val temperatur = 10.0
+        val solinnstraling = 200.0
 
         // act
         val resultat = beregnStromproduksjon(
-            solinnstraling,
-            areal,
+            lengde,
+            bredde,
+            vinkel,
             temperatur,
-            anbefaltVinkel,
-            avvikVinkel
+            solinnstraling
         )
 
         // assert
-        val forventet = 10000.0
+        val forventet = 10.0
         assertEquals(forventet, resultat, 0.01)
     }
 
-
     @Test
     fun temperaturOverOptimalGirLavereProduksjon() {
-
         // arrange
-        val solinnstraling = 1000.0
-        val areal = 10.0
+        val lengde = 10
+        val bredde = 5
+        val vinkel = 35
         val temperatur = 35.0
-        val anbefaltVinkel = true
-        val avvikVinkel = 0.0
-
+        val solinnstraling = 200.0
 
         // act
         val resultat = beregnStromproduksjon(
-            solinnstraling,
-            areal,
+            lengde,
+            bredde,
+            vinkel,
             temperatur,
-            anbefaltVinkel,
-            avvikVinkel
+            solinnstraling
         )
 
-
         // assert
-        val forventet = 9700.0
+        val forventet = 9.7
         assertEquals(forventet, resultat, 0.01)
     }
 
     @Test
     fun avvikendeVinkelGirEffekttap() {
-
         // arrange
-        val solinnstraling = 1000.0
-        val areal = 10.0
+        val lengde = 10
+        val bredde = 5
+        val vinkel = 95
         val temperatur = 25.0
-        val anbefaltVinkel = false
-        val avvikVinkel = 60.0
+        val solinnstraling = 200.0
 
         // act
         val resultat = beregnStromproduksjon(
-            solinnstraling,
-            areal,
+            lengde,
+            bredde,
+            vinkel,
             temperatur,
-            anbefaltVinkel,
-            avvikVinkel
+            solinnstraling
         )
 
-
         // assert
-        val forventet = 5000.0
+        val forventet = 4.0
         assertEquals(forventet, resultat, 0.01)
     }
-
 
     @Test
     fun temperaturOgVinkelGirKombinertEffekttap() {
         // arrange
-        val solinnstraling = 1000.0
-        val areal = 10.0
+        val lengde = 10
+        val bredde = 5
+        val vinkel = 95
         val temperatur = 35.0
-        val anbefaltVinkel = false
-        val avvikVinkel = 60.0
-
+        val solinnstraling = 200.0
 
         // act
         val resultat = beregnStromproduksjon(
-            solinnstraling,
-            areal,
+            lengde,
+            bredde,
+            vinkel,
             temperatur,
-            anbefaltVinkel,
-            avvikVinkel
+            solinnstraling
         )
 
-
         // assert
-        val forventet = 4850.0
+        val forventet = 3.88
         assertEquals(forventet, resultat, 0.01)
     }
 }

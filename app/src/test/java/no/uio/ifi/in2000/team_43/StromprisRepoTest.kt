@@ -5,10 +5,12 @@ import no.uio.ifi.in2000.team_43.data.stromPris.StromprisRepository
 
 import kotlinx.coroutines.test.runTest
 import no.uio.ifi.in2000.team_43.model.stromPris.StromprisRes
+import no.uio.ifi.in2000.team_43.model.stromdistrikt.StromDistrikt
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import kotlin.test.Ignore
 
 class StromprisRepoTest {
 
@@ -28,10 +30,10 @@ class StromprisRepoTest {
             )
         }
 
-        whenever(mockDataSource.getStromprisData()).thenReturn(testData)
+        whenever(mockDataSource.getStromprisData(StromDistrikt.NO1)).thenReturn(testData)
 
         // Act: Kaller funksjonen (som ikke finnes ennå -> test vil feile)
-        val result = repository.calculateAveragePrice()
+        val result = repository.calculateAveragePrice(StromDistrikt.NO1)
 
         // Assert: Forventet snitt er sum(alle priser)/24
         val expectedAverage = 15.0
@@ -41,10 +43,10 @@ class StromprisRepoTest {
     @Test
     fun `calculateAveragePrice should return 0 if data is null`() = runTest {
         // Arrange
-        whenever(mockDataSource.getStromprisData()).thenReturn(null)
+        whenever(mockDataSource.getStromprisData(StromDistrikt.NO1)).thenReturn(null)
 
         // Act
-        val result = repository.calculateAveragePrice()
+        val result = repository.calculateAveragePrice(StromDistrikt.NO1)
 
         // Assert
         assertEquals(0.0, result, 0.0)

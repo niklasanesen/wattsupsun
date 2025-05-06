@@ -39,6 +39,7 @@ mpandroidchart = "v3.1.0"
 navigationCompose = "2.8.9"
 placeAutocomplete = "2.8.0-rc.1"
 appcompat = "1.7.0"
+placeAutocompleteVersion = "2.7.0"
 turbine = "1.2.0"
 ui = "1.8.0"
 
@@ -94,6 +95,8 @@ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "compose" }
 compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "compose" }
 ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
+androidx-ui-test-junit4-android = { group = "androidx.compose.ui", name = "ui-test-junit4-android", version.ref = "uiTestJunit4Android" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
