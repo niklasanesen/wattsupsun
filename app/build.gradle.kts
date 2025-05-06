@@ -43,6 +43,11 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.15"
     }
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -56,6 +61,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.ui.test.junit4.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -126,4 +132,8 @@ dependencies {
     implementation ("androidx.datastore:datastore-preferences:1.0.0")
     implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
+    // UI testing
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.5.0")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.5.0")
+    testImplementation("org.robolectric:robolectric:4.10.3")
 }

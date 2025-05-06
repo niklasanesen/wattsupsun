@@ -39,6 +39,7 @@ placeAutocomplete = "2.8.0-rc.1"
 appcompat = "1.7.0"
 placeAutocompleteVersion = "2.7.0"
 turbine = "1.0.0"
+uiTestJunit4Android = "1.8.0"
 
 [libraries]
 android = { module = "com.mapbox.maps:android", version.ref = "android" }
@@ -89,6 +90,7 @@ place-autocomplete = { module = "com.mapbox.search:place-autocomplete", version.
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 place-autocomplete-v270 = { module = "com.mapbox.search:place-autocomplete", version.ref = "placeAutocompleteVersion" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+androidx-ui-test-junit4-android = { group = "androidx.compose.ui", name = "ui-test-junit4-android", version.ref = "uiTestJunit4Android" }
 
 
 [plugins]
