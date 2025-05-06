@@ -1,6 +1,7 @@
 package no.uio.ifi.in2000.team_43.ui.home
 
-
+import android.content.Context
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -23,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import no.uio.ifi.in2000.team_43.ui.pages.MapPage
 import no.uio.ifi.in2000.team_43.ui.pages.ProfilePage
 import no.uio.ifi.in2000.team_43.ui.pages.SavedPage
+
 
 
 @Composable
@@ -81,7 +83,6 @@ fun HomeScreen(
         }
     }
 }
-
 
 @Composable
 fun ContentScreen(modifier: Modifier = Modifier, selectedIndex: Int) {

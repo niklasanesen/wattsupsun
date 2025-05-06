@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,7 +27,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import no.uio.ifi.in2000.team_43.R
-import no.uio.ifi.in2000.team_43.ui.appinfo.AppInfoScreen
 import no.uio.ifi.in2000.team_43.ui.home.HomeViewModel
 import no.uio.ifi.in2000.team_43.ui.home.MapScreen
 import no.uio.ifi.in2000.team_43.ui.info.InfoScreen
@@ -43,8 +41,7 @@ enum class HomeScreen(val route: String) {
     Start("Kart"),
     Input("Registrer takflate"),
     Info("Info"),
-    Satellite("Tegn takflate"),
-    InfoApp("App Info")
+    Satellite("Tegn takflate")
 }
 
 @Composable
@@ -53,7 +50,6 @@ fun MapPage(
     metViewModel: MetViewModel = viewModel(),
     viewModel: HomeViewModel = viewModel(),
     navController: NavHostController = rememberNavController()
-
 ) {
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -63,15 +59,13 @@ fun MapPage(
         backStackEntry?.destination?.route ?: HomeScreen.Start.name
     )
 
-
     Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
                 currentScreen = currentScreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() },
-                navController = navController
+                navigateUp = { navController.navigateUp() }
             )
         },
     ) { innerPadding ->
@@ -129,34 +123,19 @@ fun MapPage(
                     modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
                 )
             }
-            composable(route = HomeScreen.InfoApp.name) {
-                AppInfoScreen(
-                    modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
-                )
-            }
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
     currentScreen: HomeScreen,
     canNavigateBack: Boolean,
-    navigateUp: () -> Unit,
-    navController: NavController
-    /*
-    currentScreen: HomeScreen = HomeScreen.valueOf(HomeScreen.Start.name),
-    canNavigateBack: Boolean = false,
-    navigateUp: () -> Unit = {},
-    navController: NavController = rememberNavController()
-
-     */
+    navigateUp: () -> Unit
 ) {
     CenterAlignedTopAppBar(
         title = { Text(currentScreen.route) },
-        //colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xff83c1eb)),
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             titleContentColor = MaterialTheme.colorScheme.primary,
@@ -170,16 +149,6 @@ fun TopAppBar(
                     )
                 }
             }
-        },
-        actions = {
-            if (currentScreen != HomeScreen.InfoApp) {
-                IconButton(onClick = { navController.navigate(HomeScreen.InfoApp.name) }) {
-                    Icon(
-                        imageVector = Icons.Filled.Info,
-                        contentDescription = "Info"
-                    )
-                }
-            }
-        },
+        }
     )
 }
