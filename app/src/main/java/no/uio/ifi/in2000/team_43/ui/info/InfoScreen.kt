@@ -72,6 +72,7 @@ import androidx.compose.foundation.clickable
 
 
 import androidx.compose.material3.*
+import androidx.compose.runtime.mutableDoubleStateOf
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateEnova
 
 
@@ -98,7 +99,8 @@ fun InfoScreen(
 
 
     val produksjonsliste = mutableListOf<Pair<Instant, Double>>()  // strømproduskjon for alle dager i et år
-
+    val produksjonsMap: MutableMap<Instant, Double> = produksjonsliste.toMap().toMutableMap()
+    val totalProduksjon = remember { mutableStateOf(0.0) }
 
     val context = LocalContext.current
     val dataStoreManager = remember { DataStoreManager(context) }
@@ -144,7 +146,9 @@ fun InfoScreen(
 
 
 
-    Column(modifier = modifier.padding(20.dp).verticalScroll(scrollState)) {
+    Column(modifier = modifier
+        .padding(20.dp)
+        .verticalScroll(scrollState)) {
 
         Text(
             text = "Viser data for ${ctx.address}",
@@ -300,6 +304,12 @@ fun InfoScreen(
         Spacer(modifier = Modifier.height(12.dp))
         EnovaCard(calculateEnova(0.5, 8))
 
+        // Other fun boxes with info
+        Spacer(modifier = Modifier.height(12.dp))
+        CoffeeCard(totalProduksjon.value)
+
+
+
 
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -355,9 +365,18 @@ fun InfoScreen(
 
                 // Legg til i lista
                 produksjonsliste.add(Pair(date, produksjon))
+
             }
         }
+        // Legg til som map
+        produksjonsMap.clear() // Fjern gamle data
+        produksjonsMap.putAll(produksjonsliste)
+        // adderer sammen totalsum
+        totalProduksjon.value = produksjonsMap.values.sum()
         Log.d("produksjonsliste", produksjonsliste.toString())
+        Log.d("produksjonslisteMap", produksjonsMap.toString())
+        Log.d("produksjonslisteMap", totalProduksjon.toString())
+
 
 
 
@@ -664,6 +683,7 @@ fun EnovaCard(supportAmount: Double) {
 }
 
 
+
 // preview av testcardet for enova:
 @Preview(showBackground = true)
 @Composable
@@ -680,6 +700,57 @@ fun EnovaSupportCardPreview_Zero() {
         EnovaCard(supportAmount = 0.0)
     }
 }
+
+
+@Composable
+fun CoffeeCard(production: Double) {
+    val isZeroProduction = production <= 0
+    val backgroundColor = Color(0xFFFFE0B2)  // Lys oransje
+    val textColor = Color(0xFFBF360C)  // Mørk rød
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    text = if (isZeroProduction) "Koker opp kaffe, et øyeblikk..." else "Solcellepanel hos deg kan koke opp ${production.toInt()} kopper kaffe årlig!",
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = textColor
+                    ),
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+            }
+
+
+        }
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun NoProdPreviewCoffeeCard() {
+    CoffeeCard(production = 0.0)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewCoffeeCard() {
+    CoffeeCard(production = 500.0)
+}
+
+
 
 
 // Parser tidspunktdataene fra stromAPI til leselig klokkeslett
@@ -699,7 +770,6 @@ fun getTimeFromDate(dateString: String): String? {
         null
     }
 }
-
 
 
 
