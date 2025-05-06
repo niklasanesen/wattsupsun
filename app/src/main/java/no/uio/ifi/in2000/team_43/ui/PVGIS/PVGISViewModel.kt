@@ -14,8 +14,8 @@ import no.uio.ifi.in2000.team_43.data.PVGIS.PVGISDatasource
 import no.uio.ifi.in2000.team_43.data.PVGIS.PVGISRepository
 import no.uio.ifi.in2000.team_43.model.DRcalcRes.DailyProfile
 import no.uio.ifi.in2000.team_43.model.PVGIS.PVGISRes
+import no.uio.ifi.in2000.team_43.model.garfStuff.GrafMeasurement
 import no.uio.ifi.in2000.team_43.model.met.Coordinates
-import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.GrafMeasurement
 
 fun convertPVGISToMeasurements(data: List<Double>): List<GrafMeasurement> {
     return data.mapIndexed { index, value ->

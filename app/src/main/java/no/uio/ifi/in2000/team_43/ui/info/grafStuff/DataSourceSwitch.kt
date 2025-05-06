@@ -1,4 +1,4 @@
-package no.uio.ifi.in2000.team_43.ui.sharedScreenComponents
+package no.uio.ifi.in2000.team_43.ui.info.grafStuff
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme

@@ -7,13 +7,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.team_43.data.met.MetRepository
+import no.uio.ifi.in2000.team_43.model.garfStuff.GrafMeasurement
 import no.uio.ifi.in2000.team_43.model.met.AggregatedData
 import no.uio.ifi.in2000.team_43.model.met.Coordinates
 import no.uio.ifi.in2000.team_43.model.met.ValidYears
 import no.uio.ifi.in2000.team_43.model.met.WeatherData
 import no.uio.ifi.in2000.team_43.model.met.WeatherList
 import no.uio.ifi.in2000.team_43.model.met.WeatherStation
-import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.GrafMeasurement
 import java.time.Instant
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
