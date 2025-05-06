@@ -65,6 +65,15 @@ import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.DataSourceSwitch
 import java.math.BigDecimal
 import java.math.RoundingMode
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.unit.dp
+
+
+
 
 import androidx.compose.material3.*
 
@@ -289,6 +298,12 @@ fun InfoScreen(
                 }
             }
         }
+
+        // Enova on infoscreen:
+        Spacer(modifier = Modifier.height(12.dp))
+        EnovaCard(supportAmount = 150000)
+
+
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -581,6 +596,91 @@ fun AddressNamePopup(
                 }
             }
         )
+    }
+}
+
+
+// For testing av card til enovastøtte:
+@Composable
+fun EnovaCard(supportAmount: Int) {
+    val isZeroSupport = supportAmount <= 0
+    val backgroundColor = if (isZeroSupport) Color(0xFFFFCDD2) else Color(0xFF304745)
+    val textColor = if (isZeroSupport) Color(0xFFD32F2F) else Color(0xFF388E3C)
+    val context = LocalContext.current
+    val enovaInfoLink = "https://www.enova.no/privat/alle-energitiltak/solenergi/solcelleanlegg/?gad_source=1&gad_campaignid=16624425572&gbraid=0AAAAADLywwiacDJN5I7llRB-oOuYbvBmW&gclid=Cj0KCQjw5ubABhDIARIsAHMighb65GEWXVeJy3jCq8CYd0rcsR4L1n7G4GHf9wBGVB-ngIYtISqzJIIaAp3fEALw_wcB"
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    text = if (isZeroSupport) "Ingen beregnet Enova-støtte" else "Beregnet Enova-støtte",
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = textColor
+                    ),
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Les mer om Enova-støtte",
+                    tint = textColor,
+                    modifier = Modifier
+                        .clickable {
+                            val intent = Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse(enovaInfoLink)
+                            )
+                            context.startActivity(intent)
+                        }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (isZeroSupport) {
+                Text(
+                    text = "Du mottar dessverre ingen støtte for dette tiltaket.",
+                    style = MaterialTheme.typography.bodyMedium.copy(color = textColor)
+                )
+            } else {
+                Text(
+                    text = "${supportAmount} kr",
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = textColor
+                    )
+                )
+            }
+        }
+    }
+}
+
+
+// preview av testcardet for enova:
+@Preview(showBackground = true)
+@Composable
+fun EnovaSupportCardPreview_Positive() {
+    MaterialTheme {
+        EnovaCard(supportAmount = 15000)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EnovaSupportCardPreview_Zero() {
+    MaterialTheme {
+        EnovaCard(supportAmount = 0)
     }
 }
 
