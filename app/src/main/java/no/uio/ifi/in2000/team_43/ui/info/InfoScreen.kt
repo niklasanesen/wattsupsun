@@ -11,7 +11,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -70,12 +69,10 @@ import androidx.compose.material.icons.filled.Info
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.clickable
-import androidx.compose.ui.unit.dp
-
-
 
 
 import androidx.compose.material3.*
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateEnova
 
 
 // test
@@ -301,7 +298,7 @@ fun InfoScreen(
 
         // Enova on infoscreen:
         Spacer(modifier = Modifier.height(12.dp))
-        EnovaCard(supportAmount = 150000)
+        EnovaCard(calculateEnova(0.5, 8))
 
 
 
@@ -602,7 +599,7 @@ fun AddressNamePopup(
 
 // For testing av card til enovastøtte:
 @Composable
-fun EnovaCard(supportAmount: Int) {
+fun EnovaCard(supportAmount: Double) {
     val isZeroSupport = supportAmount <= 0
     val backgroundColor = if (isZeroSupport) Color(0xFFFFCDD2) else Color(0xFF304745)
     val textColor = if (isZeroSupport) Color(0xFFD32F2F) else Color(0xFFFFFFFF)
@@ -623,7 +620,7 @@ fun EnovaCard(supportAmount: Int) {
                 verticalAlignment = Alignment.Top
             ) {
                 Text(
-                    text = if (isZeroSupport) "Ingen beregnet Enova-støtte" else "Beregnet Enova-støtte",
+                    text = if (isZeroSupport) "Ingen beregnet Enova-støtte" else "Estimert Enova-støtte",
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
@@ -650,12 +647,12 @@ fun EnovaCard(supportAmount: Int) {
 
             if (isZeroSupport) {
                 Text(
-                    text = "Du mottar dessverre ingen støtte for dette tiltaket.",
+                    text = "Du mottar dessverre ingen støtte fra Enova",
                     style = MaterialTheme.typography.bodyMedium.copy(color = textColor)
                 )
             } else {
                 Text(
-                    text = "${supportAmount} kr",
+                    text = "${supportAmount.toInt()} kr",
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = textColor
@@ -672,7 +669,7 @@ fun EnovaCard(supportAmount: Int) {
 @Composable
 fun EnovaSupportCardPreview_Positive() {
     MaterialTheme {
-        EnovaCard(supportAmount = 15000)
+        EnovaCard(supportAmount = 15000.0)
     }
 }
 
@@ -680,7 +677,7 @@ fun EnovaSupportCardPreview_Positive() {
 @Composable
 fun EnovaSupportCardPreview_Zero() {
     MaterialTheme {
-        EnovaCard(supportAmount = 0)
+        EnovaCard(supportAmount = 0.0)
     }
 }
 
