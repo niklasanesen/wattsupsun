@@ -68,11 +68,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.size
 
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.ui.res.painterResource
+import no.uio.ifi.in2000.team_43.R
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateCoffe
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateEnova
 
 
@@ -210,6 +215,24 @@ fun InfoScreen(
                     ValueBox(label = "Vinkel", value = "${ctx.input?.angle}°", modifier = Modifier.weight(1f))
                     ValueBox(label = "Retning", value = "${ctx.input?.direction}°", modifier = Modifier.weight(1f))
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                when (ctx.input?.direction) {
+                    0 -> {
+                        NorthDirectionCard("Nord: Basert på retningen du har valgt lønner det seg ikke å ha solcellepaneler.")
+                    }
+                    90 -> {
+                        DirectionCard("Østvendte paneler gir mest strømproduksjon tidlig på dagen.")
+                    }
+                    180 -> {
+                        DirectionCard("Sørvendte paneler gir jevn og høy produksjon midt på dagen. Dette er den mest effektive retningen for solcellepaneler!")
+
+                    }
+                    270 -> {
+                        DirectionCard(text = "Vestvendte paneler produserer mest strøm på ettermiddagen. Det er da strømprisen normalt er høyest!")
+                    }
+                }
             }
         }
 
@@ -217,88 +240,21 @@ fun InfoScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         // NED HIT
-        when (ctx.input?.direction) {
-            0 -> {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = 8.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    backgroundColor = Color(0xFFFFCDD2) // Lys rød bakgrunn
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "Nord: Basert på retningen du har valgt lønner det seg ikke å ha solcellepaneler.",
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 20.sp,
-                                color = Color(0xFFB71C1C) // Mørkere rød tekst
-                            ),
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-                    }
-                }
-            }
-            90 -> {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = 8.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    backgroundColor = Color(0xFFC8E6C9) // Lys grønn bakgrunn
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "Øst: Basert på retningen du har valgt genererer du mest strøm på starten av dagen.",
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 20.sp,
-                                color = Color(0xFF388E3C) // Mørkere grønn tekst
-                            ),
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-                    }
-                }
-            }
-            180 -> {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = 8.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    backgroundColor = Color(0xFFC8E6C9) // Lys grønn bakgrunn
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "Sør: Basert på retningen  du har valgt lønner det seg å ha solcellepaneler.",
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 20.sp,
-                                color = Color(0xFF388E3C) // Mørkere grønn tekst
-                            ),
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-                    }
-                }
-            }
-            270 -> {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = 8.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    backgroundColor = Color(0xFFC8E6C9) // Lys grønn bakgrunn
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "Vest: Basert på retningen du har valgt genererer du mest strøm på slutten av dagen.",
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 20.sp,
-                                color = Color(0xFF388E3C) // Mørkere grønn tekst
-                            ),
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-                    }
-                }
-            }
-        }
+//        when (ctx.input?.direction) {
+//            0 -> {
+//                NorthDirectionCard("Nord: Basert på retningen du har valgt lønner det seg ikke å ha solcellepaneler.")
+//            }
+//            90 -> {
+//                DirectionCard("Østvendte paneler gir mest strømproduksjon tidlig på dagen.")
+//            }
+//            180 -> {
+//                DirectionCard("Sørvendte paneler gir jevn og høy produksjon midt på dagen. Dette er den mest effektive retningen for solcellepaneler!")
+//
+//            }
+//            270 -> {
+//                DirectionCard(text = "Vestvendte paneler produserer mest strøm på ettermiddagen. Det er da strømprisen normalt er høyest!")
+//            }
+//        }
 
         // Enova on infoscreen:
         Spacer(modifier = Modifier.height(12.dp))
@@ -306,7 +262,7 @@ fun InfoScreen(
 
         // Other fun boxes with info
         Spacer(modifier = Modifier.height(12.dp))
-        CoffeeCard(totalProduksjon.value)
+        CoffeeCard(calculateCoffe(totalProduksjon.value) )
 
 
 
@@ -703,7 +659,7 @@ fun EnovaSupportCardPreview_Zero() {
 
 
 @Composable
-fun CoffeeCard(production: Double) {
+fun CoffeeCard(production: Int) {
     val isZeroProduction = production <= 0
     val backgroundColor = Color(0xFFFFE0B2)  // Lys oransje
     val textColor = Color(0xFFBF360C)  // Mørk rød
@@ -719,38 +675,103 @@ fun CoffeeCard(production: Double) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                // Bruker VectorDrawable (XML) kaffekopp-ikonet
+                Icon(
+                    painter = painterResource(id = R.drawable.coffee_cup), // Bruker .xml VectorDrawable
+                    contentDescription = "Kaffekopp",
+                    modifier = Modifier.size(60.dp).padding(end = 8.dp),
+                    tint = textColor
+                )
+                // Teksten som beskriver produksjon
                 Text(
                     text = if (isZeroProduction) "Koker opp kaffe, et øyeblikk..." else "Solcellepanel hos deg kan koke opp ${production.toInt()} kopper kaffe årlig!",
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
                         color = textColor
-                    ),
-                    modifier = Modifier.padding(end = 8.dp)
+                    )
                 )
             }
-
-
         }
     }
 }
 
 
+
+
 @Preview(showBackground = true)
 @Composable
 fun NoProdPreviewCoffeeCard() {
-    CoffeeCard(production = 0.0)
+    CoffeeCard(production = 0)
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewCoffeeCard() {
-    CoffeeCard(production = 500.0)
+    CoffeeCard(production = 500)
 }
 
+// Card for tips basert på retning:
 
+@Composable
+fun DirectionCard(text: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD)) // Lys blå bakgrunn
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    color = Color(0xFF1976D2) // Mørkere blå tekst, men ikke for intens
+                )
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DirectionCardPreview() {
+    MaterialTheme {
+        DirectionCard("Østvendte paneler gir mest strømproduksjon tidlig på dagen.")
+    }
+}
+
+@Composable
+fun NorthDirectionCard(text: String) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(),
+        elevation = 8.dp,
+        shape = RoundedCornerShape(16.dp),
+        backgroundColor = Color(0xFFFFCDD2) // Lys rød bakgrunn
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    color = Color(0xFFB71C1C) // Mørkere rød tekst
+                )
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NorthDirectionCardPreview() {
+    MaterialTheme {
+        NorthDirectionCard("Nord: Basert på retningen du har valgt lønner det seg ikke å ha solcellepaneler.")
+    }
+}
 
 
 // Parser tidspunktdataene fra stromAPI til leselig klokkeslett
