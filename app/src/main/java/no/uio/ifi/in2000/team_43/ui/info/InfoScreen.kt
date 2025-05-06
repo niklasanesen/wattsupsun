@@ -315,54 +315,7 @@ fun InfoScreen(
             // NED HIT
         }
 
-//        // Vise PVGIS-data hvis tilgjengelig
-//        Text(text = "PVGIS StrømproduksjonsData: (PVGIS) ", style = MaterialTheme.typography.titleMedium)
-//        Text(text = "(Har ikke kobla så den søker etter en adresse sin posisjon, dette er en random pos i oslo)", style = MaterialTheme.typography.titleSmall)
-//        if (pvgisData != null) {
-//            pvgisData?.outputs?.totals?.fixed?.let { totals ->
-//                Text(text = "Estimert daglig produksjon: ${totals.E_d} kWh")
-//                Text(text = "Estimert månedlig produksjon: ${totals.E_m} kWh")
-//                Text(text = "Estimert årlig produksjon: ${totals.E_y} kWh")
-//            }
-//        } else {
-//            Text(text = "Laster PVGIS data...")
-//        }
-//
-//
-//
-//
-//        // Vise Strømpris-data hvis tilgjengelig
-//        Spacer(modifier = Modifier.height(16.dp))
-//        Text(text = "Strømpris (dato 29.03.2025 prisområde NO1 er selvvalgt) (StromPris):", style = MaterialTheme.typography.titleMedium)
-//        Text(text = "Trenger å fikse så den viser etter dagens dato og adresse sitt prisområde", style = MaterialTheme.typography.titleSmall)
-//
-//        if (stromprisData != null) {
-//            stromprisData?.forEach { strompris ->
-//                Text(text = "Kl: ${getTimeFromDate(strompris.time_start)} - Pris: ${strompris.NOK_per_kWh} kr/kWh")
-//            }
-//        } else {
-//            Text(text = "Laster strømpris data...")
-//        }
-//
-//
-//        // Viser DRcalc data (sol innstråling)
-//        Spacer(modifier = Modifier.height(16.dp))
-//        Text(text = "Gjennomsnittlig stråling i Juli (DRcalc):", style = MaterialTheme.typography.titleMedium)
-//        Text(text = "Trenger å fikse så den viser etter en adresse sin pos og selvvalgt mnd", style = MaterialTheme.typography.titleSmall)
-//
-//        if (drCalcData != null) {
-//            drCalcData!!.forEach { data ->
-//                Text(text = "Kl: ${data.time} - Solinnstråling: ${data.G_i} W/m²")
-//            }
-//
-//            // Beregn total solinnstråling for dagen
-//            val drcalcTotal = drCalcTotalSum
-//            Text(text = "Totalt for hele dagen: $drcalcTotal W/m²")
-//        } else {
-//            Text(text = "Laster DRcalc data...")
-//        }
-//
-//        Spacer(modifier = Modifier.height(16.dp))
+
 
         weatherList?.dailyObservation?.forEach { (date, weatherDataList) ->
             var temperatur: Double? = null
