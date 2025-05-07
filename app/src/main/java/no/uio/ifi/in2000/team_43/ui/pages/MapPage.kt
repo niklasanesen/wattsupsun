@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import no.uio.ifi.in2000.team_43.R
+import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
 import no.uio.ifi.in2000.team_43.ui.home.HomeViewModel
 import no.uio.ifi.in2000.team_43.ui.home.MapScreen
 import no.uio.ifi.in2000.team_43.ui.info.InfoScreen
@@ -48,8 +49,10 @@ enum class HomeScreen(val route: String) {
 fun MapPage(
     modifier: Modifier = Modifier,
     metViewModel: MetViewModel = viewModel(),
+    pvgisViewModel: PVGISViewModel = viewModel(),
     viewModel: HomeViewModel = viewModel(),
     navController: NavHostController = rememberNavController()
+
 ) {
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -98,6 +101,7 @@ fun MapPage(
                 InputScreen(
                     ctx = ctx,
                     metViewModel = metViewModel,
+                    pvgisViewModel = pvgisViewModel,
                     onNextBtnClicked = {
                         viewModel.setInput(it)
                         navController.navigate(HomeScreen.Info.name)
@@ -120,6 +124,7 @@ fun MapPage(
                 InfoScreen(
                     ctx = ctx,
                     metViewModel = metViewModel,
+                    pvgisViewModel = pvgisViewModel,
                     modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
                 )
             }

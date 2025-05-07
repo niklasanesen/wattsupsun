@@ -75,6 +75,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.ui.res.painterResource
 import no.uio.ifi.in2000.team_43.R
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.AddressNamePopup
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.CoffeeCard
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.DirectionCard
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.EnovaCard
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.NorthDirectionCard
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.ValueBox
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateCoffe
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateEnova
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateNumPanels
@@ -91,17 +97,10 @@ fun InfoScreen(
 ) {
     // Samler data fra ViewModels
     val pvgisData by pvgisViewModel.data.collectAsState()
-    val drCalcData by pvgisViewModel.drCalcData.collectAsState() // Henter DRcalc data
-    val drCalcTotalSum by pvgisViewModel.drCalcDataTotalSum.collectAsState() // Henter kalkulert totalsum
     val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata
     var isLoading by remember { mutableStateOf(true) }
-
     var isMetSelected by remember { mutableStateOf(true) }
-
-
     var showDialog by remember { mutableStateOf(false) }
-
-
     val produksjonsliste = mutableListOf<Pair<Instant, Double>>()  // strømproduskjon for alle dager i et år
     val produksjonsMap: MutableMap<Instant, Double> = produksjonsliste.toMap().toMutableMap()
     val totalProduksjon = remember { mutableStateOf(0.0) }
@@ -114,14 +113,9 @@ fun InfoScreen(
     val ferdigBeregnetProdData = mutableListOf<Double>() // legger inn beregnet strøm produksjonsdata
 
     // Strompris data:
-    val stromprisData by stromprisViewModel.data.collectAsState()
     val stromprisDataPerMnd by stromprisViewModel.dataPerMnd.collectAsState()
-
     val errorMessage by metViewModel.errorMessage.collectAsState()
-
     val scrollState = rememberScrollState()
-
-    var selectedMonth by remember { mutableStateOf(0) } // 0 = Januar
 
     //val testctx = ctx.input.valgtPanle.effekt
 
@@ -240,22 +234,6 @@ fun InfoScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // NED HIT
-//        when (ctx.input?.direction) {
-//            0 -> {
-//                NorthDirectionCard("Nord: Basert på retningen du har valgt lønner det seg ikke å ha solcellepaneler.")
-//            }
-//            90 -> {
-//                DirectionCard("Østvendte paneler gir mest strømproduksjon tidlig på dagen.")
-//            }
-//            180 -> {
-//                DirectionCard("Sørvendte paneler gir jevn og høy produksjon midt på dagen. Dette er den mest effektive retningen for solcellepaneler!")
-//
-//            }
-//            270 -> {
-//                DirectionCard(text = "Vestvendte paneler produserer mest strøm på ettermiddagen. Det er da strømprisen normalt er høyest!")
-//            }
-//        }
 
         // Enova on infoscreen:
         Log.i("TestEnova", "kwpPerPanel: ${ctx.input?.valgtPanle?.effekt}")
@@ -267,6 +245,9 @@ fun InfoScreen(
         val panelLength = ctx.input?.valgtPanle?.len
         val panelWidth = ctx.input?.valgtPanle?.width
 
+
+        val panelArel: Double
+        var totalPanelAreal = 0.0
 
 
 
@@ -280,9 +261,11 @@ fun InfoScreen(
         Spacer(modifier = Modifier.height(12.dp))
         CoffeeCard(calculateCoffe(totalProduksjon.value) )
 
+        if (panelLength!=null && panelWidth!=null){
+            panelArel = panelLength * panelWidth
+            totalPanelAreal = numPanel * panelArel
 
-
-
+        }
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -322,18 +305,17 @@ fun InfoScreen(
                 }
             }
 
-            val length = ctx.input?.length
-            val width = ctx.input?.width
             val angle = ctx.input?.angle
+            val dir = ctx.input?.direction
 
-            if (temperatur != null && solinnstraling != null && length != null && width != null && angle != null) {
+            if (temperatur != null && solinnstraling != null && angle != null && dir != null) {
                 isLoading = false
                 val produksjon = beregnStromproduksjon(
-                    lengde = length,
-                    bredde = width,
+                    areal = totalPanelAreal,
                     vinkel = angle,
                     temperatur = temperatur,
-                    solinnstraling = solinnstraling
+                    solinnstraling = solinnstraling,
+                    direction = dir
                 )
 
                 // Legg til i lista
@@ -360,13 +342,7 @@ fun InfoScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
 
-        // PVGIS beregninger
-        LaunchedEffect(ctx.coords) {
-            ctx.coords?.let {
-                pvgisViewModel.fetchPVGISData(Coordinates(it.latitude(), it.longitude()))
 
-            }
-        }
 
 
         val weatherEntries = weatherList?.dailyObservation ?: emptyList()
@@ -410,6 +386,10 @@ fun InfoScreen(
 
         val displayedData = if (isMetSelected) monthlyMeasurements else pvgisData
 
+
+
+
+        //garf med switch
         Column {
             DataSourceSwitch(
                 isMetSelected = isMetSelected,
@@ -436,8 +416,7 @@ fun InfoScreen(
         }
 
 
-
-
+        //lagre knappen
         Button(
             onClick = {
                 showDialog = true
@@ -446,6 +425,8 @@ fun InfoScreen(
         ) {
             Text("Lagre adresse")
         }
+
+
 
         AddressNamePopup(
             showDialog = showDialog,
@@ -469,315 +450,6 @@ fun InfoScreen(
         )
     }
 }
-
-@Composable
-fun ValueBox(label: String, value: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .background(color = Color(0xFFF0F0F0), shape = RoundedCornerShape(12.dp))
-            .padding(vertical = 12.dp, horizontal = 8.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium.copy(
-                color = Color(0xFF6D6D8D),
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp
-            )
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-                color = Color.Black
-            )
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewValueBox() {
-    MaterialTheme {
-        Surface {
-            ValueBox(
-                label = "Lengde",
-                value = "34 m",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
-        }
-    }
-}
-
-
-@Composable
-fun AddressNamePopup(
-    showDialog: Boolean,
-    onDismiss: () -> Unit,
-    onConfirm: (String) -> Unit
-) {
-    var input by remember { mutableStateOf("") }
-
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { onDismiss() },
-            title = { Text("Navngi adresse") },
-            text = {
-                Column {
-                    Text("Skriv inn et navn for denne adressen")
-                    Spacer(modifier = Modifier.height(8.dp))
-                    TextField(
-                        value = input,
-                        onValueChange = { input = it },
-                        placeholder = { Text("F.eks. Hjem, Hytta, Jobb...") },
-                        singleLine = true
-                    )
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    if (input.isNotBlank()) {
-                        onConfirm(input.trim())
-                        onDismiss()
-                    }
-                }) {
-                    Text("OK")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = onDismiss) {
-                    Text("Avbryt")
-                }
-            }
-        )
-    }
-}
-
-
-// For testing av card til enovastøtte:
-@Composable
-fun EnovaCard(supportAmount: Double) {
-    val isZeroSupport = supportAmount <= 0
-    val backgroundColor = if (isZeroSupport) Color(0xFFFFCDD2) else Color(0xFF304745)
-    val textColor = if (isZeroSupport) Color(0xFFD32F2F) else Color(0xFFFFFFFF)
-    val context = LocalContext.current
-    val enovaInfoLink = "https://www.enova.no/privat/alle-energitiltak/solenergi/solcelleanlegg/?gad_source=1&gad_campaignid=16624425572&gbraid=0AAAAADLywwiacDJN5I7llRB-oOuYbvBmW&gclid=Cj0KCQjw5ubABhDIARIsAHMighb65GEWXVeJy3jCq8CYd0rcsR4L1n7G4GHf9wBGVB-ngIYtISqzJIIaAp3fEALw_wcB"
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Text(
-                    text = if (isZeroSupport) "Ingen beregnet Enova-støtte" else "Estimert Enova-støtte",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp,
-                        color = textColor
-                    ),
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = "Les mer om Enova-støtte",
-                    tint = textColor,
-                    modifier = Modifier
-                        .clickable {
-                            val intent = Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse(enovaInfoLink)
-                            )
-                            context.startActivity(intent)
-                        }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            if (isZeroSupport) {
-                Text(
-                    text = "Du mottar dessverre ingen støtte fra Enova",
-                    style = MaterialTheme.typography.bodyMedium.copy(color = textColor)
-                )
-            } else {
-                Text(
-                    text = "${supportAmount.toInt()} kr",
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = textColor
-                    )
-                )
-            }
-        }
-    }
-}
-
-
-
-// preview av testcardet for enova:
-@Preview(showBackground = true)
-@Composable
-fun EnovaSupportCardPreview_Positive() {
-    MaterialTheme {
-        EnovaCard(supportAmount = 15000.0)
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun EnovaSupportCardPreview_Zero() {
-    MaterialTheme {
-        EnovaCard(supportAmount = 0.0)
-    }
-}
-
-
-@Composable
-fun CoffeeCard(production: Int) {
-    val isZeroProduction = production <= 0
-    val backgroundColor = Color(0xFFFFE0B2)  // Lys oransje
-    val textColor = Color(0xFFBF360C)  // Mørk rød
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Bruker VectorDrawable (XML) kaffekopp-ikonet
-                Icon(
-                    painter = painterResource(id = R.drawable.coffee_cup), // Bruker .xml VectorDrawable
-                    contentDescription = "Kaffekopp",
-                    modifier = Modifier.size(70.dp).padding(end = 8.dp),
-                    tint = textColor
-                )
-                // Teksten som beskriver produksjon
-                Text(
-                    text = if (isZeroProduction) "Koker opp kaffe, et øyeblikk..." else "Solcellepanel hos deg kan koke opp ${production.toInt()} kopper kaffe årlig!",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp,
-                        color = textColor
-                    )
-                )
-            }
-        }
-    }
-}
-
-
-
-
-@Preview(showBackground = true)
-@Composable
-fun NoProdPreviewCoffeeCard() {
-    CoffeeCard(production = 0)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewCoffeeCard() {
-    CoffeeCard(production = 500)
-}
-
-// Card for tips basert på retning:
-
-@Composable
-fun DirectionCard(text: String) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD)) // Lys blå bakgrunn
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    color = Color(0xFF1976D2) // Mørkere blå tekst, men ikke for intens
-                )
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DirectionCardPreview() {
-    MaterialTheme {
-        DirectionCard("Østvendte paneler gir mest strømproduksjon tidlig på dagen.")
-    }
-}
-
-@Composable
-fun NorthDirectionCard(text: String) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        backgroundColor = Color(0xFFFFCDD2) // Lys rød bakgrunn
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    color = Color(0xFFB71C1C) // Mørkere rød tekst
-                )
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun NorthDirectionCardPreview() {
-    MaterialTheme {
-        NorthDirectionCard("Nord: Basert på retningen du har valgt lønner det seg ikke å ha solcellepaneler.")
-    }
-}
-
-
-// Parser tidspunktdataene fra stromAPI til leselig klokkeslett
-fun getTimeFromDate(dateString: String): String? {
-    return try {
-        // Definerer formatet på inngangsstrengen
-        val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
-
-        // Parser datoen og tiden til et ZonedDateTime-objekt
-        val dateTime = ZonedDateTime.parse(dateString, formatter)
-
-        // Henter ut klokkeslettet i ønsket format
-        dateTime.toLocalTime().toString() // For eksempel "23:00:00"
-    } catch (e: DateTimeParseException) {
-        e.printStackTrace()
-        // Håndterer feil hvis strengen ikke kan parses
-        null
-    }
-}
-
 
 
 

@@ -52,6 +52,7 @@ import androidx.compose.ui.Alignment
 import no.uio.ifi.in2000.team_43.model.garfStuff.GrafMeasurement
 import no.uio.ifi.in2000.team_43.ui.info.grafStuff.MonthSelector
 import no.uio.ifi.in2000.team_43.ui.info.grafStuff.MonthlyChartWithValueDisplay
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.ValueBox
 
 
 data class DirectionInfo(val backgroundColor: Color, val textColor: Color, val message: String)
@@ -275,14 +276,15 @@ fun AddressDetailPage(
                     }
                 }
 
+                val areal = address.height * address.width
                 if (temperatur != null && solinnstraling != null) {
                     isLoading.value = false
                     val produksjon = beregnStromproduksjon(
-                        lengde = address.height.toInt(),
-                        bredde = address.width.toInt(),
+                        areal = areal,
                         vinkel = address.angle.toInt(),
                         temperatur = temperatur,
-                        solinnstraling = solinnstraling
+                        solinnstraling = solinnstraling,
+                        direction = address.direction.toInt()
                     )
 
                     val zdt = date.atZone(ZoneId.systemDefault())
