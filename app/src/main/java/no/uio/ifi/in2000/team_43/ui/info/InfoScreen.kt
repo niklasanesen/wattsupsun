@@ -56,11 +56,8 @@ import no.uio.ifi.in2000.team_43.model.PVGIS.MonthlyEntry
 import no.uio.ifi.in2000.team_43.ui.PVGIS.convertPVGISToMeasurements
 
 // for måned velger
-import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.ChartWithValueDisplay //graf
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.ProductionCalc
-import java.time.ZoneId
 import no.uio.ifi.in2000.team_43.ui.met.generateMonthlyMeasurements
-import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.DataSourceSwitch
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -71,7 +68,8 @@ import android.net.Uri
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
-
+import no.uio.ifi.in2000.team_43.ui.info.grafStuff.DataSourceSwitch
+import no.uio.ifi.in2000.team_43.ui.info.grafStuff.YearlyChartWithValueDisplay
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -79,7 +77,6 @@ import androidx.compose.ui.res.painterResource
 import no.uio.ifi.in2000.team_43.R
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateCoffe
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateEnova
-
 
 // test
 
@@ -96,6 +93,7 @@ fun InfoScreen(
     val drCalcData by pvgisViewModel.drCalcData.collectAsState() // Henter DRcalc data
     val drCalcTotalSum by pvgisViewModel.drCalcDataTotalSum.collectAsState() // Henter kalkulert totalsum
     val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata
+    var isLoading by remember { mutableStateOf(true) }
 
     var isMetSelected by remember { mutableStateOf(true) }
 
@@ -286,7 +284,7 @@ fun InfoScreen(
             }
 
             else -> {
-                CircularProgressIndicator()
+                //CircularProgressIndicator()
             }
 
 
@@ -311,6 +309,7 @@ fun InfoScreen(
             val angle = ctx.input?.angle
 
             if (temperatur != null && solinnstraling != null && length != null && width != null && angle != null) {
+                isLoading = false
                 val produksjon = beregnStromproduksjon(
                     lengde = length,
                     bredde = width,
@@ -341,18 +340,6 @@ fun InfoScreen(
 
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        val groupedByMonth = produksjonsliste
-            .map { (instant, value) ->
-                val zdt = instant.atZone(ZoneId.systemDefault())
-                zdt.monthValue to value
-            }
-            .groupBy { it.first }
-            .mapValues { entry ->
-                entry.value.sumOf { it.second }
-            }
-
-
 
 
         // PVGIS beregninger
@@ -395,13 +382,7 @@ fun InfoScreen(
         }
         Log.d("testpvgisBeregn", " $ferdigBeregnetProdData")
 
-        /*
-        Text(
-            text = "prodData basert på PVGIS månedlig innstråling (i kwh/month): ${ferdigBeregnetProdData}"
-        )
-        */
-
-// Generere månedlige målinger
+        // Generere månedlige målinger
         val monthlyMeasurements = remember(produksjonsliste) {
             generateMonthlyMeasurements(produksjonsliste)
         }
@@ -409,17 +390,7 @@ fun InfoScreen(
             convertPVGISToMeasurements(ferdigBeregnetProdData)
         }
 
-        // Legg til en isLoading-tilstand
-        var isLoading by remember { mutableStateOf(true) }
-
         val displayedData = if (isMetSelected) monthlyMeasurements else pvgisData
-
-        // Når dataene er lastet inn, sett isLoading til false
-        LaunchedEffect(displayedData) {
-            if (displayedData.isNotEmpty()) {
-                isLoading = false
-            }
-        }
 
         Column {
             DataSourceSwitch(
@@ -433,20 +404,18 @@ fun InfoScreen(
                     .height(300.dp),
                 contentAlignment = Alignment.Center
             ) {
-                when {
-                    displayedData.isNotEmpty() -> {
-                        ChartWithValueDisplay(
-                            selectedMonth = null,
-                            allMeasurements = displayedData,
-                        )
-                    }
-                    else -> {
-                        CircularProgressIndicator()
-                    }
+                if (displayedData.isNotEmpty()) {
+                    YearlyChartWithValueDisplay(
+                        allMeasurements = displayedData,
+                        isLoading = isLoading,
+                        modifier = Modifier.fillMaxWidth().height(300.dp)
+                    )
+
+                } else {
+                    CircularProgressIndicator()
                 }
             }
         }
-
 
 
 

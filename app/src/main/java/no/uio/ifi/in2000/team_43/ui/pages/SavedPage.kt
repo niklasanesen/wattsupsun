@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 
@@ -50,7 +49,7 @@ fun SavedPage(
             val address = Gson().fromJson(json, LagreAdresse::class.java)
             AddressDetailPage(
                 address = address,
-                navController = navController, // send med
+                navController = navController,
                 modifier = Modifier
             )
         }
