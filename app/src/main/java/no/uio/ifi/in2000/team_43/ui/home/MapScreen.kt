@@ -202,7 +202,8 @@ fun MapScreen(
                     }
                 }
             }
-            if (addressIsSelected) {
+            // REMOVE ! TO ENABLE SEARCH
+            if (!addressIsSelected) {
                 Row(modifier = Modifier.fillMaxWidth().height(56.dp)) {
                     Button(
                         onClick = { addressIsSelected = false },
