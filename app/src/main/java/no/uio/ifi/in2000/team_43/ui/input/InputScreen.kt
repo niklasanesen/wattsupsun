@@ -131,12 +131,12 @@ fun InputScreen(
             }
 
             Column (
-                modifier = modifier
+                modifier = Modifier
                     .fillMaxWidth()
 
-                    .paddingFromBaseline(top = 32.dp),
-                    //.padding(40.dp),
-                    //verticalArrangement = Arrangement.Center
+                    //.paddingFromBaseline(top = 32.dp),
+                    .padding(2.dp),
+                    verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
 
             ) {
