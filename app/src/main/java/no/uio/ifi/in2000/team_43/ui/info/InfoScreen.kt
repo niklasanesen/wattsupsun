@@ -55,7 +55,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import no.uio.ifi.in2000.team_43.model.PVGIS.MonthlyEntry
 import no.uio.ifi.in2000.team_43.ui.PVGIS.convertPVGISToMeasurements
 
-// for måned velger
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.ProductionCalc
 import no.uio.ifi.in2000.team_43.ui.met.generateMonthlyMeasurements
 import java.math.BigDecimal
@@ -79,11 +78,14 @@ import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.AddressNamePopup
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.CoffeeCard
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.DirectionCard
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.EnovaCard
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.MonthlySavingsDisplay
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.NorthDirectionCard
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.ValueBox
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calcMoneySaved
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateCoffe
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateEnova
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateNumPanels
+import kotlin.math.log
 
 // test
 
@@ -116,6 +118,10 @@ fun InfoScreen(
     val stromprisDataPerMnd by stromprisViewModel.dataPerMnd.collectAsState()
     val errorMessage by metViewModel.errorMessage.collectAsState()
     val scrollState = rememberScrollState()
+
+    Log.d("stromprisDataPerMnd", stromprisDataPerMnd.toString())
+
+
 
     //val testctx = ctx.input.valgtPanle.effekt
 
@@ -267,7 +273,6 @@ fun InfoScreen(
         if (panelLength!=null && panelWidth!=null){
             panelArel = panelLength * panelWidth
             totalPanelAreal = numPanel * panelArel
-
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -294,8 +299,6 @@ fun InfoScreen(
 
             // NED HIT
         }
-
-
 
         weatherList?.dailyObservation?.forEach { (date, weatherDataList) ->
             var temperatur: Double? = null
@@ -389,11 +392,15 @@ fun InfoScreen(
 
         val displayedData = if (isMetSelected) monthlyMeasurements else pvgisData
 
-
+        val direction = ctx.input?.direction ?: 0  // fallback til sør
+        val moneySavedList = calcMoneySaved(direction, stromprisDataPerMnd, pvgisData)
 
 
         //garf med switch
         Column {
+            MonthlySavingsDisplay(
+                savingsPerMonth = moneySavedList
+            )
             DataSourceSwitch(
                 isMetSelected = isMetSelected,
                 onToggle = { isMetSelected = it }
@@ -406,6 +413,8 @@ fun InfoScreen(
                 contentAlignment = Alignment.Center
             ) {
                 if (displayedData.isNotEmpty()) {
+
+
                     YearlyChartWithValueDisplay(
                         allMeasurements = displayedData,
                         isLoading = isLoading,

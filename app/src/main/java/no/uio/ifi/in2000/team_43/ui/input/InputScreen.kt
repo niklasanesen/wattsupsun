@@ -88,11 +88,7 @@ fun InputScreen(
 
 
 
-    LaunchedEffect(ctx.coords) {
-        ctx.coords?.let {
-            pvgisViewModel.fetchPVGISData(Coordinates(it.latitude(), it.longitude()))
-        }
-    }
+
 
     LaunchedEffect(ctx.coords) {
         ctx.coords?.let {
@@ -100,6 +96,11 @@ fun InputScreen(
         }
     }
 
+    LaunchedEffect(ctx.coords) {
+        ctx.coords?.let {
+            pvgisViewModel.fetchPVGISData(Coordinates(it.latitude(), it.longitude()))
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
