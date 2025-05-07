@@ -681,7 +681,7 @@ fun CoffeeCard(production: Int) {
                 Icon(
                     painter = painterResource(id = R.drawable.coffee_cup), // Bruker .xml VectorDrawable
                     contentDescription = "Kaffekopp",
-                    modifier = Modifier.size(60.dp).padding(end = 8.dp),
+                    modifier = Modifier.size(70.dp).padding(end = 8.dp),
                     tint = textColor
                 )
                 // Teksten som beskriver produksjon
@@ -748,7 +748,6 @@ fun NorthDirectionCard(text: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth(),
-        elevation = 8.dp,
         shape = RoundedCornerShape(16.dp),
         backgroundColor = Color(0xFFFFCDD2) // Lys rød bakgrunn
     ) {
