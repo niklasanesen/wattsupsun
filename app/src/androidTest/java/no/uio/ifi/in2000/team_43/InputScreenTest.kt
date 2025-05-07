@@ -16,7 +16,7 @@ import no.uio.ifi.in2000.team_43.ui.input.InputScreen
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito.mock
+
 
 @ExperimentalMaterial3Api
 class InputScreenTest {
@@ -46,7 +46,7 @@ class InputScreenTest {
         composeTestRule.onNodeWithText("Takvinkel i °").performTextInput("30")
 
         // Click "Neste"
-        composeTestRule.onNodeWithText("Neste").performClick()
+        composeTestRule.onNodeWithText("Neste ").performClick()
 
         // Assert the callback was triggered with correct input
         composeTestRule.runOnIdle {

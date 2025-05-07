@@ -18,7 +18,6 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,12 +46,6 @@ import no.uio.ifi.in2000.team_43.model.met.Coordinates
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.pages.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
-import no.uio.ifi.in2000.team_43.ui.satellite.SatelliteScreen
-import kotlin.math.floor
-
-
-// Vil ha en sånn ?hjelp knapp som gir bruker en guide med hva som menes med de forskjellige input-feltene
-// Vil også legge til en knapp så man kan legge til flere takflater
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,9 +61,6 @@ fun InputScreen(
         backStackEntry?.destination?.route ?: HomeScreen.Input.name
     )
 
-    val previousBackStackEntry = navController.previousBackStackEntry
-    val previousRoute = previousBackStackEntry?.destination?.route
-
     LaunchedEffect(ctx.coords) {
         ctx.coords?.let {
             metViewModel?.fetchWeatherData(Coordinates(it.latitude(), it.longitude()))
@@ -78,24 +68,21 @@ fun InputScreen(
     }
 
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize(),
-        topBar =  { TopAppBar(
-            currentScreen = currentScreen,
-            canNavigateBack = navController.previousBackStackEntry != null,
-            navigateUp = { navController.navigateUp() },
-            navController = navController
-        ) },
-        // bottomBar = { BottomAppBar() },
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                currentScreen = currentScreen,
+                canNavigateBack = navController.previousBackStackEntry != null,
+                navigateUp = { navController.navigateUp() }
+            )
+        }
     ) { innerPadding ->
-
         Column (
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier
                 .fillMaxWidth()
+                .padding(top = innerPadding.calculateTopPadding())
         ) {
-            // Text("coords: ${ctx.coords?.coordinates()}")
-
             val keyboardController = LocalSoftwareKeyboardController.current
 
             var length by remember { mutableStateOf("") }
@@ -116,11 +103,8 @@ fun InputScreen(
 
             Column (
                 modifier = modifier
-                    // .wrapContentSize(Alignment.Center)
                     .fillMaxWidth()
                     .paddingFromBaseline(top = 52.dp),
-                //.padding(40.dp),
-                // verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -142,9 +126,7 @@ fun InputScreen(
                     label = { Text("Lengde") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
-                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                    //shape = OutlinedTextFieldDefaults.shape.
-
+                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
                 )
 
                 OutlinedTextField(
@@ -158,11 +140,7 @@ fun InputScreen(
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
                     keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
-
                 )
-
-
-
 
                 OutlinedTextField(
                     value = angle,
@@ -188,35 +166,6 @@ fun InputScreen(
                         modifier = Modifier.padding(12.dp)
                     )
                 }
-
-                /*
-                OutlinedTextField(
-                    value = direction,
-                    onValueChange = {
-                        if (it == "" || it.toIntOrNull() is Int) {
-                            direction = it
-                            directionError = ""
-                            if (it == "" || it.toInt() !in 0..359) {
-                                directionError = "Retning må være mellom 0° og 359°"
-                            }
-                        }
-                    },
-                    label = { Text("Retning i ° (kompass)") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
-                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
-                )
-
-                if (directionError != "") {
-                    Text(
-                        text = directionError,
-                        color = Color.Red,
-                        modifier = Modifier.padding(12.dp)
-                    )
-                }
-
-                 */
-
 
                 ExposedDropdownMenuBox(
                     expanded = expanded,
@@ -294,131 +243,3 @@ fun getDegrees(direction: Direction): Int =
         Direction.SOUTH -> 180
         Direction.WEST -> 270
     }
-
-
-
-// Vil egt ha dette i egen funksjon så man kan gjenbruke det til hvis man skal ha flere takflater, men for MVP-en (pga sjekk for om inputfeltene er fylt ut) så er det bare flytta opp i selve InputScreen-funksjonen
-
-/*
-@Composable
-fun InputFields(modifier: Modifier = Modifier) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-    var length by remember { mutableStateOf("") }
-    var width by remember { mutableStateOf("") }
-    var angle by remember { mutableStateOf("") }
-    var direction by remember { mutableStateOf("") }
-
-    var angleError by remember { mutableStateOf("") }
-    var directionError by remember { mutableStateOf("") }
-
-
-    Column (
-        modifier = modifier
-            // .wrapContentSize(Alignment.Center)
-            .fillMaxWidth()
-            .paddingFromBaseline(top = 52.dp),
-        //.padding(40.dp),
-        // verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Takflate 1",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = length,
-            onValueChange = {
-                if (it == "" || it.toIntOrNull() is Int) {
-                    length = it
-                }
-            },
-            label = { Text("Lengde") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
-            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
-        )
-
-        OutlinedTextField(
-            value = width,
-            onValueChange = {
-                if (it == "" || it.toIntOrNull() is Int) {
-                    width = it
-                }
-            },
-            label = { Text("Bredde") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
-            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
-        )
-
-        OutlinedTextField(
-            value = angle,
-            onValueChange = {
-                if (it == "" || it.toIntOrNull() is Int) {
-                    angle = it
-                    angleError = ""
-                    if (it == "" || it.toInt() !in 0..90) {
-                        angleError = "Vinkel må være mellom 0° og 90°"
-                    }
-                }
-            },
-            label = { Text("Vinkel i °") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
-            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
-        )
-
-        if (angleError != "") {
-            Text(
-                text = angleError,
-                color = Color.Red,
-                modifier = Modifier.padding(12.dp)
-            )
-        }
-
-        OutlinedTextField(
-            value = direction,
-            onValueChange = {
-                if (it == "" || it.toIntOrNull() is Int) {
-                    direction = it
-                    directionError = ""
-                    if (it == "" || it.toInt() !in 0..359) {
-                        directionError = "Retning må være mellom 0° og 359°"
-                    }
-                }
-            },
-            label = { Text("Retning i ° (kompass)") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
-            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
-        )
-
-        if (directionError != "") {
-            Text(
-                text = directionError,
-                color = Color.Red,
-                modifier = Modifier.padding(12.dp)
-            )
-        }
-    }
-}
-
- */
-
-/*
-@Preview (
-    showBackground = true,
-    showSystemUi = true,
-    name = "Input preview"
-)
-@Composable
-fun InputScreenPreview() {
-    InputScreen()
-}
-
- */
