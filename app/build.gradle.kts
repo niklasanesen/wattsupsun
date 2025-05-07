@@ -102,9 +102,6 @@ dependencies {
     // meterial3
     implementation(libs.material3)
 
-
-    implementation(libs.mockito.android)
-
     // turf
     implementation(libs.mapbox.sdk.geojson)
     implementation(libs.mapbox.sdk.services)
@@ -118,30 +115,24 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test) // Use the latest version
     testImplementation(libs.mockk)
 
-
     // Mocking (Mockito)
     testImplementation (libs.mockito.core)
     testImplementation (libs.mockito.kotlin)
     testImplementation(kotlin("test"))
 
-    // for androidTest
-    androidTestImplementation(libs.mockito.core)
-    androidTestImplementation(libs.mockito.kotlin)
-    androidTestImplementation(libs.compose.ui.test.junit4)
-    debugImplementation(libs.compose.ui.test.manifest)
 
     // Coroutine testing Turbine
-    testImplementation(libs.turbine)
-    testImplementation (libs.androidx.core.testing)
+    testImplementation("app.cash.turbine:turbine:1.2.0")
+    testImplementation ("androidx.arch.core:core-testing:2.2.0")
 
     // graf
-    implementation (libs.mpandroidchart)
-    implementation (libs.ui)
-    implementation (libs.androidx.material)
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation ("androidx.compose.ui:ui:1.5.0")
+    implementation ("androidx.compose.material:material:1.5.0")
 
     // DataStore
-    implementation (libs.androidx.datastore.preferences)
-    implementation (libs.kotlinx.serialization.json)
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
     // UI testing
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.5.0")

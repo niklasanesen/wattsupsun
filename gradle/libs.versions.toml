@@ -95,7 +95,7 @@ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "compose" }
 compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "compose" }
 ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
-androidx-ui-test-junit4-android = { group = "androidx.compose.ui", name = "ui-test-junit4-android", version.ref = "uiTestJunit4Android" }
+androidx-ui-test-junit4-android = { group = "androidx.compose.ui", name = "ui-test-junit4-android"}
 
 
 [plugins]
