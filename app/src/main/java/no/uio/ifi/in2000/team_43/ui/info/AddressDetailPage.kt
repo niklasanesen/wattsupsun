@@ -13,7 +13,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
@@ -21,18 +20,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import no.uio.ifi.in2000.team_43.model.met.Coordinates
 import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
-import no.uio.ifi.in2000.team_43.ui.strompris.StromprisViewModel
-import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.mutableStateOf
 import no.uio.ifi.in2000.team_43.ui.met.beregnStromproduksjon
 import java.time.Instant
@@ -41,14 +40,7 @@ import androidx.navigation.NavController
 import com.mapbox.geojson.Point
 import no.uio.ifi.in2000.team_43.model.PVGIS.MonthlyEntry
 import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
-import no.uio.ifi.in2000.team_43.ui.PVGIS.convertPVGISToMeasurements
-import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.ChartWithValueDisplay //graf
-import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.ProductionCalc
 import java.time.ZoneId
-import no.uio.ifi.in2000.team_43.ui.met.generateMonthlyMeasurements
-import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.DataSourceSwitch
-import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.GrafMeasurement
-import no.uio.ifi.in2000.team_43.ui.sharedScreenComponents.MonthSelector
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -56,6 +48,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.ui.Alignment
+import no.uio.ifi.in2000.team_43.model.garfStuff.GrafMeasurement
+import no.uio.ifi.in2000.team_43.ui.info.grafStuff.MonthSelector
+import no.uio.ifi.in2000.team_43.ui.info.grafStuff.MonthlyChartWithValueDisplay
 
 
 data class DirectionInfo(val backgroundColor: Color, val textColor: Color, val message: String)
@@ -175,8 +171,16 @@ fun AddressDetailPage(
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    ValueBox(label = "Lengde", value = "${address.height} m", modifier = Modifier.weight(1f))
-                    ValueBox(label = "Bredde", value = "${address.width} m", modifier = Modifier.weight(1f))
+                    ValueBox(
+                        label = "Lengde",
+                        value = "${address.height} m",
+                        modifier = Modifier.weight(1f)
+                    )
+                    ValueBox(
+                        label = "Bredde",
+                        value = "${address.width} m",
+                        modifier = Modifier.weight(1f)
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -187,8 +191,16 @@ fun AddressDetailPage(
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    ValueBox(label = "Vinkel", value = "${address.angle}°", modifier = Modifier.weight(1f))
-                    ValueBox(label = "Retning", value = "${address.direction}°", modifier = Modifier.weight(1f))
+                    ValueBox(
+                        label = "Vinkel",
+                        value = "${address.angle}°",
+                        modifier = Modifier.weight(1f)
+                    )
+                    ValueBox(
+                        label = "Retning",
+                        value = "${address.direction}°",
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
         }
@@ -220,6 +232,8 @@ fun AddressDetailPage(
         }
 
 
+        Spacer(modifier = Modifier.height(32.dp))
+
         val point: Point = Point.fromLngLat(address.latitude, address.longitude)
         LaunchedEffect(point.coordinates()) {
             address.let {
@@ -229,119 +243,115 @@ fun AddressDetailPage(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        weatherList?.dailyObservation?.forEach { (date, weatherDataList) ->
-            var temperatur: Double? = null
-            var solinnstraling: Double? = null
 
-            weatherDataList.dataList.forEach { weatherData ->
-                when (weatherData.elementId) {
-                    "mean(air_temperature P1D)" -> temperatur = weatherData.value
-                    "mean(solar_irradiance P1D)" -> solinnstraling = weatherData.value
+
+
+
+
+
+
+
+
+
+
+        val selectedMonth = remember { mutableStateOf(0) } // 0 = Januar
+        val isLoading = remember { mutableStateOf(true) } // Lastestatus
+        val allMeasurements = remember { MutableList(12) { mutableListOf<GrafMeasurement>() } }
+
+        // Fyll dataene (kun én gang)
+        LaunchedEffect(weatherList) {
+            // Sett isLoading til true før lasting
+            isLoading.value = true
+
+            // Simulering av datainnhenting
+            weatherList?.dailyObservation?.forEach { (date, weatherDataList) ->
+                var temperatur: Double? = null
+                var solinnstraling: Double? = null
+
+                weatherDataList.dataList.forEach { weatherData ->
+                    when (weatherData.elementId) {
+                        "mean(air_temperature P1D)" -> temperatur = weatherData.value
+                        "mean(solar_irradiance P1D)" -> solinnstraling = weatherData.value
+                    }
                 }
-            }
 
-            val length = address.height.toInt()
-            val width = address.width.toInt()
-            val angle = address.angle.toInt()
+                if (temperatur != null && solinnstraling != null) {
+                    isLoading.value = false
+                    val produksjon = beregnStromproduksjon(
+                        lengde = address.height.toInt(),
+                        bredde = address.width.toInt(),
+                        vinkel = address.angle.toInt(),
+                        temperatur = temperatur,
+                        solinnstraling = solinnstraling
+                    )
 
-            if (temperatur != null && solinnstraling != null && length != null && width != null && angle != null) {
-                val produksjon = beregnStromproduksjon(
-                    lengde = length,
-                    bredde = width,
-                    vinkel = angle,
-                    temperatur = temperatur,
-                    solinnstraling = solinnstraling
-                )
-
-                // Legg til i lista
-                produksjonsliste.add(Pair(date, produksjon))
-            }
-        }
-        Log.d("produksjonsliste", produksjonsliste.toString())
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        val groupedByMonth = produksjonsliste
-            .map { (instant, value) ->
-                val zdt = instant.atZone(ZoneId.systemDefault())
-                zdt.monthValue to value
-            }
-            .groupBy { it.first }
-            .mapValues { entry ->
-                entry.value.sumOf { it.second }
-            }
-
-        val weatherEntries = weatherList?.dailyObservation ?: emptyList()
-
-        pvgisSolData.forEachIndexed { index, solinnstraaling ->
-            val weatherIndex = index * 30  // Henter omtrent én verdi per måned
-
-            val temperatur = weatherEntries.getOrNull(weatherIndex)?.second?.dataList
-                ?.firstOrNull { it.elementId == "mean(air_temperature P1D)" }
-                ?.value ?: 25.0  //  hvis mangler temp
-
-            val length = address.height.toInt()
-            val width = address.width.toInt()
-            val angle = address.angle.toInt()
-
-            val beregnet = ProductionCalc(
-                panelLengde = length,
-                panelBredde = width,
-                panelVinkel = angle,
-                luftTemperatur = temperatur,
-                solinnstraling = solinnstraaling
-            )
-
-            val avrundet = String.format("%.2f", beregnet).toDouble()
-            ferdigBeregnetProdData.add(avrundet)
-        }
-
-        ferdigBeregnetProdData.forEachIndexed{ index, data ->
-            Log.d("testpvgisBeregn", "mndnr $index: $data kWh/month")
-
-        }
-        Log.d("testpvgisBeregn", " $ferdigBeregnetProdData")
-
-
-
-        Column {
-            MonthSelector(
-                selectedMonth = selectedMonth,
-                onMonthSelected = { newMonth ->
-                    selectedMonth = newMonth
-                }
-            )
-
-            // Filtrer og transformer data for valgt måned
-            val measurements = produksjonsliste
-                .map { (instant, value) ->
-                    val zdt = instant.atZone(ZoneId.systemDefault())
-                    zdt to value
-                }
-                .filter { (zdt, _) -> zdt.monthValue == selectedMonth + 1 }
-                .map { (zdt, value) ->
-                    GrafMeasurement(
-                        time = zdt.dayOfMonth.toFloat(),
-                        value = value.toFloat()
+                    val zdt = date.atZone(ZoneId.systemDefault())
+                    val monthIndex = zdt.monthValue - 1
+                    allMeasurements[monthIndex].add(
+                        GrafMeasurement(
+                            time = zdt.dayOfMonth.toFloat(),
+                            value = produksjon.toFloat()
+                        )
                     )
                 }
+            }
 
-            // Vis graf
-            if (measurements.isNotEmpty()) {
-                ChartWithValueDisplay(
-                    selectedMonth = selectedMonth,
-                    allMeasurements = measurements
-                )
+            // Når dataene er lastet, sett isLoading til false
+        }
+
+        // Hovedvisning
+        Column(modifier = Modifier.fillMaxSize()) {
+            // 👉 Legg til MonthSelector
+            MonthSelector(
+                selectedMonth = selectedMonth.value,
+                onMonthSelected = { selectedMonth.value = it }
+            )
+
+            // 👉 Vis enten lastesirkel eller graf
+            Log.d("isLoading.value", isLoading.value.toString())
+            if (isLoading.value) {
+                // Loading-indikator
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             } else {
-                Text(
-                    text = "Ingen data for valgt måned.",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodyLarge
+                // Når dataene er lastet, vis grafen
+                MonthlyChartWithValueDisplay(
+                    selectedMonth = selectedMonth.value + 1, // 1-basert måned
+                    allMeasurements = allMeasurements
                 )
             }
         }
+
+
+
+
+
+
+
+
+
+
+
+
+        Spacer(modifier = Modifier.height(200.dp))
+        Text(
+            text = "suiiiiiiiii",
+        )
+        Text(
+            text = "suiiiiiiiii",
+        )
+        Text(
+            text = "suiiiiiiiii",
+        )
     }
 }
+
 
 
 

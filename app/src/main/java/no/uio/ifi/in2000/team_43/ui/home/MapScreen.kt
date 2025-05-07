@@ -62,6 +62,12 @@ import androidx.compose.ui.unit.sp
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.model.stromdistrikt.StromDistrikt
 import no.uio.ifi.in2000.team_43.ui.theme.Purple40
+
+
+
+
+
+
 @Composable
 fun MapScreen(
     modifier: Modifier = Modifier,
@@ -196,7 +202,8 @@ fun MapScreen(
                     }
                 }
             }
-            if (addressIsSelected) {
+            // REMOVE ! TO ENABLE SEARCH
+            if (!addressIsSelected) {
                 Row(modifier = Modifier.fillMaxWidth().height(56.dp)) {
                     Button(
                         onClick = { addressIsSelected = false },
