@@ -61,13 +61,16 @@ import androidx.compose.foundation.Image
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.viewmodel.compose.viewModel
+import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InputScreen(
     ctx: Ctx,
-    metViewModel: MetViewModel? = null,
+    metViewModel: MetViewModel,
+    pvgisViewModel: PVGISViewModel,
     onNextBtnClicked: (input: Input) -> Unit,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
@@ -84,8 +87,10 @@ fun InputScreen(
 
 
 
+
     LaunchedEffect(ctx.coords) {
         ctx.coords?.let {
+            pvgisViewModel.fetchPVGISData(Coordinates(it.latitude(), it.longitude()))
             metViewModel?.fetchWeatherData(Coordinates(it.latitude(), it.longitude()))
         }
     }

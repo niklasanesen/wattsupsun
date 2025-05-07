@@ -52,6 +52,7 @@ import androidx.compose.ui.Alignment
 import no.uio.ifi.in2000.team_43.model.garfStuff.GrafMeasurement
 import no.uio.ifi.in2000.team_43.ui.info.grafStuff.MonthSelector
 import no.uio.ifi.in2000.team_43.ui.info.grafStuff.MonthlyChartWithValueDisplay
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.ValueBox
 
 
 data class DirectionInfo(val backgroundColor: Color, val textColor: Color, val message: String)
