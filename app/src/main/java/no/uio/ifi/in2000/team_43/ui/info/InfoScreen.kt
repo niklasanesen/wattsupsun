@@ -97,17 +97,10 @@ fun InfoScreen(
 ) {
     // Samler data fra ViewModels
     val pvgisData by pvgisViewModel.data.collectAsState()
-    val drCalcData by pvgisViewModel.drCalcData.collectAsState() // Henter DRcalc data
-    val drCalcTotalSum by pvgisViewModel.drCalcDataTotalSum.collectAsState() // Henter kalkulert totalsum
     val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata
     var isLoading by remember { mutableStateOf(true) }
-
     var isMetSelected by remember { mutableStateOf(true) }
-
-
     var showDialog by remember { mutableStateOf(false) }
-
-
     val produksjonsliste = mutableListOf<Pair<Instant, Double>>()  // strømproduskjon for alle dager i et år
     val produksjonsMap: MutableMap<Instant, Double> = produksjonsliste.toMap().toMutableMap()
     val totalProduksjon = remember { mutableStateOf(0.0) }
@@ -120,14 +113,9 @@ fun InfoScreen(
     val ferdigBeregnetProdData = mutableListOf<Double>() // legger inn beregnet strøm produksjonsdata
 
     // Strompris data:
-    val stromprisData by stromprisViewModel.data.collectAsState()
     val stromprisDataPerMnd by stromprisViewModel.dataPerMnd.collectAsState()
-
     val errorMessage by metViewModel.errorMessage.collectAsState()
-
     val scrollState = rememberScrollState()
-
-    var selectedMonth by remember { mutableStateOf(0) } // 0 = Januar
 
     //val testctx = ctx.input.valgtPanle.effekt
 
@@ -258,6 +246,9 @@ fun InfoScreen(
         val panelWidth = ctx.input?.valgtPanle?.width
 
 
+        val panelArel: Double
+        var totalPanelAreal = 0.0
+
 
 
 
@@ -270,9 +261,11 @@ fun InfoScreen(
         Spacer(modifier = Modifier.height(12.dp))
         CoffeeCard(calculateCoffe(totalProduksjon.value) )
 
+        if (panelLength!=null && panelWidth!=null){
+            panelArel = panelLength * panelWidth
+            totalPanelAreal = numPanel * panelArel
 
-
-
+        }
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -312,18 +305,17 @@ fun InfoScreen(
                 }
             }
 
-            val length = ctx.input?.length
-            val width = ctx.input?.width
             val angle = ctx.input?.angle
+            val dir = ctx.input?.direction
 
-            if (temperatur != null && solinnstraling != null && length != null && width != null && angle != null) {
+            if (temperatur != null && solinnstraling != null && angle != null && dir != null) {
                 isLoading = false
                 val produksjon = beregnStromproduksjon(
-                    lengde = length,
-                    bredde = width,
+                    areal = totalPanelAreal,
                     vinkel = angle,
                     temperatur = temperatur,
-                    solinnstraling = solinnstraling
+                    solinnstraling = solinnstraling,
+                    direction = dir
                 )
 
                 // Legg til i lista

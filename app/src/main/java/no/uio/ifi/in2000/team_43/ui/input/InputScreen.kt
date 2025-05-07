@@ -91,9 +91,15 @@ fun InputScreen(
     LaunchedEffect(ctx.coords) {
         ctx.coords?.let {
             pvgisViewModel.fetchPVGISData(Coordinates(it.latitude(), it.longitude()))
-            metViewModel?.fetchWeatherData(Coordinates(it.latitude(), it.longitude()))
         }
     }
+
+    LaunchedEffect(ctx.coords) {
+        ctx.coords?.let {
+            metViewModel.fetchWeatherData(Coordinates(it.latitude(), it.longitude()))
+        }
+    }
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

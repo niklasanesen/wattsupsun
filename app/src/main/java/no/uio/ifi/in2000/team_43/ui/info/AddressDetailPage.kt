@@ -276,14 +276,15 @@ fun AddressDetailPage(
                     }
                 }
 
+                val areal = address.height * address.width
                 if (temperatur != null && solinnstraling != null) {
                     isLoading.value = false
                     val produksjon = beregnStromproduksjon(
-                        lengde = address.height.toInt(),
-                        bredde = address.width.toInt(),
+                        areal = areal,
                         vinkel = address.angle.toInt(),
                         temperatur = temperatur,
-                        solinnstraling = solinnstraling
+                        solinnstraling = solinnstraling,
+                        direction = address.direction.toInt()
                     )
 
                     val zdt = date.atZone(ZoneId.systemDefault())

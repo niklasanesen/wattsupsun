@@ -29,13 +29,12 @@ import kotlin.math.min
 // 4. Man må anta at bruker har valgt anbefalt optimalvinkel, HVIS IKKE: egen formel som justerer
 
 fun beregnStromproduksjon(
-    lengde: Int,                 // meter
-    bredde: Int,                 // meter
+    areal: Double,
     vinkel: Int,                 // faktisk vinkel i grader
     temperatur: Double,          // lufttemperatur i grader C
-    solinnstraling: Double       // Wh/m²
+    solinnstraling: Double,       // Wh/m²
+    direction: Int
 ): Double {
-    val areal = lengde * bredde
     val optimalVinkel = 35.0 // Antatt optimal vinkel i Norge
     val optimalTemp = 25.0
     val tempTapPerGrad = 0.003 // 0.3 % tap per grad over 25 °C
@@ -53,6 +52,15 @@ fun beregnStromproduksjon(
     // 3. Vinkelavvik (effekttap hvis vinkel ≠ optimal)
     val vinkelAvvik = kotlin.math.abs(vinkel - optimalVinkel)
     produksjon = beregnEffekttap(produksjon, vinkelAvvik)
+
+    // Juster for retning
+    produksjon *= when (direction) {
+        0 -> 0.258
+        90 -> 0.76
+        270 -> 0.75
+        180 -> 1.0 // sør
+        else -> 1.0
+    }
 
     return produksjon
 }
