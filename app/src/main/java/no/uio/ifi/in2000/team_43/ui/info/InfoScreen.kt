@@ -240,8 +240,8 @@ fun InfoScreen(
         val wPerPanel = ctx.input?.valgtPanle?.effekt?.toDouble()
         val kwpPerPanel = ((wPerPanel ?: 1.0) / 1000.0)
 
-        val roofLength = ctx.areal?.length
-        val roofWidth = ctx.areal?.width
+        val roofLength = ctx.input?.length?.toDouble()
+        val roofWidth = ctx.input?.width?.toDouble()
         val panelLength = ctx.input?.valgtPanle?.len
         val panelWidth = ctx.input?.valgtPanle?.width
 
@@ -251,7 +251,10 @@ fun InfoScreen(
 
 
 
-
+        Log.i("TestEnova", "roofLength = $roofLength")
+        Log.i("TestEnova", "roofWidth = $roofWidth")
+        Log.i("TestEnova", "panelLength = $panelLength")
+        Log.i("TestEnova", "panelWidth = $panelWidth")
         val numPanel = calculateNumPanels(roofLength = roofLength, roofWidth = roofWidth, panelLength = panelLength, panelWidth = panelWidth)
         Spacer(modifier = Modifier.height(12.dp))
         Log.i("TestEnova", "kwpPerPanel: $kwpPerPanel numPanel: $numPanel")
