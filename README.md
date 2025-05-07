@@ -36,4 +36,3 @@ Dataflyten og filstrukturen vår er inspirert av [Model–view–viewmodel](http
 
 - Vi har tatt litt inspirasjon fra [otovo](https://www.otovo.no).
 - Takk til Fredrik Løvoll som hjalp oss med `reverseGeocode` koden.
-- TODO: legg til link til den sida med alt av beregninger...
