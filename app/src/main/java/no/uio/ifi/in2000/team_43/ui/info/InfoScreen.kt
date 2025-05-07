@@ -77,6 +77,7 @@ import androidx.compose.ui.res.painterResource
 import no.uio.ifi.in2000.team_43.R
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateCoffe
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateEnova
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateNumPanels
 
 // test
 
@@ -121,6 +122,8 @@ fun InfoScreen(
     val scrollState = rememberScrollState()
 
     var selectedMonth by remember { mutableStateOf(0) } // 0 = Januar
+
+    //val testctx = ctx.input.valgtPanle.effekt
 
     // test
     // For å vise hvordan man henter månedlig data fra pvgis tool
@@ -255,8 +258,23 @@ fun InfoScreen(
 //        }
 
         // Enova on infoscreen:
+        Log.i("TestEnova", "kwpPerPanel: ${ctx.input?.valgtPanle?.effekt}")
+        val wPerPanel = ctx.input?.valgtPanle?.effekt?.toDouble()
+        val kwpPerPanel = ((wPerPanel ?: 1.0) / 1000.0)
+
+        val roofLength = ctx.areal?.length
+        val roofWidth = ctx.areal?.width
+        val panelLength = ctx.input?.valgtPanle?.len
+        val panelWidth = ctx.input?.valgtPanle?.width
+
+
+
+
+
+        val numPanel = calculateNumPanels(roofLength = roofLength, roofWidth = roofWidth, panelLength = panelLength, panelWidth = panelWidth)
         Spacer(modifier = Modifier.height(12.dp))
-        EnovaCard(calculateEnova(0.5, 8))
+        Log.i("TestEnova", "kwpPerPanel: $kwpPerPanel numPanel: $numPanel")
+        EnovaCard(calculateEnova(kwpPerPanel, numPanel))
 
         // Other fun boxes with info
         Spacer(modifier = Modifier.height(12.dp))

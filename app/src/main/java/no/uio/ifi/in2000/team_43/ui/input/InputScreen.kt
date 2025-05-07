@@ -81,13 +81,7 @@ fun InputScreen(
     val previousBackStackEntry = navController.previousBackStackEntry
     val previousRoute = previousBackStackEntry?.destination?.route
 
-    val paneler = listOf(
-        SunPanel("Sunwind 405W", pris = 3000, effekt = 405, bildeResId = R.drawable.sunwind405w_panel),
-        SunPanel("Economy", pris = 3730, effekt = 455, bildeResId = R.drawable.economy_panel),
-        SunPanel("Performance", pris = 2906, effekt = 435, bildeResId = R.drawable.performance_panel),
-        SunPanel("Premium", pris = 2547, effekt = 405, bildeResId = R.drawable.premium_panel),
-        SunPanel("Sunwind 380W", pris = 3190, effekt = 380, bildeResId = R.drawable.sunwind380w_panel),
-    )
+
 
 
     LaunchedEffect(ctx.coords) {
@@ -296,12 +290,13 @@ fun PanelSelector(
     onPanelSelected: (SunPanel?) -> Unit
 ) {
     val paneler = listOf(
-        SunPanel("Sunwind 405W", pris = 3000, effekt = 405, bildeResId = R.drawable.sunwind405w_panel),
-        SunPanel("Economy", pris = 3730, effekt = 455, bildeResId = R.drawable.economy_panel),
-        SunPanel("Performance", pris = 2906, effekt = 435, bildeResId = R.drawable.performance_panel),
-        SunPanel("Premium", pris = 2547, effekt = 405, bildeResId = R.drawable.premium_panel),
-        SunPanel("Sunwind 380W", pris = 3190, effekt = 380, bildeResId = R.drawable.sunwind380w_panel),
+        SunPanel("Sunwind 405W", pris = 3000, effekt = 405, bildeResId = R.drawable.sunwind405w_panel, len = 1.72, width = 1.12),
+        SunPanel("Economy", pris = 3730, effekt = 455, bildeResId = R.drawable.economy_panel, len = 1.85, width = 1.0),
+        SunPanel("Performance", pris = 2906, effekt = 435, bildeResId = R.drawable.performance_panel, len = 1.90, width = 1.35),
+        SunPanel("Premium", pris = 2547, effekt = 405, bildeResId = R.drawable.premium_panel, len = 1.78, width = 1.15),
+        SunPanel("Sunwind 380W", pris = 3190, effekt = 380, bildeResId = R.drawable.sunwind380w_panel, len = 1.75, width = 1.0),
     )
+
 
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
