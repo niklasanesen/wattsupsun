@@ -1,77 +1,34 @@
 package no.uio.ifi.in2000.team_43.ui.info
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+// --- Standard imports ---
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
 import androidx.lifecycle.viewmodel.compose.viewModel
-import no.uio.ifi.in2000.team_43.model.ctx.Ctx
-import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
-import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
-import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
-import no.uio.ifi.in2000.team_43.ui.strompris.StromprisViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
-import android.util.Log
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-
-import androidx.compose.runtime.mutableStateOf
-import no.uio.ifi.in2000.team_43.ui.met.beregnStromproduksjon
-import java.time.Instant
-
-import androidx.compose.runtime.setValue
-import no.uio.ifi.in2000.team_43.model.PVGIS.MonthlyEntry
-import no.uio.ifi.in2000.team_43.ui.PVGIS.convertPVGISToMeasurements
-
-import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.ProductionCalc
-import no.uio.ifi.in2000.team_43.ui.met.generateMonthlyMeasurements
+import kotlinx.coroutines.*
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.time.Instant
 
-import androidx.compose.foundation.border
-import no.uio.ifi.in2000.team_43.ui.info.grafStuff.DataSourceSwitch
-import no.uio.ifi.in2000.team_43.ui.info.grafStuff.YearlyChartWithValueDisplay
-
+// --- Prosjekt-spesifikke imports ---
+import no.uio.ifi.in2000.team_43.model.ctx.Ctx
+import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
+import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
 import no.uio.ifi.in2000.team_43.model.garfStuff.getMonthName
-import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.AddressNamePopup
-import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.CoffeeCard
-import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.DirectionCard
-import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.EnovaCard
-import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.MonthlySavingsDisplay
-import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.NorthDirectionCard
-import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.ValueBox
-import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calcMoneySaved
-import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateCoffe
-import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateEnova
-import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateNumPanels
-
-// test
+import no.uio.ifi.in2000.team_43.ui.PVGIS.*
+import no.uio.ifi.in2000.team_43.ui.met.*
+import no.uio.ifi.in2000.team_43.ui.strompris.StromprisViewModel
+import no.uio.ifi.in2000.team_43.ui.info.grafStuff.*
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.*
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.*
 
 @Composable
 fun InfoScreen(
@@ -81,44 +38,165 @@ fun InfoScreen(
     stromprisViewModel: StromprisViewModel = viewModel(),
     ctx: Ctx
 ) {
-    // Samler data fra ViewModels
-    val pvgisData by pvgisViewModel.data.collectAsState()
-    val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata
+    // ---- collect data from viewModels ----
+    val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata fra met
+    val pvgisSolData by pvgisViewModel.productionData.collectAsState() // Henter pvgis solinnstrålingsdata
+
+
+    // ---- calculate weather data to kwh----
+    val calculatedPvgisData = mutableListOf<Double>() // legger inn beregnet strøm produksjonsdata
+    val calculatedMetData = mutableListOf<Pair<Instant, Double>>()  // strømproduskjon for alle dager i et år
+
+
+    // ---- variables to control state of data ----
     var isLoading by remember { mutableStateOf(true) }
     var isMetSelected by remember { mutableStateOf(true) }
     var showDialog by remember { mutableStateOf(false) }
-    val produksjonsliste = mutableListOf<Pair<Instant, Double>>()  // strømproduskjon for alle dager i et år
-    val produksjonsMap: MutableMap<Instant, Double> = produksjonsliste.toMap().toMutableMap()
+
+
+    val produksjonsMap: MutableMap<Instant, Double> = calculatedMetData.toMap().toMutableMap()
     val totalProduksjon = remember { mutableStateOf(0.0) }
 
+    totalProduksjon.value = produksjonsMap.values.sum()
+
+    // ---- crate context for data storage ----
     val context = LocalContext.current
     val dataStoreManager = remember { DataStoreManager(context) }
 
-    // For pvgis beregning/data
-    val pvgisSolData by pvgisViewModel.productionData.collectAsState() // Henter pvgis solinnstrålingsdata
-    val ferdigBeregnetProdData = mutableListOf<Double>() // legger inn beregnet strøm produksjonsdata
 
     // Strompris data:
     val stromprisDataPerMnd by stromprisViewModel.dataPerMnd.collectAsState()
-    val errorMessage by metViewModel.errorMessage.collectAsState()
     val scrollState = rememberScrollState()
 
-    Log.d("stromprisDataPerMnd", stromprisDataPerMnd.toString())
 
 
 
-    //val testctx = ctx.input.valgtPanle.effekt
 
-    // test
-    // For å vise hvordan man henter månedlig data fra pvgis tool
-    val dataene: List<MonthlyEntry>? = pvgisData?.outputs?.monthly?.fixed
 
-    if (dataene != null) {
-        dataene.forEachIndexed() {index, mnd ->
-            Log.d("testpvgisM", "global irradiance mnd nr. $index: ${mnd.H_i_m} kWh/m2/month")
 
+
+
+    val adress = if (ctx.address != null) ctx.address else "adresse er ukjent"
+    val panelPrice = if (ctx.input?.valgtPanle != null) ctx.input.valgtPanle.pris else 0
+    val wPerPanel = ctx.input?.valgtPanle?.effekt?.toDouble()
+    val kwpPerPanel = ((wPerPanel ?: 1.0) / 1000.0)
+    val roofLength = ctx.input?.length?.toDouble()
+    val roofWidth = ctx.input?.width?.toDouble()
+    val panelLength = ctx.input?.valgtPanle?.len
+    val panelWidth = ctx.input?.valgtPanle?.width
+    val panelArel = if (panelLength != null && panelWidth != null) panelLength * panelWidth else 0.0
+    val numPanel = calculateNumPanels(roofLength = roofLength, roofWidth = roofWidth, panelLength = panelLength, panelWidth = panelWidth)
+    val totalPanelAreal = numPanel * panelArel
+    val totalPanelPrice =  numPanel * panelPrice
+
+
+
+
+
+    weatherList?.dailyObservation?.forEach { (date, weatherDataList) ->
+        var temperatur: Double? = null
+        var solinnstraling: Double? = null
+
+        weatherDataList.dataList.forEach { weatherData ->
+            when (weatherData.elementId) {
+                "mean(air_temperature P1D)" -> temperatur = weatherData.value
+                "mean(solar_irradiance P1D)" -> solinnstraling = weatherData.value
+            }
+        }
+
+        val angle = ctx.input?.angle
+        val dir = ctx.input?.direction
+
+        if (temperatur != null && solinnstraling != null && angle != null && dir != null) {
+            isLoading = false
+            val produksjon = beregnStromproduksjon(
+                areal = totalPanelAreal,
+                vinkel = angle,
+                temperatur = temperatur,
+                solinnstraling = solinnstraling,
+                direction = dir
+            )
+
+            // Legg til i lista
+            calculatedMetData.add(Pair(date, produksjon))
         }
     }
+
+    totalProduksjon.value = produksjonsMap.values.sum()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    val weatherEntries = weatherList?.dailyObservation ?: emptyList()
+
+    pvgisSolData.forEachIndexed { index, solinnstraaling ->
+        val weatherIndex = index * 30  // Henter omtrent én verdi per måned
+
+        val temperatur = weatherEntries.getOrNull(weatherIndex)?.second?.dataList
+            ?.firstOrNull { it.elementId == "mean(air_temperature P1D)" }
+            ?.value ?: 25.0  //  hvis mangler temp
+
+        val length = ctx.input?.length ?: 0
+        val width = ctx.input?.width ?: 0
+        val angle = ctx.input?.angle ?: 35
+
+        val beregnet = ProductionCalc(
+            panelLengde = length,
+            panelBredde = width,
+            panelVinkel = angle,
+            luftTemperatur = temperatur,
+            solinnstraling = solinnstraaling
+        )
+
+        val avrundet =  BigDecimal(beregnet).setScale(2, RoundingMode.HALF_UP).toDouble()
+        calculatedPvgisData.add(avrundet)
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    // ---- Generere månedlige målinger ----
+
+    val metData = remember(calculatedMetData) {
+        convertMetToMeasurements(calculatedMetData)
+    }
+    val pvgisData = remember(calculatedPvgisData) {
+        convertPVGISToMeasurements(calculatedPvgisData)
+    }
+
+    val displayedData = if (isMetSelected) metData else pvgisData
+    val direction = ctx.input?.direction ?: 0  // fallback til sør
+    val moneySavedList = calcMoneySaved(direction, stromprisDataPerMnd, displayedData)
+    var selectedMonth by remember { mutableStateOf<String?>(null) }
+    var selectedKwh by remember { mutableStateOf<String?>(null) }
+    val totalMoneySaved = moneySavedList.sum()
 
     // Fetcher fra stromAPI
     LaunchedEffect(ctx.stromdistrikt) {
@@ -127,11 +205,15 @@ fun InfoScreen(
 
     // Testing if it works to fetch stromprisen per month
     LaunchedEffect(stromprisDataPerMnd) {
-        Log.i("TestStromPris", "Sjekker ${stromprisDataPerMnd?.get(0)}")
         stromprisDataPerMnd?.forEachIndexed { index, data ->
-            Log.i("TestStrompris", "mndnr: $index, Strompris kl 12: ${data?.getOrNull(12)?.NOK_per_kWh}")
         }
     }
+
+
+
+
+
+
 
 
 
@@ -141,7 +223,7 @@ fun InfoScreen(
         .verticalScroll(scrollState)) {
 
         Text(
-            text = "Viser data for ${ctx.address}",
+            text = "$adress",
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 26.sp,
@@ -152,9 +234,6 @@ fun InfoScreen(
         )
 
 
-
-        // Koordinater boks
-       // slettet
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -179,7 +258,7 @@ fun InfoScreen(
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
-                // Første rad
+                // ---- 1. that shows ----
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -191,39 +270,69 @@ fun InfoScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Andre rad
+                // ---- 3. row that shows  ----
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     ValueBox(label = "Vinkel", value = "${ctx.input?.angle}°", modifier = Modifier.weight(1f))
-                    ValueBox(label = "Retning", value = "${ctx.input?.direction}°", modifier = Modifier.weight(1f))
+
+                    val directionText = when (ctx.input?.direction?.toInt()) {
+                        0 -> "Nord"
+                        90 -> "Øst"
+                        180 -> "Sør"
+                        270 -> "Vest"
+                        else -> "${ctx.input?.direction}°"
+                    }
+
+                    ValueBox(label = "Retning", value = directionText, modifier = Modifier.weight(1f))
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                when (ctx.input?.direction) {
-                    0 -> {
-                        NorthDirectionCard("Nord: Basert på retningen du har valgt lønner det seg ikke å ha solcellepaneler.")
-                    }
-                    90 -> {
-                        DirectionCard("Østvendte paneler gir mest strømproduksjon tidlig på dagen.")
-                    }
-                    180 -> {
-                        DirectionCard("Sørvendte paneler gir jevn og høy produksjon midt på dagen. Dette er den mest effektive retningen for solcellepaneler!")
+                // ---- 3. row that shows  ----
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (isLoading) {
+                        // Midlertidige "loading"-bokser
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(80.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
 
-                    }
-                    270 -> {
-                        DirectionCard(text = "Vestvendte paneler produserer mest strøm på ettermiddagen. Det er da strømprisen normalt er høyest!")
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(80.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    } else {
+                        // Vanlige ValueBox-er med tekst
+                        ValueBox(label = "kostnader av $numPanel paneler", value = "$totalPanelPrice kr", modifier = Modifier.weight(1f))
+                        ValueBox(label = "Totalt Spart (2024)", value = "${totalMoneySaved.toInt()} kr", modifier = Modifier.weight(1f))
                     }
                 }
+
+
+
+                Spacer(modifier = Modifier.height(8.dp))
+
             }
         }
 
 
-        Spacer(modifier = Modifier.height(12.dp))
 
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Enova on infoscreen:
         Log.i("TestEnova", "kwpPerPanel: ${ctx.input?.panel?.effekt}")
@@ -236,155 +345,34 @@ fun InfoScreen(
         val panelWidth = ctx.input?.panel?.width
 
 
-        val panelArel: Double
-        var totalPanelAreal = 0.0
 
 
 
-        Log.i("TestEnova", "roofLength = $roofLength")
-        Log.i("TestEnova", "roofWidth = $roofWidth")
-        Log.i("TestEnova", "panelLength = $panelLength")
-        Log.i("TestEnova", "panelWidth = $panelWidth")
-        val numPanel = calculateNumPanels(roofLength = roofLength, roofWidth = roofWidth, panelLength = panelLength, panelWidth = panelWidth)
-        Spacer(modifier = Modifier.height(12.dp))
-        Log.i("TestEnova", "kwpPerPanel: $kwpPerPanel numPanel: $numPanel")
+
         EnovaCard(calculateEnova(kwpPerPanel, numPanel))
 
-        // Other fun boxes with info
         Spacer(modifier = Modifier.height(12.dp))
-        CoffeeCard(calculateCoffe(totalProduksjon.value) )
 
-        if (panelLength!=null && panelWidth!=null){
-            panelArel = panelLength * panelWidth
-            totalPanelAreal = numPanel * panelArel
-        }
+        CoffeeCard(calculateCoffe(totalProduksjon.value) )
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        when {
-            errorMessage != null -> {
-                Text(
-                    text = "Error: $errorMessage",
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-            weatherList?.dailyObservation?.isNotEmpty() == true -> {
-                val weatherDataForFirstDay = weatherList!!.dailyObservation[1] //dato og værliste i en pair, alle datoer er sortert fra 1 januar til 31 desember
-                val weatherDataList = weatherDataForFirstDay.second //dette aksesserer værlisten med alle målinger for relevant dag
-                val observationForTemp = weatherDataList.dataList[0]
-                val insolationWeatherData = weatherDataList.dataList[1] //solinnstråling
-            }
-
-            else -> {
-                //CircularProgressIndicator()
-            }
 
 
-            // NED HIT
-        }
 
-        weatherList?.dailyObservation?.forEach { (date, weatherDataList) ->
-            var temperatur: Double? = null
-            var solinnstraling: Double? = null
 
-            weatherDataList.dataList.forEach { weatherData ->
-                when (weatherData.elementId) {
-                    "mean(air_temperature P1D)" -> temperatur = weatherData.value
-                    "mean(solar_irradiance P1D)" -> solinnstraling = weatherData.value
+
+        // ---- graf + switch + saved money for each month ----
+        Column {
+            when {
+                isLoading -> {
+                    CircularProgressIndicator()
+                }
+
+                else -> {
+                    MonthlySavingsDisplay(savingsPerMonth = moneySavedList)
                 }
             }
-
-            val angle = ctx.input?.angle
-            val dir = ctx.input?.direction
-
-            if (temperatur != null && solinnstraling != null && angle != null && dir != null) {
-                isLoading = false
-                val produksjon = beregnStromproduksjon(
-                    areal = totalPanelAreal,
-                    vinkel = angle,
-                    temperatur = temperatur,
-                    solinnstraling = solinnstraling,
-                    direction = dir
-                )
-
-                // Legg til i lista
-                produksjonsliste.add(Pair(date, produksjon))
-
-            }
-        }
-        // Legg til som map
-        produksjonsMap.clear() // Fjern gamle data
-        produksjonsMap.putAll(produksjonsliste)
-        // adderer sammen totalsum
-        totalProduksjon.value = produksjonsMap.values.sum()
-        Log.d("produksjonsliste", produksjonsliste.toString())
-        Log.d("produksjonslisteMap", produksjonsMap.toString())
-        Log.d("produksjonslisteMap", totalProduksjon.toString())
-
-
-
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-
-
-
-
-        val weatherEntries = weatherList?.dailyObservation ?: emptyList()
-
-        pvgisSolData.forEachIndexed { index, solinnstraaling ->
-            val weatherIndex = index * 30  // Henter omtrent én verdi per måned
-
-            val temperatur = weatherEntries.getOrNull(weatherIndex)?.second?.dataList
-                ?.firstOrNull { it.elementId == "mean(air_temperature P1D)" }
-                ?.value ?: 25.0  //  hvis mangler temp
-
-            val length = ctx.input?.length ?: 0
-            val width = ctx.input?.width ?: 0
-            val angle = ctx.input?.angle ?: 35
-
-            val beregnet = ProductionCalc(
-                panelLengde = length,
-                panelBredde = width,
-                panelVinkel = angle,
-                luftTemperatur = temperatur,
-                solinnstraling = solinnstraaling
-            )
-
-            val avrundet =  BigDecimal(beregnet).setScale(2, RoundingMode.HALF_UP).toDouble()
-            ferdigBeregnetProdData.add(avrundet)
-        }
-
-        ferdigBeregnetProdData.forEachIndexed{ index, data ->
-            Log.d("testpvgisBeregn", "mndnr $index: $data kWh/month")
-
-        }
-        Log.d("testpvgisBeregn", " $ferdigBeregnetProdData")
-
-        // Generere månedlige målinger
-        val monthlyMeasurements = remember(produksjonsliste) {
-            generateMonthlyMeasurements(produksjonsliste)
-        }
-        val pvgisData = remember(ferdigBeregnetProdData) {
-            convertPVGISToMeasurements(ferdigBeregnetProdData)
-        }
-
-        val displayedData = if (isMetSelected) monthlyMeasurements else pvgisData
-
-        val direction = ctx.input?.direction ?: 0  // fallback til sør
-        val moneySavedList = calcMoneySaved(direction, stromprisDataPerMnd, pvgisData)
-
-
-        var selectedMonth by remember { mutableStateOf<String?>(null) }
-        var selectedKwh by remember { mutableStateOf<String?>(null) }
-
-        Column {
-            MonthlySavingsDisplay(savingsPerMonth = displayedData)
             DataSourceSwitch(
                 isMetSelected = isMetSelected,
                 onToggle = { isMetSelected = it }
@@ -419,27 +407,42 @@ fun InfoScreen(
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Måned-boks
+                // ---- box with month data ----
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
-                        .border(2.dp, MaterialTheme.colorScheme.primary)
+                        .background(
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .border(
+                            width = 2.dp,
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = RoundedCornerShape(12.dp)
+                        )
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = selectedMonth?.let { "${getMonthName(it.toInt())}" } ?: "Trykk på grafen",
+                        text = selectedMonth?.let { "${getMonthName(it.toInt())}" }
+                            ?: "Trykk på grafen",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
-                // kWh-boks
+                // ---- box with kwh data ----
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
-                        .border(2.dp, MaterialTheme.colorScheme.primary)
+                        .background(
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .border(
+                            width = 2.dp,
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = RoundedCornerShape(12.dp)
+                        )
                         .padding(16.dp)
                 ) {
                     Text(
@@ -453,7 +456,7 @@ fun InfoScreen(
 
 
 
-        //lagre knappen
+        // ---- Button for saving adress ----
         Button(
             onClick = {
                 showDialog = true
@@ -465,6 +468,7 @@ fun InfoScreen(
 
 
 
+        // ---- popUp for saved adress ----
         AddressNamePopup(
             showDialog = showDialog,
             onDismiss = { showDialog = false },
