@@ -36,7 +36,7 @@ sequenceDiagram
     
 
     alt success
-        APP -->> Bruker: Calculate
+        APP -->> Bruker: Calculate the data and display something meaningful.
 
     else alternativt: if failed to fetch
 
@@ -46,7 +46,7 @@ sequenceDiagram
 
         Met_API -->> APP: return 403 Forbidden
 
-        APP -->> Bruker: show errorscreen
+        APP -->> Bruker: show error where data is not fetched
 
     end
 

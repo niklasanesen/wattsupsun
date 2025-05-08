@@ -9,7 +9,7 @@ Vi har valgt disse diagrammene:
 
 - **Arkitekturskisse**: Gir en overordnet oversikt over de ulike APIene og hvordan data fra disse sendes til skjermene de skal til.
 
-- **Sekvensdiagram**: For å beskrive samhandlingen mellom de ulike komponentene når bruker ber appen om å hente data
+- **Sekvensdiagram**: For å beskrive samhandlingen mellom de ulike komponentene når bruker legger inn adresse, tegner takflate og velger panel.
 
 
 ---
@@ -80,10 +80,12 @@ sequenceDiagram
 
     Bruker ->> APP: choose adress
     APP ->> MapBox: fetchCoords()
-    MapBox -->> APP: return koordinater
+    MapBox ->> APP: (Asks user to draw roof dimensions on coords)
 
-    
-    Bruker ->> APP: click on retrieve weatherInfo button
+    Bruker ->> APP: draw rooftop
+    Bruker ->> APP: click "Neste"
+
+    MapBox -->> APP: calculateAreal(len, width)
 
     APP ->> PVGIS_API: fetchPVGISdata(koordinater)
     PVGIS_API -->> APP: return solinnstråling, forventet_stromproduksjon
@@ -94,10 +96,16 @@ sequenceDiagram
     APP ->> Met_API: fetchMetdata(koordinater)
     Met_API -->> APP: return diverse værdata, (snø, skydekke, temperatur)
 
+    MapBox ->> APP: (Asks user to provide roofAngle, direction and paneltype)
+
+    Bruker ->> APP: Write roofAngle and direction
+    Bruker ->> APP: Choose paneltype
+    Bruker ->> APP: click "Neste"
+
     
 
     alt success
-        APP -->> Bruker: Show retrived data to user
+        APP -->> Bruker: Calculate the data and display something meaningful.
 
     else alternativt: if failed to fetch
 
@@ -107,7 +115,7 @@ sequenceDiagram
 
         Met_API -->> APP: return 403 Forbidden
 
-        APP -->> Bruker: show errorscreen
+        APP -->> Bruker: show error where data is not fetched
 
     end
 
