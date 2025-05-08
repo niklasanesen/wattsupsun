@@ -43,7 +43,7 @@ Slik moderne utvikling har blitt til er det stort fokus på biblioteker for å u
 
 - `Mapbox`: alt av kartfunksjoner, søk og autocomplete.
 - `Turf`: for å kunne tegne på kartet.
-- `MPAndroidChart`: visualisering av solstrålingsdata i graf.
+- `MPAndroidChart`: graf til visualisering av solstrålingsdata.
 - `DataStore`: persistent lagring av data lokalt på enheten.
 
 ## Credits
