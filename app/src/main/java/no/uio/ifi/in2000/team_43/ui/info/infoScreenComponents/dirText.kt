@@ -18,22 +18,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // Card for tips basert på retning:
-
 @Composable
-fun DirectionCard(text: String) {
+fun DirectionCard(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = Color(0xFFE3F2FD), // Light blue color
+    textcolor: Color = Color(0xFF1976D2) // Darker blue text
+) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier
+            .padding(horizontal = 32.dp)
+            .fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD)) // Lys blå bakgrunn
+        backgroundColor = color,
+        // colors = CardDefaults.cardColors(containerColor = color)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = text,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    color = Color(0xFF1976D2) // Mørkere blå tekst, men ikke for intens
-                )
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = textcolor
             )
         }
     }

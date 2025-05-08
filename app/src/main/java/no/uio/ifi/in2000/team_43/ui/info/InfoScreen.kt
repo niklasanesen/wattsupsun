@@ -331,7 +331,19 @@ fun InfoScreen(
         }
 
 
+
         Spacer(modifier = Modifier.height(12.dp))
+
+        // Enova on infoscreen:
+        Log.i("TestEnova", "kwpPerPanel: ${ctx.input?.panel?.effekt}")
+        val wPerPanel = ctx.input?.panel?.effekt?.toDouble()
+        val kwpPerPanel = ((wPerPanel ?: 1.0) / 1000.0)
+
+        val roofLength = ctx.input?.length?.toDouble()
+        val roofWidth = ctx.input?.width?.toDouble()
+        val panelLength = ctx.input?.panel?.len
+        val panelWidth = ctx.input?.panel?.width
+
 
 
 
@@ -472,8 +484,8 @@ fun InfoScreen(
                     lagretNavn = userGivenName,
                     numPanel = numPanel,
                     totalPanelAreal = totalPanelAreal,
-                    kwp = ctx.input?.valgtPanle?.effekt?: 0,
-                    pris = ctx.input?.valgtPanle?.pris?: 0,
+                    kwp = ctx.input?.panel?.effekt?: 0,
+                    pris = ctx.input?.panel?.pris?: 0,
                 )
 
                 CoroutineScope(Dispatchers.IO).launch {
@@ -481,7 +493,6 @@ fun InfoScreen(
                 }
             }
         )
-
     }
 }
 
