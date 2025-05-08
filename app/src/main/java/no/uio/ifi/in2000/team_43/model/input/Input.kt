@@ -7,5 +7,5 @@ data class Input (
     val width: Int,
     val angle: Int,
     val direction: Int,
-    val valgtPanle: SunPanel
+    val panel: SunPanel
 )
