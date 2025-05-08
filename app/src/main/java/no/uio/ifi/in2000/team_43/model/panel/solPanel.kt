@@ -7,4 +7,5 @@ data class SunPanel(
     val bildeResId: Int,   // Referanse til bildet i res/drawable
     val len: Double,
     val width: Double
+
 )

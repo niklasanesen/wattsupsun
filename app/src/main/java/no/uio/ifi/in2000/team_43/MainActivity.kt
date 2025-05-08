@@ -11,11 +11,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import no.uio.ifi.in2000.team_43.monitorInternet.AppRoot
+import no.uio.ifi.in2000.team_43.monitorInternet.NetworkViewModel
 import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
 import no.uio.ifi.in2000.team_43.ui.home.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
@@ -41,8 +46,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             Team_43Theme {
-                // HomeScreen is now responsible for showing welcome screen or main content
-                HomeScreen(modifier = Modifier.fillMaxSize())
+                val viewModel: NetworkViewModel = viewModel()
+                val networkStatus by viewModel.networkStatus.collectAsState()
+
+                AppRoot(networkStatus = networkStatus) {
+                    HomeScreen(
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         }
     }

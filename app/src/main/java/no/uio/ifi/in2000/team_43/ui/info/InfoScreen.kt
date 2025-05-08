@@ -28,13 +28,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
-import no.uio.ifi.in2000.team_43.model.met.Coordinates
 import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.strompris.StromprisViewModel
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,43 +40,33 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.Surface
 
 import androidx.compose.runtime.mutableStateOf
 import no.uio.ifi.in2000.team_43.ui.met.beregnStromproduksjon
 import java.time.Instant
 
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.tooling.preview.Preview
 import no.uio.ifi.in2000.team_43.model.PVGIS.MonthlyEntry
 import no.uio.ifi.in2000.team_43.ui.PVGIS.convertPVGISToMeasurements
 
-// for måned velger
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.ProductionCalc
 import no.uio.ifi.in2000.team_43.ui.met.generateMonthlyMeasurements
 import java.math.BigDecimal
 import java.math.RoundingMode
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.size
 import no.uio.ifi.in2000.team_43.ui.info.grafStuff.DataSourceSwitch
 import no.uio.ifi.in2000.team_43.ui.info.grafStuff.YearlyChartWithValueDisplay
 
-import androidx.compose.material3.*
-import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.ui.res.painterResource
-import no.uio.ifi.in2000.team_43.R
+import no.uio.ifi.in2000.team_43.model.garfStuff.getMonthName
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.AddressNamePopup
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.CoffeeCard
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.DirectionCard
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.EnovaCard
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.MonthlySavingsDisplay
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.NorthDirectionCard
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.ValueBox
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calcMoneySaved
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateCoffe
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateEnova
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateNumPanels
@@ -116,6 +102,10 @@ fun InfoScreen(
     val stromprisDataPerMnd by stromprisViewModel.dataPerMnd.collectAsState()
     val errorMessage by metViewModel.errorMessage.collectAsState()
     val scrollState = rememberScrollState()
+
+    Log.d("stromprisDataPerMnd", stromprisDataPerMnd.toString())
+
+
 
     //val testctx = ctx.input.valgtPanle.effekt
 
@@ -240,8 +230,8 @@ fun InfoScreen(
         val wPerPanel = ctx.input?.valgtPanle?.effekt?.toDouble()
         val kwpPerPanel = ((wPerPanel ?: 1.0) / 1000.0)
 
-        val roofLength = ctx.areal?.length
-        val roofWidth = ctx.areal?.width
+        val roofLength = ctx.input?.length?.toDouble()
+        val roofWidth = ctx.input?.width?.toDouble()
         val panelLength = ctx.input?.valgtPanle?.len
         val panelWidth = ctx.input?.valgtPanle?.width
 
@@ -251,7 +241,10 @@ fun InfoScreen(
 
 
 
-
+        Log.i("TestEnova", "roofLength = $roofLength")
+        Log.i("TestEnova", "roofWidth = $roofWidth")
+        Log.i("TestEnova", "panelLength = $panelLength")
+        Log.i("TestEnova", "panelWidth = $panelWidth")
         val numPanel = calculateNumPanels(roofLength = roofLength, roofWidth = roofWidth, panelLength = panelLength, panelWidth = panelWidth)
         Spacer(modifier = Modifier.height(12.dp))
         Log.i("TestEnova", "kwpPerPanel: $kwpPerPanel numPanel: $numPanel")
@@ -264,7 +257,6 @@ fun InfoScreen(
         if (panelLength!=null && panelWidth!=null){
             panelArel = panelLength * panelWidth
             totalPanelAreal = numPanel * panelArel
-
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -291,8 +283,6 @@ fun InfoScreen(
 
             // NED HIT
         }
-
-
 
         weatherList?.dailyObservation?.forEach { (date, weatherDataList) ->
             var temperatur: Double? = null
@@ -386,11 +376,15 @@ fun InfoScreen(
 
         val displayedData = if (isMetSelected) monthlyMeasurements else pvgisData
 
+        val direction = ctx.input?.direction ?: 0  // fallback til sør
+        val moneySavedList = calcMoneySaved(direction, stromprisDataPerMnd, pvgisData)
 
 
+        var selectedMonth by remember { mutableStateOf<String?>(null) }
+        var selectedKwh by remember { mutableStateOf<String?>(null) }
 
-        //garf med switch
         Column {
+            MonthlySavingsDisplay(savingsPerMonth = displayedData)
             DataSourceSwitch(
                 isMetSelected = isMetSelected,
                 onToggle = { isMetSelected = it }
@@ -402,18 +396,61 @@ fun InfoScreen(
                     .height(300.dp),
                 contentAlignment = Alignment.Center
             ) {
-                if (displayedData.isNotEmpty()) {
-                    YearlyChartWithValueDisplay(
-                        allMeasurements = displayedData,
-                        isLoading = isLoading,
-                        modifier = Modifier.fillMaxWidth().height(300.dp)
-                    )
+                when {
+                    isLoading -> {
+                        CircularProgressIndicator()
+                    }
 
-                } else {
-                    CircularProgressIndicator()
+                    displayedData.isNotEmpty() -> {
+                        YearlyChartWithValueDisplay(
+                            allMeasurements = displayedData,
+                            modifier = Modifier.fillMaxWidth().height(300.dp),
+                            onValueSelected = { month, kwh ->
+                                selectedMonth = month
+                                selectedKwh = kwh
+                            }
+                        )
+                    }
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Måned-boks
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                        .border(2.dp, MaterialTheme.colorScheme.primary)
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = selectedMonth?.let { "${getMonthName(it.toInt())}" } ?: "Trykk på grafen",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                // kWh-boks
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                        .border(2.dp, MaterialTheme.colorScheme.primary)
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = selectedKwh?.let { "$it kWh" } ?: "for å vise verdi",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             }
         }
+
 
 
         //lagre knappen
@@ -440,7 +477,11 @@ fun InfoScreen(
                     angle = ctx.input?.angle?.toDouble() ?: 0.0,
                     direction = ctx.input?.direction?.toDouble() ?: 0.0,
                     addressString = ctx.address ?: "Ukjent adresse",
-                    lagretNavn = userGivenName
+                    lagretNavn = userGivenName,
+                    numPanel = numPanel,
+                    totalPanelAreal = totalPanelAreal,
+                    kwp = ctx.input?.valgtPanle?.effekt?: 0,
+                    pris = ctx.input?.valgtPanle?.pris?: 0,
                 )
 
                 CoroutineScope(Dispatchers.IO).launch {
@@ -448,6 +489,7 @@ fun InfoScreen(
                 }
             }
         )
+
     }
 }
 

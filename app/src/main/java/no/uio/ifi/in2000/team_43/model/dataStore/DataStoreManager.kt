@@ -25,7 +25,7 @@ class DataStoreManager(private val context: Context) {
             val currentList = preferences[ADDRESSES_KEY]?.toMutableSet() ?: mutableSetOf()
 
             // Inkluderer addressString og lagretNavn
-            val addressString = "lat:${adresse.latitude}, long:${adresse.longitude}, height:${adresse.height}, width:${adresse.width}, angle:${adresse.angle}, direction:${adresse.direction}, addr:${adresse.addressString}, name:${adresse.lagretNavn}"
+            val addressString = "lat:${adresse.latitude}, long:${adresse.longitude}, height:${adresse.height}, width:${adresse.width}, angle:${adresse.angle}, direction:${adresse.direction}, addr:${adresse.addressString}, name:${adresse.lagretNavn}, numPanel:${adresse.numPanel}, totalPanelAreal:${adresse.totalPanelAreal}, kwp:${adresse.kwp}, pris:${adresse.pris}"
 
             currentList.add(addressString)
             preferences[ADDRESSES_KEY] = currentList
@@ -48,7 +48,11 @@ class DataStoreManager(private val context: Context) {
                         angle = parts["angle"]?.toDoubleOrNull() ?: return@mapNotNull null,
                         direction = parts["direction"]?.toDoubleOrNull() ?: return@mapNotNull null,
                         addressString = parts["addr"] ?: "",
-                        lagretNavn = parts["name"] ?: ""
+                        lagretNavn = parts["name"] ?: "",
+                        numPanel = parts["numPanel"]?.toIntOrNull() ?: 0,
+                        totalPanelAreal = parts["totalPanelAreal"]?.toDoubleOrNull() ?: 0.0,
+                        kwp = parts["kwp"]?.toIntOrNull() ?: 0,
+                        pris = parts["pris"]?.toIntOrNull() ?: 0
                     )
                 } catch (e: Exception) {
                     null // Hopper over ugyldige adresser

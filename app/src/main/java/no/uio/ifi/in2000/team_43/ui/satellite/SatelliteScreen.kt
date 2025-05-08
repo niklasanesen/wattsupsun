@@ -1,6 +1,5 @@
 package no.uio.ifi.in2000.team_43.ui.satellite
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,76 +11,53 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mapbox.geojson.Feature
 import com.mapbox.geojson.Point
-import com.mapbox.geojson.Polygon
-import com.mapbox.maps.MapboxMap
-import com.mapbox.maps.ScreenCoordinate
 import com.mapbox.maps.Style
-import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
 import com.mapbox.maps.extension.compose.annotation.IconImage
 import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
 import com.mapbox.maps.extension.compose.annotation.generated.PolygonAnnotation
 import com.mapbox.maps.extension.compose.style.MapStyle
-import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.gestures.OnMapClickListener
-import com.mapbox.turf.TurfMeasurement
 import no.uio.ifi.in2000.team_43.R
 import no.uio.ifi.in2000.team_43.model.areal.Areal
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
-import no.uio.ifi.in2000.team_43.model.map.RoofPolygon
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.map.getBitmapFromVectorDrawable
 import kotlin.math.floor
-import kotlin.math.roundToInt
 
-@SuppressLint("DefaultLocale")
 @Composable
 fun SatelliteScreen(
     modifier: Modifier = Modifier,
     ctx: Ctx,
+    satelliteViewModel: SatelliteViewModel = remember { SatelliteViewModel() },
     onNextBtnClicked: (areal: Areal) -> (Unit)
 ) {
+    val areaInSquareMeters by satelliteViewModel.areaInSquareMeters.collectAsState()
+    val length by satelliteViewModel.length.collectAsState()
+    val width by satelliteViewModel.width.collectAsState()
+    val points by satelliteViewModel.points.collectAsState()
+    val savedPolygons by satelliteViewModel.savedPolygons.collectAsState()
 
-    var areaInSquareMeters by remember { mutableIntStateOf(0) }
-
-    // Endre til lengde og bredde istedenfor areal
-    var length by remember { mutableDoubleStateOf(0.0) }
-    var width by remember { mutableDoubleStateOf(0.0) }
-
-    var points by remember { mutableStateOf(listOf<Point>()) }
-    val pointAnnotations = remember { mutableStateListOf<PointAnnotationOptions>() }
     val context = LocalContext.current
-    val savedPolygon = remember { mutableStateListOf<RoofPolygon>() }
-    var registeredPolygon by remember { mutableStateOf(false) }
-
-
     val bitmap = remember {
         try {
             getBitmapFromVectorDrawable(context, R.drawable.ic_map_marker)
@@ -97,88 +73,33 @@ fun SatelliteScreen(
 
     val mapViewportState = rememberMapViewportState {
         setCameraOptions {
-            zoom(19.0)  // Zoom in close to the roof
+            zoom(19.0)
             center(ctx.coords ?: Point.fromLngLat(12.30778, 63.99056))
         }
     }
 
     Box(modifier = modifier.fillMaxSize()) {
         MapboxMap(
-            Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             mapViewportState = mapViewportState,
-            style = { MapStyle(style = Style.SATELLITE_STREETS)},
+            style = { MapStyle(style = Style.SATELLITE_STREETS) },
             onMapClickListener = OnMapClickListener { point ->
-                if (!registeredPolygon) {
-                    points = points + point
-
-                    if (bitmap != null) {
-                        pointAnnotations.add(
-                            PointAnnotationOptions()
-                                .withPoint(point)
-                                .withIconImage(bitmap)
-                                .withIconSize(1.0)
-                                .withIconColor("#FF0000")
-                        )
-                    }
-                }
-
-                
+                satelliteViewModel.addPoint(point)
                 true
             }
         ) {
-            if (mapIconImage != null && points.isNotEmpty()) {
-                points.forEachIndexed { index, point ->
+            mapIconImage?.let { icon ->
+                points.forEach { point ->
                     PointAnnotation(point = point) {
-                        iconImage = mapIconImage
+                        iconImage = icon
                         iconSize = 1.0
-                        iconColor = Color.Red  // Red color as a string
-
+                        iconColor = Color.Red
                     }
                 }
             }
 
-            if (points.size == 4) {
-                val polygonPoints = points.map { point -> Point.fromLngLat(point.longitude(), point.latitude()) }
-                // Create a closed polygon (first and last points should be the same)
-                val closedPoints = if (polygonPoints.first() != polygonPoints.last()) {
-                    polygonPoints + polygonPoints.first()
-                } else {
-                    polygonPoints
-                }
-
-                val polygon = Polygon.fromLngLats(listOf(closedPoints))
-                areaInSquareMeters = TurfMeasurement.area(polygon).roundToInt()
-                Log.d("PolygonArea", "Area: $areaInSquareMeters square meters")
-
-                // Vil heller ha lengde og bredde:
-                val length1 = TurfMeasurement.distance(points[0], points[1], "metres")
-                val length2 = TurfMeasurement.distance(points[2], points[3], "metres")
-                val width1 = TurfMeasurement.distance(points[1], points[2], "metres")
-                val width2 = TurfMeasurement.distance(points[3], points[0], "metres")
-
-                length = (length1 + length2)/2
-                width = (width1 + width2)/2
-                Log.i("Lengde og bredde", "$length, $width")
-
-                savedPolygon.add(
-                    RoofPolygon(points = closedPoints, area = areaInSquareMeters)
-                )
-
-                registeredPolygon = true
-                // totalAreaInSquareMeters += areaInSquareMeters
-
-                points = emptyList()
-                // areaInSquareMeters = 0.0 -- Kommenterer ut dette for må fikse så man ikke kan legge til flere takflater
-            } else {
-                Log.e("PolygonValidation", "Polygon must have exactly 4 points. Current count: ${points.size}")
-            }
-
-
-            savedPolygon.forEach { roofPolygon ->
-                MapEffect(Unit) { }
-                PolygonAnnotation(
-                    points = listOf(roofPolygon.points),
-                ) {
+            savedPolygons.forEach { polygon ->
+                PolygonAnnotation(points = listOf(polygon.points)) {
                     fillColor = Color.LightGray
                     fillOpacity = 0.7
                     fillOutlineColor = Color.White
@@ -192,99 +113,78 @@ fun SatelliteScreen(
                 .padding(42.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Column (
-                modifier = Modifier
-                    .fillMaxWidth(),
-                    // .padding(bottom = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(
                     modifier = Modifier
-                        // .width(231.dp)
-                        // .height(78.dp)
-                        .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(size = 8.dp))
+                        .background(color = Color.White, shape = RoundedCornerShape(8.dp))
                         .padding(16.dp),
-                        // .align(Alignment.CenterHorizontally),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Klikk for å legge til punkt på kartet for å tegne et rektangel av takflaten din. Det er mulig å angre punkt og slette takflaten du har tegnet for å tegne nytt.",
+                        text = "Klikk for å legge til punkt på kartet for å tegne et rektangel av takflaten din.",
                         style = TextStyle(
                             fontSize = 16.sp,
                             lineHeight = 24.sp,
-                            fontWeight = FontWeight(500),
-                            color = Color(0xFF000000),
-                            textAlign = TextAlign.Center,
-                            letterSpacing = 0.15.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Black,
+                            textAlign = TextAlign.Center
                         )
                     )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                if (savedPolygon.isNotEmpty()) {
-                    Box (
+                if (savedPolygons.isNotEmpty()) {
+                    Box(
                         modifier = Modifier
-                            .background(color = Color(0xff394d3e), shape = RoundedCornerShape(size = 8.dp))
+                            .background(Color(0xFF394D3E), RoundedCornerShape(8.dp))
                             .padding(8.dp)
-                            // .align(Alignment.CenterHorizontally)
                     ) {
                         Text(
                             text = "$areaInSquareMeters m²",
                             style = TextStyle(
                                 fontSize = 16.sp,
-                                lineHeight = 24.sp,
-                                fontWeight = FontWeight(500),
-                                color = Color(0xFFFFFFFF),
-                                letterSpacing = 0.15.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color.White
                             )
                         )
                     }
                 }
             }
 
-
-            //Undo last point button
-            if (points.isNotEmpty()) {
-                Button(
-                    onClick = {
-                        if (points.isNotEmpty()) {
-                            points = points.dropLast(1)
-                        }
-                    },
-                    enabled = points.isNotEmpty(),
-                ) {
-                    Text("Angre punkt")
-                }
-            }
-
-            else if (savedPolygon.isNotEmpty()) {
-                // Trash button
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    Button(
-                        onClick = {
-                            registeredPolygon = false
-                            savedPolygon.remove(savedPolygon.first())
-                            areaInSquareMeters = 0
-                        },
-                        enabled = savedPolygon.isNotEmpty(),
-                        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error)
-
-                    ) {
-                        Text("Slett takflate")
+            when {
+                points.isNotEmpty() -> {
+                    Button(onClick = { satelliteViewModel.undoLastPoint() }) {
+                        Text("Angre punkt")
                     }
+                }
 
-                    Button(
-                        onClick = {onNextBtnClicked(Areal(areaInSquareMeters, floor(length), floor(width)))},
-                        enabled = true,
+                savedPolygons.isNotEmpty() -> {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom
                     ) {
-                        Text("Neste")
+                        Button(
+                            onClick = { satelliteViewModel.deletePolygon() },
+                            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error)
+                        ) {
+                            Text("Slett takflate")
+                        }
+
+                        Button(
+                            onClick = {
+                                onNextBtnClicked(
+                                    Areal(
+                                        areaInSquareMeters,
+                                        floor(length),
+                                        floor(width)
+                                    )
+                                )
+                            }
+                        ) {
+                            Text("Neste")
+                        }
                     }
                 }
             }

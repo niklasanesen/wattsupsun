@@ -11,5 +11,10 @@ data class LagreAdresse(
     val angle: Double,         // Vinkel
     val direction: Double,     // Retning
     val addressString: String, // Full adresse som tekst
-    val lagretNavn: String     // Brukerens navn på adressen (f.eks. "Hjem")
+    val lagretNavn: String,     // Brukerens navn på adressen (f.eks. "Hjem")
+    val numPanel: Int,             // Antall paneler
+    val totalPanelAreal: Double,   // Totalt areal av panelene
+    val kwp: Int,                  // Effektkapasitet per panel i kWp
+    val pris: Int                  // Pris for panelene
+
 )

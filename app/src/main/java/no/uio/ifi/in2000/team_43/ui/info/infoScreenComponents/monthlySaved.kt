@@ -13,10 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import no.uio.ifi.in2000.team_43.model.garfStuff.GrafMeasurement
 
 @Composable
 fun MonthlySavingsDisplay(
-    savingsPerMonth: List<Float>
+    savingsPerMonth: List<GrafMeasurement>
 ) {
     val months = listOf(
         "Jan", "Feb", "Mar", "Apr", "Mai", "Jun",
@@ -40,7 +41,7 @@ fun MonthlySavingsDisplay(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "${months.getOrNull(index) ?: "?"}:\n${amount.toInt()}kr",
+                        text = "${months.getOrNull(index) ?: "?"}:\n${amount.value.toInt()}kr",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
