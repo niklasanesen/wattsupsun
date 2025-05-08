@@ -27,6 +27,14 @@ Deretter kan du åpne prosjektet i Android Studio, og kjøre appen i en emulator
 - Strømpriser fra [HvaKosterStrømmen](https://www.hvakosterstrommen.no/strompris-api).
 - [PVGIS](https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en) for å sammenlikne solstrålingsdata.
 
+## Tillatelser
+
+For å få mest mulig ut av appen og all funksjoneliteten den tilbyr, må appen ha tilgang til visse systemfunksjoner:
+
+- Nettverk.
+- Lokasjon.
+- Media.
+
 ## Arkitektur
 
 Dataflyten og filstrukturen vår er inspirert av [Model–view–viewmodel](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel) arkitekturen, noe som blant annet hjelper oss å holde UI og API logikk separat. Dette er viktig for å holde kodebasen enkel og oversiktlig når prosjektet blir mer komplekst.
