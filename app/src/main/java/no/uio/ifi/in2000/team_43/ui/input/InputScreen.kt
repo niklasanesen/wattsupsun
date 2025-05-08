@@ -58,6 +58,7 @@ import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
 import no.uio.ifi.in2000.team_43.model.panel.SunPanel
 import no.uio.ifi.in2000.team_43.R
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -107,7 +108,7 @@ fun InputScreen(
         InputForm(
             ctx = ctx,
             onNextButtonClicked = onNextBtnClicked,
-            modifier = modifier.padding(innerPadding)
+            modifier = modifier
         )
     }
 }
@@ -151,7 +152,7 @@ fun InputForm(
     }
 
     fun onNextClicked() {
-        if (length.isNotEmpty() && width.isNotEmpty() && angle.isNotEmpty() && angleError.isEmpty()) {
+        if (length.isNotEmpty() && width.isNotEmpty() && angle.isNotEmpty() && angleError.isEmpty() && selectedPanel != null) {
             onNextButtonClicked(
                 Input(
                     length.toInt(),
@@ -162,110 +163,130 @@ fun InputForm(
                 )
             )
         } else {
-            error = "Vennligst fyll ut alle feltene"
+            error = "Pass på at du har fylt ut alle feltene og valgt en type solcellepanel før du går videre."
         }
     }
 
     ctx.areal?.let { updateDimensionsFromContext(it) }
 
-    Column(
+    LazyColumn(
         modifier = modifier
             .fillMaxWidth()
-            .paddingFromBaseline(top = 52.dp)
-            .padding(horizontal = 16.dp),
+            .padding(top = 40.dp)
+            .padding(horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        androidx.compose.material.Text(
-            text = "Takflate 1",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        InputField(
-            value = length,
-            onValueChange = { length = it },
-            label = "Lengde",
-            keyboardController = keyboardController
-        )
-
-        InputField(
-            value = width,
-            onValueChange = { width = it },
-            label = "Bredde",
-            keyboardController = keyboardController
-        )
-
-        InputField(
-            value = angle,
-            onValueChange = { onAngleChanged(it) },
-            label = "Takvinkel i °",
-            keyboardController = keyboardController
-        )
-
-        if (angleError.isNotEmpty()) {
-            androidx.compose.material.Text(
-                text = angleError,
-                color = Color.Red,
-                modifier = Modifier.padding(12.dp)
-            )
-        }
-
-        androidx.compose.material.ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = it },
-        ) {
-            androidx.compose.material.OutlinedTextField(
-                value = getDirection(direction),
-                onValueChange = { },
-                label = { androidx.compose.material.Text("Retning") },
-                readOnly = true,
-                trailingIcon = {
-                    androidx.compose.material.ExposedDropdownMenuDefaults.TrailingIcon(
-                        expanded = expanded
-                    )
-                },
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+        item {
+            Text(
+                text = "Takflate-verdier",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
             )
 
-            ExposedDropdownMenu(
+            Spacer(modifier = Modifier.height(8.dp))
+
+            InputField(
+                value = length,
+                onValueChange = { length = it },
+                label = "Lengde i meter",
+                keyboardController = keyboardController
+            )
+
+            InputField(
+                value = width,
+                onValueChange = { width = it },
+                label = "Bredde i meter",
+                keyboardController = keyboardController
+            )
+
+            InputField(
+                value = angle,
+                onValueChange = { onAngleChanged(it) },
+                label = "Takvinkel i °",
+                keyboardController = keyboardController
+            )
+
+            if (angleError.isNotEmpty()) {
+                Text(
+                    text = angleError,
+                    color = Color.Red,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+
+            ExposedDropdownMenuBox(
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+                onExpandedChange = { expanded = it },
             ) {
-                Direction.entries.forEach { entry ->
-                    androidx.compose.material.DropdownMenuItem(
-                        onClick = { onDirectionSelected(entry) },
-                    ) {
-                        androidx.compose.material.Text(text = getDirection(entry))
+                OutlinedTextField(
+                    value = getDirection(direction),
+                    onValueChange = { },
+                    label = { androidx.compose.material.Text("Retning") },
+                    readOnly = true,
+                    trailingIcon = {
+                        androidx.compose.material.ExposedDropdownMenuDefaults.TrailingIcon(
+                            expanded = expanded
+                        )
+                    },
+                    // modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    Direction.entries.forEach { entry ->
+                        androidx.compose.material.DropdownMenuItem(
+                            onClick = { onDirectionSelected(entry) },
+                        ) {
+                            androidx.compose.material.Text(text = getDirection(entry))
+                        }
                     }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-        PanelSelector(
-            selectedPanel = selectedPanel,
-            onPanelSelected = { selectedPanel = it }
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        androidx.compose.material.Button(onClick = { onNextClicked() }) {
-            androidx.compose.material.Text("Neste")
-            androidx.compose.material.Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "Navigate to Info"
+            Text(
+                text = "Velg type solcellepanel",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(12.dp)
             )
-        }
 
-        if (error.isNotEmpty()) {
-            androidx.compose.material.Text(
-                text = error,
-                modifier = Modifier.padding(8.dp)
+            PanelSelector(
+                selectedPanel = selectedPanel,
+                onPanelSelected = { selectedPanel = it }
             )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = {
+                    onNextClicked()
+                },
+            ) {
+                Text("Neste")
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = "Navigate to Info"
+                )
+            }
+
+            if (error.isNotEmpty()) {
+                Text(
+                    text = error,
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    lineHeight = 22.sp,
+                    modifier = Modifier
+                        .padding(20.dp)
+                        .width(300.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
@@ -352,10 +373,12 @@ fun PanelSelector(
                         MaterialTheme.colorScheme.surface
                 ),
                 elevation = CardDefaults.cardElevation(4.dp),
-                modifier = Modifier.width(180.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .width(160.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(12.dp),
+                    modifier = Modifier.padding(12.dp).fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Image of the panel
@@ -364,7 +387,8 @@ fun PanelSelector(
                         contentDescription = panel.navn,
                         modifier = Modifier
                             .size(100.dp)
-                            .clip(RoundedCornerShape(8.dp)),
+                            .clip(RoundedCornerShape(8.dp))
+                            .padding(top = 8.dp),
                         contentScale = ContentScale.Crop
                     )
 
@@ -374,7 +398,8 @@ fun PanelSelector(
                     Text(
                         text = panel.navn,
                         style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 4.dp)
                     )
 
                     // Panel specifications (effect and price)
