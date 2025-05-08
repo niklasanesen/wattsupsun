@@ -39,12 +39,12 @@ For å få mest mulig ut av appen og all funksjoneliteten den tilbyr, må appen 
 
 ## Biblioteker
 
-Slik moderne utvikling har blitt til er det stort fokus på biblioteker og rammeverk for å unngå “reinventing the wheel”. Vi har gjort det samme, og bruker deriblant biblioteker fra forelesningene og obligene som: `Jetpack Compose`, `Ktor`, `Navigation Compose`, `Material3` og `Coil`, men også en del mer niche biblioteker:
+Slik moderne utvikling har blitt til er det stort fokus på biblioteker for å unngå “reinventing the wheel”. Vi har ikke gjort noe annerledes, og bruker blant annet biblioteker fra forelesningene og obligene: `Jetpack Compose`, `Ktor`, `Navigation Compose`, `Material3`, `Coil`, og en del mer niche biblioteker:
 
-- Mapbox
-- MPAndroidChart
-- DataStore
-- Turf
+- `Mapbox`
+- `MPAndroidChart`
+- `DataStore`
+- `Turf`
 
 ## Credits
 
