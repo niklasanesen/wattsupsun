@@ -139,11 +139,11 @@ fun LineChartForMonths(
 
             val dataSet = LineDataSet(entries, "Produksjon").apply {
                 mode = LineDataSet.Mode.CUBIC_BEZIER
-                color = Color.BLUE
+                color = android.graphics.Color.parseColor("#304745") // mørk grønn
                 valueTextColor = txtColor
                 lineWidth = 2.5f
-                circleRadius = 5f
-                setCircleColor(Color.BLUE)
+                circleRadius = 0f // fjern sirkler
+                setCircleColor(Color.parseColor("#304745"))
                 setDrawValues(false)
                 setDrawCircles(true)
                 setDrawHighlightIndicators(true)

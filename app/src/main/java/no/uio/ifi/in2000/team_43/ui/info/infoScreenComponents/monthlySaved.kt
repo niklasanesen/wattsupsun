@@ -1,4 +1,5 @@
 package no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,11 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import no.uio.ifi.in2000.team_43.model.garfStuff.GrafMeasurement
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun MonthlySavingsDisplay(
-    savingsPerMonth: List<GrafMeasurement>
+    savingsPerMonth: List<Float>
 ) {
     val months = listOf(
         "Jan", "Feb", "Mar", "Apr", "Mai", "Jun",
@@ -31,7 +32,7 @@ fun MonthlySavingsDisplay(
         itemsIndexed(savingsPerMonth) { index, amount ->
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = Color(0xFF304745) // endret bakgrunn
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
@@ -41,9 +42,9 @@ fun MonthlySavingsDisplay(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "${months.getOrNull(index) ?: "?"}:\n${amount.value.toInt()}kr",
+                        text = "${months.getOrNull(index) ?: "?"}:\n${amount.toInt()}kr",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = Color.White // endret tekstfarge
                     )
                 }
             }
