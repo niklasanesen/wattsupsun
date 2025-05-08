@@ -34,10 +34,12 @@ graph TD
     PVGISDatasource --> |// solinnstrålingsdata| DRCalcRes
 
     StromprisDataSource --> |// Liste med strømpris per time| StromprisRes
-    MetDataSource --> |// vær/klimadata fra met API| MetRes
+    MetDataSource --> |// vær/klimadata fra met API| WeatherStation
+    MetDataSource --> |// vær/klimadata fra met API| AllValidYears
+    MetDataSource --> |// vær/klimadata fra met API levert som liste| WeatherList
 
     %% Styling for bobler
-    class PVGISRes,DRCalcRes,StromprisRes,MetRes,CTX circle;
+    class PVGISRes,DRCalcRes,StromprisRes,WeatherStation,AllValidYears,WeatherList,CTX circle;
     
     classDef circle stroke:#333,stroke-width:4px,rx:50%;
 
