@@ -285,6 +285,20 @@ fun InputForm(
 
             Spacer(modifier = Modifier.height(20.dp))
 
+            if (error.isNotEmpty()) {
+                Text(
+                    text = error,
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    lineHeight = 22.sp,
+                    modifier = Modifier
+                        // .padding(20.dp)
+                        .width(300.dp)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
             Button(
                 onClick = {
                     onNextClicked()
@@ -294,18 +308,6 @@ fun InputForm(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = "Navigate to Info"
-                )
-            }
-
-            if (error.isNotEmpty()) {
-                Text(
-                    text = error,
-                    color = Color.Red,
-                    fontSize = 14.sp,
-                    lineHeight = 22.sp,
-                    modifier = Modifier
-                        .padding(20.dp)
-                        .width(300.dp)
                 )
             }
 
