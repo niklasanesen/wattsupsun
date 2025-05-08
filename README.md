@@ -39,5 +39,4 @@ For å få mest mulig ut av appen og all funksjoneliteten den tilbyr, må appen 
 
 ## Credits
 
-- Vi har tatt litt inspirasjon fra [otovo](https://www.otovo.no).
-- Takk til Fredrik Løvoll som hjalp oss med `reverseGeocode` koden.
+Takk til Fredrik Løvoll som hjalp oss med `reverseGeocode` koden.
