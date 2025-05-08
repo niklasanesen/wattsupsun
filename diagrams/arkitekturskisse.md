@@ -34,8 +34,8 @@ graph TD
     PVGISDatasource --> |// solinnstrålingsdata| DRCalcRes
 
     StromprisDataSource --> |// Liste med strømpris per time| StromprisRes
-    MetDataSource --> |// vær/klimadata fra met API| WeatherStation
-    MetDataSource --> |// vær/klimadata fra met API| AllValidYears
+    MetDataSource --> |// værstasjoner med data hos MET| WeatherStation
+    MetDataSource --> |// År med data hos MET| AllValidYears
     MetDataSource --> |// vær/klimadata fra met API levert som liste| WeatherList
 
     %% Styling for bobler
