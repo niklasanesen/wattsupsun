@@ -34,17 +34,14 @@ import no.uio.ifi.in2000.team_43.model.garfStuff.MonthValueFormatter
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-
 @Composable
 fun YearlyChartWithValueDisplay(
     allMeasurements: List<GrafMeasurement>,
-    isLoading: Boolean, // Flag for å vise lastesirkel
-    modifier: Modifier = Modifier // Legger til Modifier som parameter
+    modifier: Modifier = Modifier,
+    onValueSelected: (String, String) -> Unit
 ) {
-    var selectedValue by remember { mutableStateOf<String?>(null) }
-
     Column(
-        modifier = modifier // Bruker den modifieren som sendes inn
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.Top
@@ -52,39 +49,9 @@ fun YearlyChartWithValueDisplay(
         LineChartWithSwitch(
             allMeasurements = allMeasurements,
             onValueSelected = { x, y ->
-                selectedValue = "Måned: ${x.toInt()}, Verdi: $y kWh"
+                onValueSelected(x.toInt().toString(), y.toString())
             }
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Vise lastesirkel hvis isLoading er true
-        if (isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            // Tekst i boks hvis data er tilgjengelig
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp) // Legger til litt padding rundt boksen
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)) // Bakgrunnsfarge for boksen
-                    .border(2.dp, MaterialTheme.colorScheme.primary) // Legger til kantlinje
-                    .padding(16.dp) // Padding inni boksen
-            ) {
-                Text(
-                    text = selectedValue ?: "Trykk på grafen for å vise verdi",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
     }
 }
 
