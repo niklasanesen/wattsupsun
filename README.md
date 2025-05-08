@@ -25,11 +25,11 @@ Deretter kan du åpne prosjektet i Android Studio, og kjøre appen i en emulator
 - Værdata fra [Frost](https://frost.met.no).
 - Kart fra [Mapbox](https://mapbox.com).
 - Strømpriser fra [HvaKosterStrømmen](https://www.hvakosterstrommen.no/strompris-api).
-- [PVGIS](https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en) for å sammenlinke solstrålingsdata.
+- [PVGIS](https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en) for å sammenlikne solstrålingsdata.
 
 ## Arkitektur
 
-Dataflyten og filstrukturen vår er inspirert av [Model–view–viewmodel](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel) arkitekturen, noe som blant annet hjelper oss å holde UI og API logikk separat. Dette er viktig for å holde kodebasen enkel og oversiktig når prosjektet blir mer komplekst.
+Dataflyten og filstrukturen vår er inspirert av [Model–view–viewmodel](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel) arkitekturen, noe som blant annet hjelper oss å holde UI og API logikk separat. Dette er viktig for å holde kodebasen enkel og oversiktlig når prosjektet blir mer komplekst.
 
 <img src="app/src/main/res/drawable/arkitektur.png" alt="arkitektur">
 
