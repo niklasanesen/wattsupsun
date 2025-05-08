@@ -37,12 +37,6 @@ For å få mest mulig ut av appen og all funksjoneliteten den tilbyr, må appen 
 - `CAMERA` og `READ_MEDIA_IMAGES`. Lar bruker legge til et profilbilde, enten med kameraet eller fra galleriet.
 - `READ_EXTERNAL_STORAGE` og `WRITE_EXTERNAL_STORAGE`. Gjør at appen kan lagre informasjon lokalt på brukerens enhet, som gjøres blant annet med profil- og adressedata.
 
-## Arkitektur
-
-Dataflyten og filstrukturen vår er inspirert av [Model–view–viewmodel](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel) arkitekturen, noe som blant annet hjelper oss å holde UI og API logikk separat. Dette er viktig for å holde kodebasen enkel og oversiktlig når prosjektet blir mer komplekst.
-
-<img src="app/src/main/res/drawable/arkitektur.png" alt="arkitektur">
-
 ## Credits
 
 - Vi har tatt litt inspirasjon fra [otovo](https://www.otovo.no).
