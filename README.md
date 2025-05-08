@@ -45,6 +45,7 @@ Slik moderne utvikling har blitt til er det stort fokus på biblioteker for å u
 - `Turf`: for å kunne tegne på kartet.
 - `MPAndroidChart`: graf til visualisering av solstrålingsdata.
 - `DataStore`: persistent lagring av data lokalt på enheten.
+- `JUnit`, `Mockk`, `Mockito`, `Turbine` og `Robolectric`: for testing og mocking av alt fra UI til API.
 
 ## Credits
 
