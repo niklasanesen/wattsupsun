@@ -58,10 +58,12 @@ import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
 import no.uio.ifi.in2000.team_43.model.panel.SunPanel
 import no.uio.ifi.in2000.team_43.R
 import androidx.compose.foundation.Image
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import no.uio.ifi.in2000.team_43.model.areal.Areal
 import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
 
 
@@ -79,16 +81,6 @@ fun InputScreen(
     val currentScreen = HomeScreen.valueOf(
         backStackEntry?.destination?.route ?: HomeScreen.Input.name
     )
-
-
-    val previousBackStackEntry = navController.previousBackStackEntry
-    val previousRoute = previousBackStackEntry?.destination?.route
-
-
-
-
-
-
 
     LaunchedEffect(ctx.coords) {
         ctx.coords?.let {
@@ -112,170 +104,195 @@ fun InputScreen(
             )
         }
     ) { innerPadding ->
-        Column (
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(top = innerPadding.calculateTopPadding())
-        ) {
-            val keyboardController = LocalSoftwareKeyboardController.current
+        InputForm(
+            ctx = ctx,
+            onNextButtonClicked = onNextBtnClicked,
+            modifier = modifier.padding(innerPadding)
+        )
+    }
+}
 
-            var length by remember { mutableStateOf("") }
-            var width by remember { mutableStateOf("") }
-            var angle by remember { mutableStateOf("") }
-            var direction: Direction by remember { mutableStateOf(Direction.NORTH)}
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun InputForm(
+    ctx: Ctx,
+    onNextButtonClicked: (input: Input) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
 
-            var angleError by remember { mutableStateOf("") }
-            var error by remember { mutableStateOf("") }
+    var length by remember { mutableStateOf("") }
+    var width by remember { mutableStateOf("") }
+    var angle by remember { mutableStateOf("") }
+    var direction: Direction by remember { mutableStateOf(Direction.NORTH)}
+    var selectedPanel by remember { mutableStateOf<SunPanel?>(null) }
 
-            // For dropdownmeny retning:
-            var expanded: Boolean by remember { mutableStateOf(false) }
+    var angleError by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf("") }
 
-            if (ctx.areal != null && length.isEmpty() && width.isEmpty()) {
-                length = ctx.areal!!.length.toInt().toString()
-                width = ctx.areal!!.width.toInt().toString()
-            }
+    // For dropdownmeny retning:
+    var expanded: Boolean by remember { mutableStateOf(false) }
 
-            Column (
-                modifier = Modifier
-                    .fillMaxWidth()
-
-                    //.paddingFromBaseline(top = 32.dp),
-                    .padding(2.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-
-            ) {
-                Text(
-                    text = "Takflate 1",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = length,
-                    onValueChange = {
-                        if (it == "" || it.toIntOrNull() is Int) {
-                            length = it
-                        }
-                    },
-                    label = { Text("Lengde") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
-                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
-                )
-
-                OutlinedTextField(
-                    value = width,
-                    onValueChange = {
-                        if (it == "" || it.toIntOrNull() is Int) {
-                            width = it
-                        }
-                    },
-                    label = { Text("Bredde") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
-                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
-                )
-
-                OutlinedTextField(
-                    value = angle,
-                    onValueChange = {
-                        if (it == "" || it.toIntOrNull() is Int) {
-                            angle = it
-                            angleError = ""
-                            if (it == "" || it.toInt() !in 0..90) {
-                                angleError = "Vinkel må være mellom 0° og 90°"
-                            }
-                        }
-                    },
-                    label = { Text("Takvinkel i °") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
-                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
-                )
-
-                if (angleError != "") {
-                    Text(
-                        text = angleError,
-                        color = Color.Red,
-                        modifier = Modifier.padding(12.dp)
-                    )
-                }
-
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = {expanded = it},
-                ) {
-                    OutlinedTextField(
-                        value = getDirection(direction),
-                        onValueChange = {},
-                        label = { Text("Retning") },
-                        readOnly = true,
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                        modifier = Modifier
-                            .menuAnchor()
-                            .align(Alignment.CenterHorizontally)
-                    )
-
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        Direction.entries.forEach { entry ->
-                            DropdownMenuItem(
-                                text = { Text(getDirection(entry)) },
-                                onClick = {
-                                    direction = entry
-                                    expanded = false
-                                },
-                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                            )
-                        }
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(12.dp))
-
-
-            var selectedPanel by remember { mutableStateOf<SunPanel?>(null) }
-
-            PanelSelector(
-                selectedPanel = selectedPanel,
-                onPanelSelected = { selectedPanel = it }
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            Button(
-                onClick = {
-                    if (length != "" && width != "" && angle != "" && selectedPanel != null) {
-                        onNextBtnClicked(Input(length.toInt(), width.toInt(), angle.toInt(), getDegrees(direction), selectedPanel!!))
-
-                    } else {
-                        error = "Vennligst fyll ut alle feltene"
-                    }
-                },
-            ) {
-                Text("Neste")
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "Navigate to Info"
-                )
-            }
-
-            if (error != "") {
-                Text(
-                    text = error,
-                    modifier = Modifier.padding(8.dp)
-                )
-            }
+    fun updateDimensionsFromContext(areal: Areal) {
+        if (length.isEmpty() && width.isEmpty()) {
+            length = areal.length.toInt().toString()
+            width = areal.width.toInt().toString()
         }
     }
+
+    fun onAngleChanged(newAngle: String) {
+        angle = newAngle
+        angleError = validateAngle(newAngle)
+    }
+
+    fun onDirectionSelected(newDirection: Direction) {
+        direction = newDirection
+        expanded = false
+    }
+
+    fun onNextClicked() {
+        if (length.isNotEmpty() && width.isNotEmpty() && angle.isNotEmpty() && angleError.isEmpty()) {
+            onNextButtonClicked(
+                Input(
+                    length.toInt(),
+                    width.toInt(),
+                    angle.toInt(),
+                    getDegrees(direction),
+                    selectedPanel!!
+                )
+            )
+        } else {
+            error = "Vennligst fyll ut alle feltene"
+        }
+    }
+
+    ctx.areal?.let { updateDimensionsFromContext(it) }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .paddingFromBaseline(top = 52.dp)
+            .padding(horizontal = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        androidx.compose.material.Text(
+            text = "Takflate 1",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        InputField(
+            value = length,
+            onValueChange = { length = it },
+            label = "Lengde",
+            keyboardController = keyboardController
+        )
+
+        InputField(
+            value = width,
+            onValueChange = { width = it },
+            label = "Bredde",
+            keyboardController = keyboardController
+        )
+
+        InputField(
+            value = angle,
+            onValueChange = { onAngleChanged(it) },
+            label = "Takvinkel i °",
+            keyboardController = keyboardController
+        )
+
+        if (angleError.isNotEmpty()) {
+            androidx.compose.material.Text(
+                text = angleError,
+                color = Color.Red,
+                modifier = Modifier.padding(12.dp)
+            )
+        }
+
+        androidx.compose.material.ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = it },
+        ) {
+            androidx.compose.material.OutlinedTextField(
+                value = getDirection(direction),
+                onValueChange = { },
+                label = { androidx.compose.material.Text("Retning") },
+                readOnly = true,
+                trailingIcon = {
+                    androidx.compose.material.ExposedDropdownMenuDefaults.TrailingIcon(
+                        expanded = expanded
+                    )
+                },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                Direction.entries.forEach { entry ->
+                    androidx.compose.material.DropdownMenuItem(
+                        onClick = { onDirectionSelected(entry) },
+                    ) {
+                        androidx.compose.material.Text(text = getDirection(entry))
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        PanelSelector(
+            selectedPanel = selectedPanel,
+            onPanelSelected = { selectedPanel = it }
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        androidx.compose.material.Button(onClick = { onNextClicked() }) {
+            androidx.compose.material.Text("Neste")
+            androidx.compose.material.Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = "Navigate to Info"
+            )
+        }
+
+        if (error.isNotEmpty()) {
+            androidx.compose.material.Text(
+                text = error,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
+    }
+}
+
+
+@Composable
+fun InputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    keyboardController: androidx.compose.ui.platform.SoftwareKeyboardController?,
+) {
+    androidx.compose.material.OutlinedTextField(
+        value = value,
+        onValueChange = {
+            if (it.isEmpty() || it.toIntOrNull() != null) {
+                onValueChange(it)
+            }
+        },
+        label = { androidx.compose.material.Text(label) },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Done,
+            keyboardType = KeyboardType.Number
+        ),
+        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
+    )
 }
 
 fun getDirection(direction: Direction): String =
@@ -292,6 +309,12 @@ fun getDegrees(direction: Direction): Int =
         Direction.EAST -> 90
         Direction.SOUTH -> 180
         Direction.WEST -> 270
+    }
+
+fun validateAngle(angle: String): String =
+    when {
+        angle.isEmpty() || angle.toIntOrNull() == null || angle.toInt() !in 0..90 -> "Vinkel må være mellom 0° og 90°"
+        else -> ""
     }
 
 
