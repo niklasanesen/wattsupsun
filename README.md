@@ -25,8 +25,8 @@ Deretter kan du åpne prosjektet i Android Studio, og kjøre appen i en emulator
 Korrekt og oppdatert data er essensielt for å få mest mulig nøyaktig beregning, derfor henter vi data fra flere pålitelige kilder:
 
 - Værdata fra [Frost](https://frost.met.no).
-- Kart fra [Mapbox](https://mapbox.com).
 - Strømpriser fra [HvaKosterStrømmen](https://www.hvakosterstrommen.no/strompris-api).
+- Kart- og lokasjonsdata fra [Mapbox](https://mapbox.com).
 - [PVGIS](https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en) for å sammenlikne solstrålingsdata.
 
 ## Tillatelser
