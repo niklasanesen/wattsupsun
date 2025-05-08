@@ -31,7 +31,7 @@ Korrekt og oppdatert data er essensielt for å få mest mulig nøyaktig beregnin
 
 ## Tillatelser
 
-For å få mest mulig ut av appen og all funksjoneliteten den tilbyr, må appen ha tilgang til visse systemfunksjoner som er står definert i `AndroidManifest.xml`:
+For å få mest mulig ut av appen og all funksjoneliteten den tilbyr, må appen ha tilgang til visse systemfunksjoner som er står definert i `AndroidManifest.xml` filen:
 
 - `INTERNET`. Som nevnt tidligere henter appen data fra diverse datakilder, og trenger naturligvis internett-tilgang for å gjøre det.
 - `CAMERA` og `READ_MEDIA_IMAGES`. Lar bruker legge til et profilbilde, enten med kameraet eller fra galleriet.
