@@ -41,10 +41,10 @@ For å få mest mulig ut av appen og all funksjoneliteten den tilbyr, må appen 
 
 Slik moderne utvikling har blitt til er det stort fokus på biblioteker for å unngå “_reinventing the wheel_”. Vi har ikke gjort noe annerledes, og bruker blant annet biblioteker fra forelesningene og obligene: `Jetpack Compose`, `Ktor`, `Navigation Compose`, `Material3`, `Coil`, og en del mer niche biblioteker:
 
-- `Mapbox`
-- `MPAndroidChart`
-- `DataStore`
-- `Turf`
+- `Mapbox`: for alt av kartfunksjoner, søk og autocomplete.
+- `Turf`: for å kunne tegne på kartet.
+- `MPAndroidChart`: for å kunne visualisere solstrålingsdata i graf.
+- `DataStore`: for persistent lagring av data lokalt på enheten.
 
 ## Credits
 
