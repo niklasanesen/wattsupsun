@@ -37,6 +37,15 @@ For å få mest mulig ut av appen og all funksjoneliteten den tilbyr, må appen 
 - `CAMERA` og `READ_MEDIA_IMAGES`. Lar bruker legge til et profilbilde, enten med kameraet eller fra galleriet.
 - `READ_EXTERNAL_STORAGE` og `WRITE_EXTERNAL_STORAGE`. Gjør at appen kan lagre informasjon lokalt på brukerens enhet, som gjøres blant annet med profil- og adressedata.
 
+## Biblioteker
+
+Slik moderne utvikling har blitt til er det stort fokus på biblioteker og rammeverk for å unngå “reinventing the wheel”. Vi har gjort det samme, og bruker deriblant biblioteker fra forelesningene og obligene som: `Jetpack Compose`, `Ktor`, `Navigation Compose`, `Material3` og `Coil`, men også en del mer niche biblioteker:
+
+- Mapbox
+- MPAndroidChart
+- DataStore
+- Turf
+
 ## Credits
 
 Takk til Fredrik Løvoll som hjalp oss med `reverseGeocode` koden.
