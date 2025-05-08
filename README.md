@@ -32,8 +32,8 @@ Deretter kan du åpne prosjektet i Android Studio, og kjøre appen i en emulator
 For å få mest mulig ut av appen og all funksjoneliteten den tilbyr, må appen ha tilgang til visse systemfunksjoner som er står definert i `AndroidManifest.xml`:
 
 - `INTERNET`. Som nevnt tidligere henter appen data fra diverse datakilder, og trenger naturligvis internett-tilgang for å gjøre det.
-- `CAMERA` og `READ_MEDIA_IMAGES`. Lar bruker legge til et profilbilde, enten ved kameraet eller fra galleriet.
-- `READ_EXTERNAL_STORAGE` og `WRITE_EXTERNAL_STORAGE`. Disse tillatelsene lar appen lagre informasjon lokalt på brukerens enhet, som gjøres blant annet med profil- og adressedata.
+- `CAMERA` og `READ_MEDIA_IMAGES`. Lar bruker legge til et profilbilde, enten med kameraet eller fra galleriet.
+- `READ_EXTERNAL_STORAGE` og `WRITE_EXTERNAL_STORAGE`. Gjør at appen kan lagre informasjon lokalt på brukerens enhet, som gjøres blant annet med profil- og adressedata.
 
 ## Arkitektur
 
