@@ -27,7 +27,7 @@ Korrekt og oppdatert data er essensielt for å få mest mulig nøyaktig beregnin
 - Værdata fra [Frost](https://frost.met.no).
 - Strømpriser fra [HvaKosterStrømmen](https://www.hvakosterstrommen.no/strompris-api).
 - Kart- og lokasjonsdata fra [Mapbox](https://mapbox.com).
-- [PVGIS](https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en) for å sammenlikne solstrålingsdata.
+- Solstrålingsdata fra [PVGIS](https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en) for å sammenlikne med [Frost](https://frost.met.no).
 
 ## Tillatelser
 
