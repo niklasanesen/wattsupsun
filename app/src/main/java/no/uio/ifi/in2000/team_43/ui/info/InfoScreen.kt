@@ -77,13 +77,13 @@ fun InfoScreen(
 
 
     val adress = if (ctx.address != null) ctx.address else "adresse er ukjent"
-    val panelPrice = if (ctx.input?.valgtPanle != null) ctx.input.valgtPanle.pris else 0
-    val wPerPanel = ctx.input?.valgtPanle?.effekt?.toDouble()
+    val panelPrice = if (ctx.input?.panel != null) ctx.input.panel.pris else 0
+    val wPerPanel = ctx.input?.panel?.effekt?.toDouble()
     val kwpPerPanel = ((wPerPanel ?: 1.0) / 1000.0)
     val roofLength = ctx.input?.length?.toDouble()
     val roofWidth = ctx.input?.width?.toDouble()
-    val panelLength = ctx.input?.valgtPanle?.len
-    val panelWidth = ctx.input?.valgtPanle?.width
+    val panelLength = ctx.input?.panel?.len
+    val panelWidth = ctx.input?.panel?.width
     val panelArel = if (panelLength != null && panelWidth != null) panelLength * panelWidth else 0.0
     val numPanel = calculateNumPanels(roofLength = roofLength, roofWidth = roofWidth, panelLength = panelLength, panelWidth = panelWidth)
     val totalPanelAreal = numPanel * panelArel
@@ -335,7 +335,6 @@ fun InfoScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         // Enova on infoscreen:
-        Log.i("TestEnova", "kwpPerPanel: ${ctx.input?.panel?.effekt}")
         val wPerPanel = ctx.input?.panel?.effekt?.toDouble()
         val kwpPerPanel = ((wPerPanel ?: 1.0) / 1000.0)
 
