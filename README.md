@@ -22,6 +22,8 @@ Deretter kan du åpne prosjektet i Android Studio, og kjøre appen i en emulator
 
 ## Datakilder
 
+Korrekt og oppdatert data er essensielt for å få mest mulig nøyaktig beregning, derfor henter vi data fra flere pålitelige kilder:
+
 - Værdata fra [Frost](https://frost.met.no).
 - Kart fra [Mapbox](https://mapbox.com).
 - Strømpriser fra [HvaKosterStrømmen](https://www.hvakosterstrommen.no/strompris-api).
