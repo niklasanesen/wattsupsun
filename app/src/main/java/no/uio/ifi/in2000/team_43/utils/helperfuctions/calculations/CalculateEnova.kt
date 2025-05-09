@@ -11,6 +11,6 @@ fun calculateEnova(kWpPerPanel: Double, numPanel: Int): Double {
     val variableSupport = floor(minOf(totalKWp, 20.0)) * supportPerKWp
 
 
-    // will return max 32500 total, according to enova
+
     return standardSupport + variableSupport
 }

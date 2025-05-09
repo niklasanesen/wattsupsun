@@ -1,3 +1,5 @@
+@file:Suppress("EXTERNAL_SERIALIZER_USELESS")
+
 package no.uio.ifi.in2000.team_43.utils.serializers
 
 import kotlinx.serialization.ExperimentalSerializationApi
