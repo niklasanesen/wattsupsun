@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -56,6 +57,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.core.content.FileProvider
 import coil3.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.CoroutineScope
@@ -211,38 +213,80 @@ fun ProfilePage(modifier: Modifier = Modifier) {
                     }
                 }
             }
-            Spacer(modifier = Modifier.padding(16.dp))
-            Button(
-                onClick = {},
-                enabled = true,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xff3b7d9c)
-                ),
-                modifier = Modifier
-                    .fillMaxWidth(0.7f)
-                    .height(48.dp)
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            Column (
+                modifier = Modifier.padding(horizontal = 20.dp),
             ) {
-                Text("Innstillinger")
+                Button(
+                    onClick = {},
+                    enabled = true,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xff3b7d9c)
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    Text("Innstillinger")
+                }
+
+                Spacer(modifier = Modifier.padding(4.dp))
+
+                // Personvernerklæringsknapp
+                Button(
+                    onClick = {
+                        // Når knappen trykkes, vis personvernerklæringen i en popup
+                        showPrivacyDialog = true
+                    },
+                    enabled = true,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xff3b7d9c)
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    Text("Personvernerklæring")
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "Lagrede adresser",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .padding(vertical = 4.dp)
+                )
+
+                Button(
+                    onClick = {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            dataStoreManager.deleteAllAddresses()
+                        }
+                    },
+                    enabled = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        // .padding(24.dp)
+                        .height(48.dp),
+                    //.paddingFromBaseline(bottom = padding.calculateBottomPadding()),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Slett alle adresser", color = MaterialTheme.colorScheme.onError)
+                }
             }
 
-            Spacer(modifier = Modifier.padding(4.dp))
 
-            // Personvernerklæringsknapp
-            Button(
-                onClick = {
-                    // Når knappen trykkes, vis personvernerklæringen i en popup
-                    showPrivacyDialog = true
-                },
-                enabled = true,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xff3b7d9c)
-                ),
-                modifier = Modifier
-                    .fillMaxWidth(0.7f)
-                    .height(48.dp)
-            ) {
-                Text("Personvernerklæring")
-            }
+
+
+
+
+
+
 
             // Popup for personvernerklæring
             if (showPrivacyDialog) {
@@ -253,7 +297,7 @@ fun ProfilePage(modifier: Modifier = Modifier) {
                     },
                     text = {
                         Text(
-                            "Vi samler ikke inn noen informasjon om deg.\n\n" +
+                            "Vi samler ikke inn noen informasjon om deg. " +
                                     "All data du legger inn lagres kun lokalt på mobilen din og deles aldri med noen.",
                             lineHeight = 20.sp
                         )
