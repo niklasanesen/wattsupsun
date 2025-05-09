@@ -73,22 +73,15 @@ fun InputScreen(
     pvgisViewModel: PVGISViewModel,
     onNextBtnClicked: (input: Input) -> Unit,
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController(),
+    navController: NavHostController = rememberNavController()
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentScreen = HomeScreen.valueOf(
         backStackEntry?.destination?.route ?: HomeScreen.Input.name
     )
 
-
     val previousBackStackEntry = navController.previousBackStackEntry
     val previousRoute = previousBackStackEntry?.destination?.route
-
-
-
-
-
-
 
     LaunchedEffect(ctx.coords) {
         ctx.coords?.let {
