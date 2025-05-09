@@ -2,8 +2,10 @@ package no.uio.ifi.in2000.team_43.ui.input
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -186,26 +188,83 @@ fun InputForm(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            InputField(
-                value = length,
-                onValueChange = { length = it },
-                label = "Lengde i meter",
-                keyboardController = keyboardController
-            )
+            Column (
+                modifier = Modifier
+                    .padding(horizontal = 24.dp, vertical = 8.dp)
+                    .fillMaxSize()
+            ) {
+                Row (
+                    horizontalArrangement = Arrangement.Absolute.SpaceEvenly
+                ) {
+                    InputField(
+                        modifier = Modifier.weight(1f),
+                        value = length,
+                        onValueChange = { length = it },
+                        label = "Lengde i m",
+                        keyboardController = keyboardController
+                    )
 
-            InputField(
-                value = width,
-                onValueChange = { width = it },
-                label = "Bredde i meter",
-                keyboardController = keyboardController
-            )
+                    Spacer(modifier = Modifier.width(16.dp))
 
-            InputField(
-                value = angle,
-                onValueChange = { onAngleChanged(it) },
-                label = "Takvinkel i °",
-                keyboardController = keyboardController
-            )
+                    InputField(
+                        modifier = Modifier.weight(1f),
+                        value = width,
+                        onValueChange = { width = it },
+                        label = "Bredde i m",
+                        keyboardController = keyboardController
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Row {
+                    InputField(
+                        modifier = Modifier.weight(1f),
+                        value = angle,
+                        onValueChange = { onAngleChanged(it) },
+                        label = "Takvinkel i °",
+                        keyboardController = keyboardController
+                    )
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    ExposedDropdownMenuBox(
+                        modifier = Modifier.weight(1f),
+                        expanded = expanded,
+                        onExpandedChange = { expanded = it },
+                    ) {
+                        OutlinedTextField(
+                            value = getDirection(direction),
+                            onValueChange = { expanded = !expanded },
+                            label = { Text("Retning") },
+                            readOnly = true,
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(
+                                    expanded = expanded
+                                )
+                            },
+                            modifier = Modifier.menuAnchor()
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            Direction.entries.forEach { entry ->
+                                DropdownMenuItem(
+                                    text = { Text(getDirection(entry)) },
+                                    onClick = {
+                                        direction = entry
+                                        expanded = false
+                                        directionChange = false
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                            }
+                        }
+                    }
+                }
+            }
 
             if (angleError.isNotEmpty()) {
                 Text(
@@ -213,41 +272,6 @@ fun InputForm(
                     color = Color.Red,
                     modifier = Modifier.padding(12.dp)
                 )
-            }
-
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = it },
-            ) {
-                OutlinedTextField(
-                    value = getDirection(direction),
-                    onValueChange = { expanded = !expanded },
-                    label = { Text("Retning") },
-                    readOnly = true,
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(
-                            expanded = expanded
-                        )
-                    },
-                    modifier = Modifier.menuAnchor()
-                )
-
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    Direction.entries.forEach { entry ->
-                        DropdownMenuItem(
-                            text = { Text(getDirection(entry)) },
-                            onClick = {
-                                direction = entry
-                                expanded = false
-                                directionChange = false
-                            },
-                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                        )
-                    }
-                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -319,12 +343,14 @@ fun InputForm(
 
 @Composable
 fun InputField(
+    modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
     keyboardController: androidx.compose.ui.platform.SoftwareKeyboardController?,
 ) {
     OutlinedTextField(
+        modifier = modifier.fillMaxWidth(),
         value = value,
         onValueChange = {
             if (it.isEmpty() || it.toIntOrNull() != null) {
@@ -402,7 +428,9 @@ fun PanelSelector(
                     .width(160.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Image of the panel
@@ -434,8 +462,3 @@ fun PanelSelector(
         }
     }
 }
-
-
-
-
-
