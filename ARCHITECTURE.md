@@ -8,6 +8,8 @@ Dataflyten og filstrukturen vår er inspirert av [Model–view–viewmodel (MVVM
 
 ### Model
 
+Alt starter med en modell, som egentlig bare er en objektorientert måte å representere data på. En modell kan inneholde data (kalt felter/attributter) og kan utføre handlinger (kalt metoder/prosedyrer) spesifikt til seg selv.
+
 ### View
 
 ### ViewModel
