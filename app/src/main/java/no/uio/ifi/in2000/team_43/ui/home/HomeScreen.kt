@@ -36,11 +36,12 @@ fun HomeScreen(
         NavItem("Map", Icons.Default.LocationOn),
         // NavItem("Saved", Icons.Outlined.Favorite),
         NavItem("Profile", Icons.Default.Person),
-        NavItem("Home", Icons.Default.Home)
+        // NavItem("Home", Icons.Default.Home)
     )
     var selectedIndex by remember {
         mutableIntStateOf(1)
     }
+
 
     // State to track if welcome screen is shown
     val context = LocalContext.current
@@ -52,7 +53,8 @@ fun HomeScreen(
                 // Hide welcome screen but don't save preference
                 // since we want to show it every time
                 showWelcomeScreen = false
-            }
+            },
+            startup = true
         )
     } else {
         Scaffold(
@@ -62,11 +64,7 @@ fun HomeScreen(
                         NavigationBarItem(
                             selected = selectedIndex == index,
                             onClick = {
-                                if (index == 2) { // Home button
-                                    showWelcomeScreen = true
-                                } else {
-                                    selectedIndex = index
-                                }
+                                selectedIndex = index
                             },
                             icon = {
                                 Icon(imageVector = navItem.icon, contentDescription = navItem.label)
