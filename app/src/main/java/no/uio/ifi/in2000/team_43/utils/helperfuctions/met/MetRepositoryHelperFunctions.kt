@@ -13,6 +13,6 @@ fun formatDate(time: Instant): String {
 }
 
 fun getMostRecentStation(allStationYears: AllValidYears): ValidYears? {
-    //return station w/ latest date
+
     return allStationYears.validYearsList.maxByOrNull { it.validTo }
 }

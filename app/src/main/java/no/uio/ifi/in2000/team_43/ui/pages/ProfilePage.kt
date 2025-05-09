@@ -7,7 +7,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,10 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import no.uio.ifi.in2000.team_43.R
 import no.uio.ifi.in2000.team_43.ui.theme.Purple40
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -50,7 +47,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -77,10 +73,11 @@ import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
 import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
 import no.uio.ifi.in2000.team_43.ui.info.AddressDetailPage
 import java.io.File
+import androidx.core.net.toUri
 
 @Composable
 fun ProfilePage(modifier: Modifier = Modifier) {
-    // Saved addresses - navigation
+
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "profile") {
         composable("profile") {
@@ -224,7 +221,7 @@ fun ProfileScreen(
                     ) {
                         if (profilePhotoUri.isNotEmpty()) {
                             Image(
-                                painter = rememberAsyncImagePainter(Uri.parse(profilePhotoUri)),
+                                painter = rememberAsyncImagePainter(profilePhotoUri.toUri()),
                                 contentDescription = "profile",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.fillMaxSize()
@@ -567,9 +564,7 @@ fun AddressCard(address: LagreAdresse, onClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBarProfile(
-    modifier: Modifier = Modifier,
-) {
+fun TopAppBarProfile() {
     CenterAlignedTopAppBar(
         title = { Text("Profil") },
         colors = TopAppBarDefaults.topAppBarColors(
