@@ -235,7 +235,7 @@ fun InputForm(
                     ) {
                         OutlinedTextField(
                             value = getDirection(direction),
-                            onValueChange = { expanded = !expanded },
+                            onValueChange = { onDirectionSelected(direction) },
                             label = { Text("Retning") },
                             readOnly = true,
                             trailingIcon = {
