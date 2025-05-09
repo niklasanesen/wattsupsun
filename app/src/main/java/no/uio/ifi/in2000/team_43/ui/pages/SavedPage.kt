@@ -25,11 +25,11 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 
-
 @Composable
 fun SavedPage(
     modifier: Modifier = Modifier
 ) {
+    /*
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "saved") {
         composable("saved") {
@@ -53,7 +53,7 @@ fun SavedPage(
                 modifier = modifier
             )
         }
-    }
+    }*/
 }
 
 
@@ -156,7 +156,7 @@ fun SavedPageScreen(
     }
 }
 
-
+/*
 @Composable
 fun AddressCard(address: LagreAdresse, onClick: () -> Unit) {
     Card(
@@ -183,7 +183,7 @@ fun AddressCard(address: LagreAdresse, onClick: () -> Unit) {
             )
         }
     }
-}
+}*/
 
 
 @OptIn(ExperimentalMaterial3Api::class)

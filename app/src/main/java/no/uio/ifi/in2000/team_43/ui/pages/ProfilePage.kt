@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.sp
 import no.uio.ifi.in2000.team_43.R
 import no.uio.ifi.in2000.team_43.ui.theme.Purple40
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
@@ -59,17 +61,58 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.core.content.FileProvider
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import coil3.compose.rememberAsyncImagePainter
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
+import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
+import no.uio.ifi.in2000.team_43.ui.info.AddressDetailPage
 import java.io.File
 
 @Composable
 fun ProfilePage(modifier: Modifier = Modifier) {
+    // Saved addresses - navigation
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = "profile") {
+        composable("profile") {
+            ProfileScreen(
+                modifier = modifier,
+                onCardClick = { address ->
+                    val json = Gson().toJson(address)
+                    navController.navigate("detail/$json")
+                }
+            )
+        }
+        composable(
+            "detail/{addressJson}",
+            arguments = listOf(navArgument("addressJson") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val json = backStackEntry.arguments?.getString("addressJson")
+            val address = Gson().fromJson(json, LagreAdresse::class.java)
+            AddressDetailPage(
+                address = address,
+                navController = navController,
+                modifier = modifier
+            )
+        }
+    }
+}
+
+@Composable
+fun ProfileScreen(
+    modifier: Modifier = Modifier,
+    onCardClick: (LagreAdresse) -> Unit = {}
+){
     val context = LocalContext.current
     val dataStoreManager = remember { DataStoreManager(context) }
+    val addresses by dataStoreManager.addresses.collectAsState(initial = emptyList())
 
     val firstname by dataStoreManager.firstnameFlow.collectAsState(initial = "")
     val lastname by dataStoreManager.lastnameFlow.collectAsState(initial = "")
@@ -139,17 +182,18 @@ fun ProfilePage(modifier: Modifier = Modifier) {
         }
     }
 
+    // Content on the screen
     Scaffold (
         topBar = { TopAppBarProfile() }
     ) { padding ->
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(top = padding.calculateTopPadding()),
             // verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Card (
                 colors = CardDefaults.cardColors(
@@ -166,11 +210,11 @@ fun ProfilePage(modifier: Modifier = Modifier) {
             ) {
                 Row (
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(20.dp)
+                    modifier = Modifier.padding(16.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(140.dp)
+                            .size(120.dp)
                             .clip(CircleShape)
                             .clickable { showPhotoOptDialog = true }
                             .background(Color.White),
@@ -214,7 +258,7 @@ fun ProfilePage(modifier: Modifier = Modifier) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
             Column (
                 modifier = Modifier.padding(horizontal = 20.dp),
@@ -280,12 +324,67 @@ fun ProfilePage(modifier: Modifier = Modifier) {
                 }
             }
 
+            Column (
+                modifier = Modifier.fillMaxSize(),
+                //verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (addresses.isEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color(0xffe8ca89),
+                            ),
+                            modifier = Modifier
+                        ) {
+                            Text(
+                                text = "Ingen adresser lagret enda.",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xff9c2d17),
+                                modifier = Modifier
+                                    .paddingFromBaseline(top = 40.dp)
+                                    .padding(horizontal = 20.dp),
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Gå til kart, velg adresse og registrer takflater for å lagre en adresse!",
+                                modifier = Modifier
+                                    .paddingFromBaseline(bottom = 24.dp)
+                                    .padding(horizontal = 20.dp),
+                            )
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp)
+                            .padding(top = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        items(addresses) { address ->
+                            // For å legge til padding over (så skyggene blir riktig)
+                            if (address == addresses[0]) {
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
 
+                            AddressCard(address = address, onClick = { onCardClick(address) })
 
-
-
-
-
+                            // For å legge til padding under (så skyggene blir riktig)
+                            if (address == addresses[addresses.size - 1]) {
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+                        }
+                    }
+                }
+            }
 
 
             // Popup for personvernerklæring
@@ -401,6 +500,36 @@ fun ProfilePage(modifier: Modifier = Modifier) {
         }
     }
 }
+
+
+@Composable
+fun AddressCard(address: LagreAdresse, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .clickable(onClick = onClick),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = address.lagretNavn,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = address.addressString,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
