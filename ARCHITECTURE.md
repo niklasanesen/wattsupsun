@@ -1,6 +1,6 @@
-# Architecture
+# Arkitektur
 
-Dette dokumentet er tiltenkt for personer som skal videreutvikle appen, sette seg inn i den og fortsette å jobbe med “kodestil”/praksis som er brukt.
+Velkommen til WattsUpSuns arkitektur guide! I denne guiden får du en oversikt over hvordan appen er strukturert, hvilke kodestil- og arkitekturvalg vi har tatt, og generelt hvordan du kan videreutvikle appen.
 
 ## MVVM
 
