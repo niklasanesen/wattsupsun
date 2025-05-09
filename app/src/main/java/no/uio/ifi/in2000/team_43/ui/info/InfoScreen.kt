@@ -39,152 +39,82 @@ fun InfoScreen(
     stromprisViewModel: StromprisViewModel = viewModel(),
     ctx: Ctx
 ) {
-    // ---- collect data from viewModels ----
-    val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata fra met
-    val pvgisSolData by pvgisViewModel.productionData.collectAsState() // Henter pvgis solinnstrålingsdata
-
-
-    // ---- calculate weather data to kwh----
-    val calculatedPvgisData = mutableListOf<Double>() // legger inn beregnet strøm produksjonsdata
-    val calculatedMetData = mutableListOf<Pair<Instant, Double>>()  // strømproduskjon for alle dager i et år
-
-
-    // ---- variables to control state of data ----
-    var isLoading by remember { mutableStateOf(true) }
-    var isMetSelected by remember { mutableStateOf(true) }
-    var showDialog by remember { mutableStateOf(false) }
-
-    val totalProduksjon = remember { mutableStateOf(0.0) }
-
-
-
-
-
-    // ---- crate context for data storage ----
+    val weatherList by metViewModel.dataSortedByDate.collectAsState()
+    val pvgisSolData by pvgisViewModel.productionData.collectAsState()
+    val stromprisDataPerMnd by stromprisViewModel.dataPerMnd.collectAsState()
+    val scrollState = rememberScrollState()
     val context = LocalContext.current
     val dataStoreManager = remember { DataStoreManager(context) }
 
+    var isMetSelected by remember { mutableStateOf(true) }
+    var showDialog by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(true) }
+    var selectedMonth by remember { mutableStateOf<String?>(null) }
+    var selectedKwh by remember { mutableStateOf<String?>(null) }
 
-    // Strompris data:
-    val stromprisDataPerMnd by stromprisViewModel.dataPerMnd.collectAsState()
-    val scrollState = rememberScrollState()
-
-
-
-
-
-
-
-
-
-    val adress = if (ctx.address != null) ctx.address else "adresse er ukjent"
-    val panelPrice = if (ctx.input?.panel != null) ctx.input.panel.pris else 0
-    val wPerPanel = ctx.input?.panel?.effekt?.toDouble()
-    val kwpPerPanel = ((wPerPanel ?: 1.0) / 1000.0)
+    val address = if (ctx.address != null) ctx.address else "adresse er ukjent"
     val roofLength = ctx.input?.length?.toDouble()
     val roofWidth = ctx.input?.width?.toDouble()
     val panelLength = ctx.input?.panel?.len
     val panelWidth = ctx.input?.panel?.width
     val panelArel = if (panelLength != null && panelWidth != null) panelLength * panelWidth else 0.0
-    val numPanel = calculateNumPanels(roofLength = roofLength, roofWidth = roofWidth, panelLength = panelLength, panelWidth = panelWidth)
+    val numPanel = calculateNumPanels(roofLength, roofWidth, panelLength, panelWidth)
     val totalPanelAreal = numPanel * panelArel
-    val totalPanelPrice =  numPanel * panelPrice
+    val panelPrice = ctx.input?.panel?.pris ?: 0
+    val totalPanelPrice = numPanel * panelPrice
 
-
-
-
-
-    weatherList?.dailyObservation?.forEach { (date, weatherDataList) ->
-        var temperatur: Double? = null
-        var solinnstraling: Double? = null
-
-        weatherDataList.dataList.forEach { weatherData ->
-            when (weatherData.elementId) {
-                "mean(air_temperature P1D)" -> temperatur = weatherData.value
-                "mean(solar_irradiance P1D)" -> solinnstraling = weatherData.value
-            }
-        }
-
+    val calculatedMetData = remember(weatherList, ctx.input) {
+        val result = mutableListOf<Pair<Instant, Double>>()
         val angle = ctx.input?.angle
         val dir = ctx.input?.direction
 
-        if (temperatur != null && solinnstraling != null && angle != null && dir != null) {
-            isLoading = false
-            val produksjon = beregnStromproduksjon(
-                areal = totalPanelAreal,
-                vinkel = angle,
-                temperatur = temperatur,
-                solinnstraling = solinnstraling,
-                direction = dir
+        weatherList?.dailyObservation?.forEach { (date, weatherDataList) ->
+            var temperatur: Double? = null
+            var solinnstraling: Double? = null
+
+            weatherDataList.dataList.forEach { weatherData ->
+                when (weatherData.elementId) {
+                    "mean(air_temperature P1D)" -> temperatur = weatherData.value
+                    "mean(solar_irradiance P1D)" -> solinnstraling = weatherData.value
+                }
+            }
+
+            if (temperatur != null && solinnstraling != null && angle != null && dir != null) {
+                isLoading = false
+                val produksjon = beregnStromproduksjon(
+                    areal = totalPanelAreal,
+                    vinkel = angle,
+                    temperatur = temperatur,
+                    solinnstraling = solinnstraling,
+                    direction = dir
+                )
+                result.add(Pair(date, produksjon))
+            }
+        }
+        result
+    }
+
+    val calculatedPvgisData = remember(pvgisSolData, weatherList, ctx.input) {
+        val result = mutableListOf<Double>()
+        val angle = ctx.input?.angle ?: 35
+        val weatherEntries = weatherList?.dailyObservation ?: emptyList()
+
+        pvgisSolData.forEachIndexed { index, solinnstraaling ->
+            val temperatur = weatherEntries.getOrNull(index * 30)?.second?.dataList
+                ?.firstOrNull { it.elementId == "mean(air_temperature P1D)" }?.value ?: 25.0
+
+            val beregnet = ProductionCalc(
+                panelLengde = ctx.input?.length ?: 0,
+                panelBredde = ctx.input?.width ?: 0,
+                panelVinkel = angle,
+                luftTemperatur = temperatur,
+                solinnstraling = solinnstraaling
             )
 
-            // Legg til i lista
-            calculatedMetData.add(Pair(date, produksjon))
+            result.add(BigDecimal(beregnet).setScale(2, RoundingMode.HALF_UP).toDouble())
         }
-        Log.i("testNoe", "metdata caclulated: $calculatedMetData")
+        result
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    val weatherEntries = weatherList?.dailyObservation ?: emptyList()
-
-    pvgisSolData.forEachIndexed { index, solinnstraaling ->
-        val weatherIndex = index * 30  // Henter omtrent én verdi per måned
-
-        val temperatur = weatherEntries.getOrNull(weatherIndex)?.second?.dataList
-            ?.firstOrNull { it.elementId == "mean(air_temperature P1D)" }
-            ?.value ?: 25.0  //  hvis mangler temp
-
-        val length = ctx.input?.length ?: 0
-        val width = ctx.input?.width ?: 0
-        val angle = ctx.input?.angle ?: 35
-
-        val beregnet = ProductionCalc(
-            panelLengde = length,
-            panelBredde = width,
-            panelVinkel = angle,
-            luftTemperatur = temperatur,
-            solinnstraling = solinnstraaling
-        )
-
-        val avrundet =  BigDecimal(beregnet).setScale(2, RoundingMode.HALF_UP).toDouble()
-        calculatedPvgisData.add(avrundet)
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-    // ---- Generere månedlige målinger ----
 
     val metData = remember(calculatedMetData) {
         convertMetToMeasurements(calculatedMetData)
@@ -194,13 +124,12 @@ fun InfoScreen(
     }
 
     val displayedData = if (isMetSelected) metData else pvgisData
-    val direction = ctx.input?.direction ?: 0  // fallback til sør
+    val direction = ctx.input?.direction ?: 0
     val moneySavedList = calcMoneySaved(direction, stromprisDataPerMnd, displayedData)
-    var selectedMonth by remember { mutableStateOf<String?>(null) }
-    var selectedKwh by remember { mutableStateOf<String?>(null) }
     val totalMoneySaved = moneySavedList.sum()
+    val totalProduksjon = calculatedMetData.sumOf { it.second }
 
-    // Fetcher fra stromAPI
+
     LaunchedEffect(ctx.stromdistrikt) {
         stromprisViewModel.fetchStromData(ctx.stromdistrikt)
     }
@@ -211,21 +140,12 @@ fun InfoScreen(
         }
     }
 
-
-
-
-
-
-
-
-
-
     Column(modifier = modifier
         .padding(20.dp)
         .verticalScroll(scrollState)) {
 
         Text(
-            text = "$adress",
+            text = "$address",
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 26.sp,
@@ -235,11 +155,7 @@ fun InfoScreen(
                 .padding(top = 16.dp, bottom = 8.dp)
         )
 
-
-
         Spacer(modifier = Modifier.height(16.dp))
-
-
 
         // Takflate-verdier boks
         Card(
@@ -325,14 +241,10 @@ fun InfoScreen(
                     }
                 }
 
-
-
                 Spacer(modifier = Modifier.height(8.dp))
 
             }
         }
-
-
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -340,32 +252,14 @@ fun InfoScreen(
         val wPerPanel = ctx.input?.panel?.effekt?.toDouble()
         val kwpPerPanel = ((wPerPanel ?: 1.0) / 1000.0)
 
-        val roofLength = ctx.input?.length?.toDouble()
-        val roofWidth = ctx.input?.width?.toDouble()
-        val panelLength = ctx.input?.panel?.len
-        val panelWidth = ctx.input?.panel?.width
-
-
-
-
-
-
         EnovaCard(calculateEnova(kwpPerPanel, numPanel))
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        val produksjonsMap: MutableMap<Instant, Double> = calculatedMetData.toMap().toMutableMap()
-        totalProduksjon.value = produksjonsMap.values.sum()
-
-        CoffeeCard(calculateCoffe(totalProduksjon.value) )
-        Log.i("testcoffee", "coffedata: ${calculateCoffe(totalProduksjon.value)}")
+        CoffeeCard(calculateCoffe(totalProduksjon) )
+        Log.i("testcoffee", "coffedata: ${calculateCoffe(totalProduksjon)}")
 
         Spacer(modifier = Modifier.height(32.dp))
-
-
-
-
-
 
         // ---- graf + switch + saved money for each month ----
         Column {
@@ -459,8 +353,6 @@ fun InfoScreen(
             }
         }
 
-
-
         // ---- Button for saving adress ----
         Button(
             onClick = {
@@ -470,9 +362,7 @@ fun InfoScreen(
         ) {
             Text("Lagre adresse")
         }
-
-
-
+        
         // ---- popUp for saved adress ----
         AddressNamePopup(
             showDialog = showDialog,
