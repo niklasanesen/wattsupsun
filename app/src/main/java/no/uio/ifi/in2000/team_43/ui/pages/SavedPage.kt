@@ -22,6 +22,10 @@ import androidx.compose.ui.Alignment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+<<<<<<< HEAD
+import androidx.compose.runtime.rememberCoroutineScope
+=======
+>>>>>>> 7830a4d03c34043f780b30a05e29101411546f55
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 

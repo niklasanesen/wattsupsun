@@ -152,10 +152,48 @@ fun SatelliteScreen(
                 }
             }
 
+<<<<<<< HEAD
+
+            //Undo last point button
+            if (points.isNotEmpty()) {
+                Button(
+                    onClick = {
+                        if (points.isNotEmpty()) {
+                            points = points.dropLast(1)
+                        }
+                    },
+                    enabled = points.isNotEmpty(),
+                ) {
+                    Text("Angre punkt")
+                }
+            }
+
+            else if (savedPolygon.isNotEmpty()) {
+                // Trash button
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Button(
+                        onClick = {
+                            registeredPolygon = false
+                            savedPolygon.remove(savedPolygon.first())
+                            areaInSquareMeters = 0
+                        },
+                        enabled = savedPolygon.isNotEmpty(),
+                        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error)
+
+                    ) {
+                        Text("Slett takflate")
+=======
             when {
                 points.isNotEmpty() -> {
                     Button(onClick = { satelliteViewModel.undoLastPoint() }) {
                         Text("Angre punkt")
+>>>>>>> 7830a4d03c34043f780b30a05e29101411546f55
                     }
                 }
 
