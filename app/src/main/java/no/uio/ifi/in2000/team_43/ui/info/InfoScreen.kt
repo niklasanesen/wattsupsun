@@ -246,27 +246,27 @@ fun InfoScreen(
             }
         }
 
+
+        // Coffee card on screen
         Spacer(modifier = Modifier.height(12.dp))
+        CoffeeCard(calculateCoffe(totalProduksjon) )
+        Log.i("testcoffee", "coffedata: ${calculateCoffe(totalProduksjon)}")
 
         // Enova on infoscreen:
         val wPerPanel = ctx.input?.panel?.effekt?.toDouble()
         val kwpPerPanel = ((wPerPanel ?: 1.0) / 1000.0)
-
-        EnovaCard(calculateEnova(kwpPerPanel, numPanel))
-
         Spacer(modifier = Modifier.height(12.dp))
-
-        // Coffee card on screen
-        CoffeeCard(calculateCoffe(totalProduksjon) )
-        Log.i("testcoffee", "coffedata: ${calculateCoffe(totalProduksjon)}")
+        EnovaCard(calculateEnova(kwpPerPanel, numPanel))
 
 
         // Total money card on screen
         Spacer(modifier = Modifier.height(12.dp))
-        TotalMoneyAnimated(100.0)
-        Spacer(modifier = Modifier.height(32.dp))
+        TotalMoneyAnimated(totalMoneySaved.toDouble(), isLoading )
+
+
 
         // ---- graf + switch + saved money for each month ----
+        Spacer(modifier = Modifier.height(32.dp))
         Column {
             when {
                 isLoading -> {

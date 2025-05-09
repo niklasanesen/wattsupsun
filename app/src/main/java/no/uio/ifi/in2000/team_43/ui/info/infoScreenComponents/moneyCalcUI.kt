@@ -22,9 +22,8 @@ import androidx.compose.animation.core.tween
 
 
 @Composable
-fun TotalMoneyAnimated(supportAmount: Double) {
+fun TotalMoneyAnimated(supportAmount: Double, isLoading: Boolean) {
     var flipped by remember { mutableStateOf(false) }
-    // This is great ngl
     val rotation by animateFloatAsState(
         targetValue = if (flipped) 180f else 0f,
         animationSpec = tween(durationMillis = 700),
@@ -43,68 +42,74 @@ fun TotalMoneyAnimated(supportAmount: Double) {
                 rotationY = rotation
                 cameraDistance = 8 * density
             }
-            .clickable { flipped = !flipped },
+            // Disable flip when loading
+            .then(if (isLoading) Modifier else Modifier.clickable { flipped = !flipped }),
         contentAlignment = Alignment.Center
     ) {
-        if (rotation <= 90f) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(8.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = backgroundColor)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Top
-                    ) {
+        if (isLoading) {
+            CalculatingCard("Teller pengene - snart klart!")
+        } else {
+            if (rotation <= 90f) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(8.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = backgroundColor)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            Text(
+                                text = "Estimert årlig inntjening",
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 20.sp,
+                                    color = textColor
+                                )
+                            )
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = "Mer info",
+                                tint = textColor
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
                         Text(
-                            text = "Estimert årlig inntjening",
-                            style = MaterialTheme.typography.bodyLarge.copy(
+                            text = "${supportAmount.toInt()} kr",
+                            style = MaterialTheme.typography.headlineMedium.copy(
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 20.sp,
                                 color = textColor
                             )
                         )
-                        Icon(
-                            imageVector = Icons.Default.Info,
-                            contentDescription = "Mer info",
-                            tint = textColor
+                    }
+                }
+            } else {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp)
+                        .graphicsLayer { rotationY = 180f },
+                    elevation = CardDefaults.cardElevation(8.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isZeroSupport) Color(0xFFFFE0E0) else Color(0xFFE0F2F1)
+                    )
+                ) {
+                    Box(modifier = Modifier.padding(16.dp), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "Beregningene er basert på METs klimadata og strømpriser for 2024. Faktisk inntjening avhenger av fremtidig vær og strømpriser.",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = if (isZeroSupport) Color(0xFFB00020) else Color(0xFF006064),
+                                fontWeight = FontWeight.Medium
+                            ),
+                            textAlign = TextAlign.Center
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text =
-                            "${supportAmount.toInt()} kr",
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = textColor
-                        )
-                    )
-                }
-            }
-        } else {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .graphicsLayer { rotationY = 180f },
-                elevation = CardDefaults.cardElevation(8.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = if (isZeroSupport) Color(0xFFFFE0E0) else Color(0xFFE0F2F1))
-            ) {
-                Box(modifier = Modifier.padding(16.dp), contentAlignment = Alignment.Center) {
-                    Text(
-                        text = "Beregningene er basert på METs klimadata og strømpriser for 2024. Faktisk inntjening avhenger av fremtidig vær og strømpriser.",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = if (isZeroSupport) Color(0xFFB00020) else Color(0xFF006064),
-                            fontWeight = FontWeight.Medium
-                        ),
-                        textAlign = TextAlign.Center
-                    )
                 }
             }
         }
@@ -113,12 +118,53 @@ fun TotalMoneyAnimated(supportAmount: Double) {
 
 
 
+@Composable
+fun CalculatingCard(text: String) {
+    // color when calc
+    val calculatingBackgroundColor =  Color(0xFFE0F2F1)
+    val calculatingTextColor = Color(0xFF006064)
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp),
+        elevation = CardDefaults.cardElevation(8.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = calculatingBackgroundColor)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CircularProgressIndicator(
+                color = calculatingTextColor,
+                modifier = Modifier
+                    .size(60.dp)
+                    .padding(8.dp)
+            )
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    color = calculatingTextColor
+                ),
+                textAlign = TextAlign.Start
+            )
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun TotalMoneyAnimatedPreview() {
     Column(modifier = Modifier.padding(16.dp)) {
-        TotalMoneyAnimated(supportAmount = 18500.0)
+        TotalMoneyAnimated(supportAmount = 18500.0, false)
         Spacer(modifier = Modifier.height(16.dp))
-        TotalMoneyAnimated(supportAmount = 0.0)
+        TotalMoneyAnimated(supportAmount = 0.0, false)
+        TotalMoneyAnimated(supportAmount = 0.0, true)
+        
     }
 }
