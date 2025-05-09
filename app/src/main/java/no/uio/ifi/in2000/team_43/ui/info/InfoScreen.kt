@@ -260,8 +260,35 @@ fun InfoScreen(
 
 
         // Total money card on screen
+        // pls ask before touching any of this
         Spacer(modifier = Modifier.height(12.dp))
-        TotalMoneyAnimated(totalMoneySaved.toDouble(), isLoading )
+        if (isLoading) {
+            CalculatingCardBox("Teller mynter - snart klart!")
+        } else {
+            // Soory for this bad code
+            val show = totalMoneyAnimated(totalMoneySaved.toDouble() )
+            if((show < 0) && (totalMoneySaved == 0.0.toFloat())) {
+                CalculatingCardBox("Teller mynter - snart klart!")
+            }
+        }
+
+        // total price for panels
+        Spacer(modifier = Modifier.height(12.dp))
+        if (isLoading) {
+            CalculatingCardBox("Teller mynter - snart klart!")
+        } else {
+            // Soory for this bad code
+            // pls ask before touching this, might break easly
+            val haaland = totalPriceAnimated(numPanel, totalPanelPrice)
+            if(haaland < 0) {
+                CalculatingCardBox("Teller mynter - snart klart!")
+            }
+        }
+
+
+
+
+
 
 
 
