@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.team_43.ui.input
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -75,6 +76,8 @@ import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
 fun InputScreen(
     modifier: Modifier = Modifier,
     ctx: Ctx,
+    metViewModel: MetViewModel? = null,
+    pvgisViewModel: PVGISViewModel? = null,
     onNextBtnClicked: (input: Input) -> Unit,
     navController: NavHostController = rememberNavController(),
     inputViewModel: InputViewModel = viewModel()
@@ -84,14 +87,11 @@ fun InputScreen(
         backStackEntry?.destination?.route ?: HomeScreen.Input.name
     )
 
-    val metViewModel: MetViewModel = viewModel()
-    val pvgisViewModel: PVGISViewModel = viewModel()
-
     LaunchedEffect(ctx.coords) {
         val newCoordinates = ctx.coords
-
+        Log.d("InputScreen", "ctx.coords = ${ctx.coords} and lastCoordinates = ${CoordinateCache.lastCoordinates}")
         if (newCoordinates != null && newCoordinates != CoordinateCache.lastCoordinates) {
-
+            CoordinateCache.lastCoordinates = newCoordinates
             metViewModel?.fetchWeatherData(Coordinates(newCoordinates.latitude(), newCoordinates.longitude()))
             pvgisViewModel?.fetchPVGISData(Coordinates(newCoordinates.latitude(), newCoordinates.longitude()))
         }

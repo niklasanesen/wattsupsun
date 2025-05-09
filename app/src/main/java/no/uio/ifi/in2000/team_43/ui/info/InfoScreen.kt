@@ -34,7 +34,7 @@ import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.*
 @Composable
 fun InfoScreen(
     modifier: Modifier = Modifier,
-    metViewModel: MetViewModel = viewModel(),
+    metViewModel: MetViewModel,
     pvgisViewModel: PVGISViewModel = viewModel(),
     stromprisViewModel: StromprisViewModel = viewModel(),
     ctx: Ctx

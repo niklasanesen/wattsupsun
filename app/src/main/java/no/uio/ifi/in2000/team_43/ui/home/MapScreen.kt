@@ -143,11 +143,10 @@ fun MapScreen(
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Button(
                                 onClick = {
-                                    Log.d("shalom", "jeg skal ikke aktivers enda")
-                                    if (coords != null && address != null) {
-                                        onInputBtnClicked(coords, address, stromdistrikt)
+                                    if (coords != null) {
+                                    onInputBtnClicked(coords, address, stromdistrikt)
                                     }
-                                },
+                                          },
                                 enabled = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = ButtonDefaults.buttonColors(containerColor = Purple40)
@@ -240,9 +239,7 @@ fun MapScreen(
                         )
                     }
                     Button(
-                        onClick = {
-                            showDialog = true
-                            CoordinateCache.lastCoordinates = coords },
+                        onClick = { showDialog = true },
                         enabled = true,
                         shape = RoundedCornerShape(
                             topStart = 0.dp,
