@@ -1,6 +1,7 @@
 package no.uio.ifi.in2000.team_43.ui.info
 
 // --- Standard imports ---
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -53,11 +54,11 @@ fun InfoScreen(
     var isMetSelected by remember { mutableStateOf(true) }
     var showDialog by remember { mutableStateOf(false) }
 
-
-    val produksjonsMap: MutableMap<Instant, Double> = calculatedMetData.toMap().toMutableMap()
     val totalProduksjon = remember { mutableStateOf(0.0) }
 
-    totalProduksjon.value = produksjonsMap.values.sum()
+
+
+
 
     // ---- crate context for data storage ----
     val context = LocalContext.current
@@ -120,9 +121,10 @@ fun InfoScreen(
             // Legg til i lista
             calculatedMetData.add(Pair(date, produksjon))
         }
+        Log.i("testNoe", "metdata caclulated: $calculatedMetData")
     }
 
-    totalProduksjon.value = produksjonsMap.values.sum()
+
 
 
 
@@ -334,6 +336,91 @@ fun InfoScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
+<<<<<<< HEAD
+        // NED HIT
+        when (ctx.input?.direction) {
+            0 -> {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    backgroundColor = Color(0xFFFFCDD2) // Lys rød bakgrunn
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Nord: Basert på retningen du har valgt lønner det seg ikke å ha solcellepaneler.",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = Color(0xFFB71C1C) // Mørkere rød tekst
+                            ),
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
+                }
+            }
+            90 -> {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    backgroundColor = Color(0xFFC8E6C9) // Lys grønn bakgrunn
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Øst: Basert på retningen du har valgt genererer du mest strøm på starten av dagen.",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = Color(0xFF388E3C) // Mørkere grønn tekst
+                            ),
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
+                }
+            }
+            180 -> {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    backgroundColor = Color(0xFFC8E6C9) // Lys grønn bakgrunn
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Sør: Basert på retningen  du har valgt lønner det seg å ha solcellepaneler.",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = Color(0xFF388E3C) // Mørkere grønn tekst
+                            ),
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
+                }
+            }
+            270 -> {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    backgroundColor = Color(0xFFC8E6C9) // Lys grønn bakgrunn
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Vest: Basert på retningen du har valgt genererer du mest strøm på slutten av dagen.",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = Color(0xFF388E3C) // Mørkere grønn tekst
+                            ),
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
+                }
+            }
+        }
+=======
         // Enova on infoscreen:
         val wPerPanel = ctx.input?.panel?.effekt?.toDouble()
         val kwpPerPanel = ((wPerPanel ?: 1.0) / 1000.0)
@@ -352,7 +439,12 @@ fun InfoScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        val produksjonsMap: MutableMap<Instant, Double> = calculatedMetData.toMap().toMutableMap()
+        totalProduksjon.value = produksjonsMap.values.sum()
+
         CoffeeCard(calculateCoffe(totalProduksjon.value) )
+        Log.i("testcoffee", "coffedata: ${calculateCoffe(totalProduksjon.value)}")
+>>>>>>> 7830a4d03c34043f780b30a05e29101411546f55
 
         Spacer(modifier = Modifier.height(32.dp))
 
