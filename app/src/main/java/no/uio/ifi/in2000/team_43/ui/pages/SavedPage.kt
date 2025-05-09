@@ -50,7 +50,7 @@ fun SavedPage(
             AddressDetailPage(
                 address = address,
                 navController = navController,
-                modifier = Modifier
+                modifier = modifier
             )
         }
     }
