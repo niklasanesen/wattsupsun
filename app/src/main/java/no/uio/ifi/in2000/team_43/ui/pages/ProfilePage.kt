@@ -12,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,10 +41,14 @@ import androidx.compose.ui.unit.sp
 import no.uio.ifi.in2000.team_43.R
 import no.uio.ifi.in2000.team_43.ui.theme.Purple40
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TextButton
@@ -142,47 +147,69 @@ fun ProfilePage(modifier: Modifier = Modifier) {
             // verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(40.dp))
-            Box(
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Card (
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                ),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 10.dp
+                ),
                 modifier = Modifier
-                    .width(200.dp)
-                    .height(200.dp)
-                    .clip(CircleShape)
-                    .clickable { showPhotoOptDialog = true }
-                    .background(Color(0xFFE0E0E0)),
-                contentAlignment = Alignment.Center,
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
             ) {
-                if (profilePhotoUri.isNotEmpty()) {
-                    Image(
-                        painter = rememberAsyncImagePainter(Uri.parse(profilePhotoUri)),
-                        contentDescription = "profile",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "profile",
-                        tint = Purple40,
-                        modifier = Modifier.size(125.dp)
-                    )
+                Row (
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(20.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(140.dp)
+                            .clip(CircleShape)
+                            .clickable { showPhotoOptDialog = true }
+                            .background(Color.White),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (profilePhotoUri.isNotEmpty()) {
+                            Image(
+                                painter = rememberAsyncImagePainter(Uri.parse(profilePhotoUri)),
+                                contentDescription = "profile",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "profile",
+                                tint = Purple40,
+                                modifier = Modifier.size(124.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.padding(12.dp))
+
+                    Box(modifier = Modifier.clickable { showDialog = true }) {
+                        Text(
+                            text = if (firstname.isBlank() && lastname.isBlank()) "Fornavn \nEtternavn" else "$firstname \n$lastname",
+                            fontSize = 28.sp,
+                            modifier = Modifier.padding(end = 20.dp),
+                            lineHeight = 34.sp
+                        )
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "edit name",
+                            tint = Purple40,
+                            modifier = Modifier
+                                .size(16.dp)
+                                .align(Alignment.TopEnd)
+                        )
+                    }
                 }
-            }
-            Spacer(modifier = Modifier.padding(16.dp))
-            Box(modifier = Modifier.clickable { showDialog = true }) {
-                Text(
-                    text = if (firstname.isBlank() && lastname.isBlank()) "Fornavn Etternavn" else "$firstname $lastname",
-                    fontSize = 28.sp,
-                    modifier = Modifier.padding(end = 20.dp)
-                )
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "edit name",
-                    tint = Purple40,
-                    modifier = Modifier
-                        .size(16.dp)
-                        .align(Alignment.TopEnd)
-                )
             }
             Spacer(modifier = Modifier.padding(16.dp))
             Button(
