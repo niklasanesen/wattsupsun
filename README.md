@@ -6,6 +6,7 @@
 <p align="center">
     <i>~ Laget av Kristin, Niklas, Jonatan, Danial, Affaq og Kavin ~</i>
 </p>
+<br/>
 
 WattsUpSun er en app designet for huseiere som ønsker å vurdere lønnsomheten av solcellepaneler. Appen lar huseier enkelt slå opp adresse, tegne takflate og legge inn areal/vinkel/retning for å beregne forventet strømproduksjon.
 
@@ -21,19 +22,31 @@ Deretter kan du åpne prosjektet i Android Studio, og kjøre appen i en emulator
 
 ## Datakilder
 
+Korrekt og oppdatert data er essensielt for å få mest mulig nøyaktig beregning, derfor henter vi data fra flere pålitelige kilder:
+
 - Værdata fra [Frost](https://frost.met.no).
-- Kart fra [Mapbox](https://mapbox.com).
 - Strømpriser fra [HvaKosterStrømmen](https://www.hvakosterstrommen.no/strompris-api).
-- [PVGIS](https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en) for å sammenlinke solstrålingsdata.
+- Kart- og lokasjonsdata fra [Mapbox](https://mapbox.com).
+- Solstrålingsdata fra [PVGIS](https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en) for å sammenlikne med [Frost](https://frost.met.no).
 
-## Arkitektur
+## Tillatelser
 
-Dataflyten og filstrukturen vår er inspirert av [Model–view–viewmodel](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel) arkitekturen, noe som blant annet hjelper oss å holde UI og API logikk separat. Dette er viktig for å holde kodebasen enkel og oversiktig når prosjektet blir mer komplekst.
+For å få mest mulig ut av appen og all funksjoneliteten den tilbyr, må appen ha tilgang til visse systemfunksjoner som er står definert i `AndroidManifest.xml` filen:
 
-<img src="app/src/main/res/drawable/arkitektur.png" alt="arkitektur">
+- `INTERNET`. Som nevnt tidligere henter appen data fra diverse datakilder, og trenger naturligvis internett-tilgang for å gjøre det.
+- `CAMERA` og `READ_MEDIA_IMAGES`. Lar bruker legge til et profilbilde, enten med kameraet eller fra galleriet.
+- `READ_EXTERNAL_STORAGE` og `WRITE_EXTERNAL_STORAGE`. Gjør at appen kan lagre informasjon lokalt på brukerens enhet, som gjøres blant annet med profil- og adressedata.
+
+## Biblioteker
+
+Slik moderne utvikling har blitt til er det stort fokus på biblioteker for å unngå “_reinventing the wheel_”. Vi har ikke gjort noe annerledes, og bruker blant annet biblioteker fra forelesningene og obligene: `Jetpack Compose`, `Ktor`, `Navigation Compose`, `Material3`, `Coil`, og en del mer niche biblioteker:
+
+- `Mapbox`: alt av kartfunksjoner, søk og autocomplete.
+- `Turf`: for å kunne tegne på kartet.
+- `MPAndroidChart`: graf til visualisering av solstrålingsdata.
+- `DataStore`: persistent lagring av data lokalt på enheten.
+- `JUnit`, `Mockk`, `Mockito`, `Turbine` og `Robolectric`: testing og mocking av alt fra UI til API.
 
 ## Credits
 
-- Vi har tatt litt inspirasjon fra [otovo](https://www.otovo.no).
-- Takk til Fredrik Løvoll som hjalp oss med `reverseGeocode` koden.
-- TODO: legg til link til den sida med alt av beregninger...
+Takk til Fredrik Løvoll som hjalp oss med `reverseGeocode` koden.

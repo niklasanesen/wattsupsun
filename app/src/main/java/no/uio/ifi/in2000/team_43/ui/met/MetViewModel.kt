@@ -73,7 +73,7 @@ fun beregnEffekttap(produksjon: Double, avvikVinkel: Double): Double {
     return produksjon * effektTap.coerceAtLeast(0.0) // unngå negativt resultat
 }
 
-fun generateMonthlyMeasurements(data: List<Pair<Instant, Double>>): List<GrafMeasurement> {
+fun convertMetToMeasurements(data: List<Pair<Instant, Double>>): List<GrafMeasurement> {
     return data
         .map { (instant, value) ->
             val zdt = instant.atZone(ZoneId.systemDefault())

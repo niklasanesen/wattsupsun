@@ -1,6 +1,7 @@
 package no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations
 
 import android.util.Log
+import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.model.garfStuff.GrafMeasurement
 import no.uio.ifi.in2000.team_43.model.stromPris.StromprisRes
 
