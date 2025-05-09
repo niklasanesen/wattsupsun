@@ -4,7 +4,7 @@ Velkommen til WattsUpSuns arkitektur guide! I denne guiden får du en oversikt o
 
 ## MVVM
 
-Dataflyten og filstrukturen vår er inspirert av Model–view–viewmodel arkitekturen, noe som blant annet hjelper oss å holde UI og API logikk separat. Dette er viktig for å holde kodebasen enkel og oversiktlig når prosjektet blir mer komplekst.
+Dataflyten og filstrukturen vår er inspirert av [Model–view–viewmodel (MVVM)](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel) arkitekturen. Dette hjelper oss blant annet å holde UI og API logikk separat, som er viktig for å holde kodebasen intuitiv og oversiktlig, spesielt når prosjektet blir mer og mer komplekst.
 
 ## Filstruktur
 
