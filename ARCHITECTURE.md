@@ -1,6 +1,6 @@
 # Arkitektur
 
-Velkommen til WattsUpSuns arkitektur guide! I denne guiden får du en oversikt over hvordan appen er strukturert, hvilke kodestil- og arkitekturvalg vi har tatt, og generelt hvordan du kan videreutvikle appen.
+Velkommen til WattsUpSuns arkitektur guide! I denne guiden får du en oversikt over hvordan prosjektet er strukturert, hvilke kodestil- og arkitekturvalg vi har tatt, og generelt hvordan du kan sette deg inn og videreutvikle appen vår.
 
 ## MVVM
 
