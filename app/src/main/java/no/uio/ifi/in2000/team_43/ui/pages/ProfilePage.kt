@@ -74,6 +74,8 @@ import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
 import no.uio.ifi.in2000.team_43.ui.info.AddressDetailPage
 import java.io.File
 import androidx.core.net.toUri
+import androidx.navigation.NavController
+import no.uio.ifi.in2000.team_43.ui.home.WelcomeScreen
 
 @Composable
 fun ProfilePage(modifier: Modifier = Modifier) {
@@ -86,7 +88,8 @@ fun ProfilePage(modifier: Modifier = Modifier) {
                 onCardClick = { address ->
                     val json = Gson().toJson(address)
                     navController.navigate("detail/$json")
-                }
+                },
+                navController = navController
             )
         }
         composable(
@@ -101,13 +104,21 @@ fun ProfilePage(modifier: Modifier = Modifier) {
                 modifier = modifier
             )
         }
+        composable("appinfo") {
+            WelcomeScreen(
+                onGetStartedClick = {
+                    navController.navigate("profile")
+                }
+            )
+        }
     }
 }
 
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
-    onCardClick: (LagreAdresse) -> Unit = {}
+    onCardClick: (LagreAdresse) -> Unit = {},
+    navController: NavController
 ){
     val context = LocalContext.current
     val dataStoreManager = remember { DataStoreManager(context) }
@@ -209,11 +220,11 @@ fun ProfileScreen(
             ) {
                 Row (
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(20.dp)
+                    modifier = Modifier.padding(24.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(120.dp)
+                            .size(80.dp)
                             .clip(CircleShape)
                             .clickable { showPhotoOptDialog = true }
                             .background(Color.White),
@@ -238,32 +249,57 @@ fun ProfileScreen(
 
                     Spacer(modifier = Modifier.padding(12.dp))
 
-                    Box(modifier = Modifier.clickable { showDialog = true }) {
-                        Text(
-                            text = if (firstname.isBlank() && lastname.isBlank()) "Fornavn \nEtternavn" else "$firstname \n$lastname",
-                            fontSize = 26.sp,
-                            modifier = Modifier.padding(end = 20.dp),
-                            lineHeight = 34.sp,
-                            color = Color.White
-                        )
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "edit name",
-                            tint = Color.White,
-                            //tint = Purple40,
-                            modifier = Modifier
-                                .size(16.dp)
-                                .align(Alignment.TopEnd)
-                        )
+                    Column() {
+                        Box(modifier = Modifier.clickable { showDialog = true }) {
+                            Text(
+                                text = if (firstname.isBlank() && lastname.isBlank()) "Fornavn Etternavn" else "$firstname $lastname",
+                                fontSize = 26.sp,
+                                modifier = Modifier.padding(end = 20.dp),
+                                lineHeight = 34.sp,
+                                color = Color.White
+                            )
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "edit name",
+                                tint = Color.White,
+                                //tint = Purple40,
+                                modifier = Modifier
+                                    .size(16.dp)
+                                    .align(Alignment.TopEnd)
+                            )
+                        }
+
+                        Row {
+                            Text(
+                                text = "${addresses.size} lagrede adresser",
+                                color = Color.White,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Column (
                 modifier = Modifier.padding(horizontal = 20.dp),
             ) {
+                Button(
+                    onClick = { navController.navigate("appinfo") },
+                    enabled = true,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xff3b7d9c)
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp)
+                ) {
+                    Text("Info om appen")
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
                 Button(
                     onClick = {},
                     enabled = true,
@@ -272,12 +308,12 @@ fun ProfileScreen(
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
+                        .height(44.dp)
                 ) {
                     Text("Innstillinger")
                 }
 
-                Spacer(modifier = Modifier.padding(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
                 // Personvernerklæringsknapp
                 Button(
@@ -291,7 +327,7 @@ fun ProfileScreen(
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
+                        .height(44.dp)
                 ) {
                     Text("Personvernerklæring")
                 }
@@ -427,7 +463,7 @@ fun ProfileScreen(
                     text = {
                         Text(
                             "Vi samler ikke inn noen informasjon om deg. " +
-                                    "All data du legger inn lagres kun lokalt på mobilen din og deles aldri med noen.",
+                                    "All data du legger inn lagres kun lokalt på mobilen din og deles ikke.",
                             lineHeight = 20.sp
                         )
                     },
