@@ -322,7 +322,7 @@ fun InfoScreen(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = selectedMonth?.let { "${getMonthName(it.toInt())}" }
+                        text = selectedMonth?.let { getMonthName(it.toInt()) }
                             ?: "Trykk på grafen",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
@@ -362,7 +362,7 @@ fun InfoScreen(
         ) {
             Text("Lagre adresse")
         }
-        
+
         // ---- popUp for saved adress ----
         AddressNamePopup(
             showDialog = showDialog,
@@ -390,6 +390,3 @@ fun InfoScreen(
         )
     }
 }
-
-
-

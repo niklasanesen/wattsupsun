@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.team_43.ui.home
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -59,6 +60,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.sp
+import no.uio.ifi.in2000.team_43.data.CoordinateCache
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.model.stromdistrikt.StromDistrikt
 import no.uio.ifi.in2000.team_43.ui.theme.Purple40
@@ -83,6 +85,11 @@ fun MapScreen(
     var searchIsActive by remember { mutableStateOf(false) }
     var addressIsSelected by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        addressIsSelected = false
+        showDialog = false
+    }
 
     // keyboard stuff
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -135,7 +142,11 @@ fun MapScreen(
                     confirmButton = {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Button(
-                                onClick = { onInputBtnClicked(coords, address, stromdistrikt) },
+                                onClick = {
+                                    if (coords != null) {
+                                    onInputBtnClicked(coords, address, stromdistrikt)
+                                    }
+                                          },
                                 enabled = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = ButtonDefaults.buttonColors(containerColor = Purple40)
