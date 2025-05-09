@@ -1,12 +1,7 @@
 package no.uio.ifi.in2000.team_43
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.ui.test.filter
-import androidx.compose.ui.test.filterToOne
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onFirst
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -15,7 +10,6 @@ import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.model.input.Input
 import no.uio.ifi.in2000.team_43.model.panel.SunPanel
 import no.uio.ifi.in2000.team_43.ui.input.InputScreen
-import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import org.junit.Rule
 import org.junit.Test
 
@@ -34,20 +28,19 @@ class InputScreenTest {
         val fakeCtx =
             Ctx(coords = null, areal = null, address = null, input = null, stromdistrikt = null)
 
-        val fakeSelectedPanel = SunPanel("Sunwind 405W", pris = 3000, effekt = 405, bildeResId = R.drawable.sunwind405w_panel)
+        val fakeSelectedPanel = SunPanel("Sunwind 405W", pris = 3000, effekt = 405, bildeResId = R.drawable.sunwind405w_panel, len = 1.72, width = 1.12)
 
         composeTestRule.setContent {
             InputScreen(
                 ctx = fakeCtx,
-                metViewModel = null,
                 onNextBtnClicked = { input -> receivedInput = input },
             )
 
         }
 
         // Enter valid data
-        composeTestRule.onNodeWithText("Lengde").performTextInput("12")
-        composeTestRule.onNodeWithText("Bredde").performTextInput("8")
+        composeTestRule.onNodeWithText("Lengde i m").performTextInput("12")
+        composeTestRule.onNodeWithText("Bredde i m").performTextInput("8")
         composeTestRule.onNodeWithText("Takvinkel i °").performTextInput("30")
         composeTestRule.onNodeWithText("Sunwind 405W").performClick()
 

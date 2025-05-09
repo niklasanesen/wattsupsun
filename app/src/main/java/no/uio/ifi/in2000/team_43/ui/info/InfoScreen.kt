@@ -34,7 +34,7 @@ import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.*
 @Composable
 fun InfoScreen(
     modifier: Modifier = Modifier,
-    metViewModel: MetViewModel,
+    metViewModel: MetViewModel = viewModel(),
     pvgisViewModel: PVGISViewModel = viewModel(),
     stromprisViewModel: StromprisViewModel = viewModel(),
     ctx: Ctx
@@ -322,7 +322,7 @@ fun InfoScreen(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = selectedMonth?.let { "${getMonthName(it.toInt())}" }
+                        text = selectedMonth?.let { getMonthName(it.toInt()) }
                             ?: "Trykk på grafen",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
@@ -362,7 +362,7 @@ fun InfoScreen(
         ) {
             Text("Lagre adresse")
         }
-        
+
         // ---- popUp for saved adress ----
         AddressNamePopup(
             showDialog = showDialog,
@@ -390,6 +390,3 @@ fun InfoScreen(
         )
     }
 }
-
-
-

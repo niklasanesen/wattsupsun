@@ -1,6 +1,5 @@
 package no.uio.ifi.in2000.team_43.ui.pages
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -17,10 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -100,8 +97,6 @@ fun MapPage(
             composable(route = HomeScreen.Input.name) {
                 InputScreen(
                     ctx = ctx,
-                    metViewModel = metViewModel,
-                    pvgisViewModel = pvgisViewModel,
                     onNextBtnClicked = {
                         viewModel.setInput(it)
                         navController.navigate(HomeScreen.Info.name)

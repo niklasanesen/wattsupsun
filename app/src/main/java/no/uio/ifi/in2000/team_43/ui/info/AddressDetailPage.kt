@@ -39,6 +39,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mapbox.geojson.Point
+import no.uio.ifi.in2000.team_43.data.CoordinateCache
 import no.uio.ifi.in2000.team_43.model.PVGIS.MonthlyEntry
 import no.uio.ifi.in2000.team_43.model.garfStuff.GrafMeasurement
 import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
@@ -235,7 +236,9 @@ fun AddressDetailPage(
             val point: Point = Point.fromLngLat(address.latitude, address.longitude)
             LaunchedEffect(point.coordinates()) {
                 address.let {
-                    metViewModel.fetchWeatherData(Coordinates(it.latitude, it.longitude))
+                    if (it != CoordinateCache.lastCoordinates ) {
+                        metViewModel.fetchWeatherData(Coordinates(it.latitude, it.longitude))
+                    }
                 }
             }
 

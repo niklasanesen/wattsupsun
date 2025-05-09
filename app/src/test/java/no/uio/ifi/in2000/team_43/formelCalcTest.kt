@@ -34,92 +34,92 @@ class FormelTester {
     @Test
     fun beregnOptimalProduksjon() {
         // arrange
-        val lengde = 10
-        val bredde = 5
-        val vinkel = 35
-        val temperatur = 10.0
+        val areal = 10.0
+        val angle = 35
+        val temperature = 10.0
         val solinnstraling = 200.0
+        val direction = 8
 
         // act
         val resultat = beregnStromproduksjon(
-            lengde,
-            bredde,
-            vinkel,
-            temperatur,
-            solinnstraling
+            areal,
+            angle,
+            temperature,
+            solinnstraling,
+            direction,
         )
 
         // assert
-        val forventet = 10.0
+        val forventet = 2.0
         assertEquals(forventet, resultat, 0.01)
     }
 
     @Test
     fun temperaturOverOptimalGirLavereProduksjon() {
         // arrange
-        val lengde = 10
-        val bredde = 5
-        val vinkel = 35
-        val temperatur = 35.0
+        val areal = 10.0
+        val angle = 35
+        val temperature = 35.0
         val solinnstraling = 200.0
+        val direction = 8
 
         // act
         val resultat = beregnStromproduksjon(
-            lengde,
-            bredde,
-            vinkel,
-            temperatur,
-            solinnstraling
+            areal,
+            angle,
+            temperature,
+            solinnstraling,
+            direction
         )
 
         // assert
-        val forventet = 9.7
+        val forventet = 1.94
         assertEquals(forventet, resultat, 0.01)
     }
 
     @Test
     fun avvikendeVinkelGirEffekttap() {
         // arrange
-        val lengde = 10
-        val bredde = 5
-        val vinkel = 95
-        val temperatur = 25.0
+        val areal = 10.0
+        val angle = 95
+        val temperature = 25.0
         val solinnstraling = 200.0
+        val direction = 8
 
         // act
         val resultat = beregnStromproduksjon(
-            lengde,
-            bredde,
-            vinkel,
-            temperatur,
-            solinnstraling
+            areal,
+            angle,
+            temperature,
+            solinnstraling,
+            direction
         )
 
         // assert
-        val forventet = 4.0
+        val forventet = 0.8
         assertEquals(forventet, resultat, 0.01)
     }
 
     @Test
     fun temperaturOgVinkelGirKombinertEffekttap() {
         // arrange
-        val lengde = 10
-        val bredde = 5
-        val vinkel = 95
-        val temperatur = 35.0
+        val areal = 10.0
+        val angle = 95
+        val temperature = 35.0
         val solinnstraling = 200.0
+        val direction = 8
 
         // act
         val resultat = beregnStromproduksjon(
-            lengde,
-            bredde,
-            vinkel,
-            temperatur,
-            solinnstraling
+            areal,
+            angle,
+            temperature,
+            solinnstraling,
+            direction
         )
 
         // assert
-        val forventet = 3.88
+        val forventet = 0.77
         assertEquals(forventet, resultat, 0.01)
     }
 }
