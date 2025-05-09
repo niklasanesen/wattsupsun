@@ -188,7 +188,7 @@ fun InfoScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // ---- 3. row that shows  ----
+                // ---- 2. row that shows  ----
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -256,9 +256,14 @@ fun InfoScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        // Coffee card on screen
         CoffeeCard(calculateCoffe(totalProduksjon) )
         Log.i("testcoffee", "coffedata: ${calculateCoffe(totalProduksjon)}")
 
+
+        // Total money card on screen
+        Spacer(modifier = Modifier.height(12.dp))
+        TotalMoneyAnimated(100.0)
         Spacer(modifier = Modifier.height(32.dp))
 
         // ---- graf + switch + saved money for each month ----
