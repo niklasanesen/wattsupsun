@@ -22,7 +22,10 @@ import androidx.compose.ui.Alignment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+<<<<<<< HEAD
 import androidx.compose.runtime.rememberCoroutineScope
+=======
+>>>>>>> 7830a4d03c34043f780b30a05e29101411546f55
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 
@@ -50,7 +53,8 @@ fun SavedPage(
             val address = Gson().fromJson(json, LagreAdresse::class.java)
             AddressDetailPage(
                 address = address,
-                modifier = Modifier
+                navController = navController,
+                modifier = modifier
             )
         }
     }
@@ -162,18 +166,25 @@ fun AddressCard(address: LagreAdresse, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp)
-            .clickable(onClick = onClick), // Gjør kortet klikkbart
+            .padding(vertical = 8.dp)
+            .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Breddegrad: ${address.latitude}")
-            Text(text = "Lengdegrad: ${address.longitude}")
-            Text(text = "Høyde: ${address.height} m")
-            Text(text = "Bredde: ${address.width} m")
-            Text(text = "Vinkel: ${address.angle}°")
-            Text(text = "Retning: ${address.direction}°")
+            Text(
+                text = address.lagretNavn,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = address.addressString,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }

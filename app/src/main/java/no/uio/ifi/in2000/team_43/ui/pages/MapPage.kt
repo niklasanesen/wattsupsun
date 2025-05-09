@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,7 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import no.uio.ifi.in2000.team_43.R
-import no.uio.ifi.in2000.team_43.ui.appinfo.AppInfoScreen
+import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
 import no.uio.ifi.in2000.team_43.ui.home.HomeViewModel
 import no.uio.ifi.in2000.team_43.ui.home.MapScreen
 import no.uio.ifi.in2000.team_43.ui.info.InfoScreen
@@ -43,14 +42,19 @@ enum class HomeScreen(val route: String) {
     Start("Kart"),
     Input("Registrer takflate"),
     Info("Info"),
+<<<<<<< HEAD
     Satellite("Tegn takflate"),
     InfoApp("App Info")
+=======
+    Satellite("Tegn takflate")
+>>>>>>> 7830a4d03c34043f780b30a05e29101411546f55
 }
 
 @Composable
 fun MapPage(
     modifier: Modifier = Modifier,
     metViewModel: MetViewModel = viewModel(),
+    pvgisViewModel: PVGISViewModel = viewModel(),
     viewModel: HomeViewModel = viewModel(),
     navController: NavHostController = rememberNavController()
 
@@ -63,15 +67,13 @@ fun MapPage(
         backStackEntry?.destination?.route ?: HomeScreen.Start.name
     )
 
-
     Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
                 currentScreen = currentScreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() },
-                navController = navController
+                navigateUp = { navController.navigateUp() }
             )
         },
     ) { innerPadding ->
@@ -86,14 +88,16 @@ fun MapPage(
             composable(route = HomeScreen.Start.name) {
                 viewModel.resetCtx()
                 MapScreen(
-                    onInputBtnClicked = { coords, address ->
+                    onInputBtnClicked = { coords, address, stromdistrikt ->
                         viewModel.setCoords(coords)
                         viewModel.setAddress(address)
+                        viewModel.setStromdistrikt(stromdistrikt)
                         navController.navigate(HomeScreen.Input.name)
                     },
-                    onSatelliteBtnClicked = { coords, address ->
+                    onSatelliteBtnClicked = { coords, address, stromdistrikt ->
                         viewModel.setCoords(coords)
                         viewModel.setAddress(address)
+                        viewModel.setStromdistrikt(stromdistrikt)
                         navController.navigate(HomeScreen.Satellite.name)
                     }
                 )
@@ -102,6 +106,7 @@ fun MapPage(
                 InputScreen(
                     ctx = ctx,
                     metViewModel = metViewModel,
+                    pvgisViewModel = pvgisViewModel,
                     onNextBtnClicked = {
                         viewModel.setInput(it)
                         navController.navigate(HomeScreen.Info.name)
@@ -124,11 +129,7 @@ fun MapPage(
                 InfoScreen(
                     ctx = ctx,
                     metViewModel = metViewModel,
-                    modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
-                )
-            }
-            composable(route = HomeScreen.InfoApp.name) {
-                AppInfoScreen(
+                    pvgisViewModel = pvgisViewModel,
                     modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
                 )
             }
@@ -136,25 +137,19 @@ fun MapPage(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
     currentScreen: HomeScreen,
     canNavigateBack: Boolean,
-    navigateUp: () -> Unit,
-    navController: NavController
-    /*
-    currentScreen: HomeScreen = HomeScreen.valueOf(HomeScreen.Start.name),
-    canNavigateBack: Boolean = false,
-    navigateUp: () -> Unit = {},
-    navController: NavController = rememberNavController()
-
-     */
+    navigateUp: () -> Unit
 ) {
     CenterAlignedTopAppBar(
         title = { Text(currentScreen.route) },
+<<<<<<< HEAD
         //colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xff83c1eb)),
+=======
+>>>>>>> 7830a4d03c34043f780b30a05e29101411546f55
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             titleContentColor = MaterialTheme.colorScheme.primary,
@@ -168,16 +163,6 @@ fun TopAppBar(
                     )
                 }
             }
-        },
-        actions = {
-            if (currentScreen != HomeScreen.InfoApp) {
-                IconButton(onClick = { navController.navigate(HomeScreen.InfoApp.name) }) {
-                    Icon(
-                        imageVector = Icons.Filled.Info,
-                        contentDescription = "Info"
-                    )
-                }
-            }
-        },
+        }
     )
 }

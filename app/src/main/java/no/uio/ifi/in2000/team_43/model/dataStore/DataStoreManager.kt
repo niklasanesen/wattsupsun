@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.map
 import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
 
 val Context.dataStore by preferencesDataStore(name = "addresses")
+
 class DataStoreManager(private val context: Context) {
 
     private val ADDRESSES_KEY = stringSetPreferencesKey("addresses")
@@ -23,36 +24,46 @@ class DataStoreManager(private val context: Context) {
         context.dataStore.edit { preferences ->
             val currentList = preferences[ADDRESSES_KEY]?.toMutableSet() ?: mutableSetOf()
 
-            // Lagre adressen som en string
-            val addressString = "lat:${adresse.latitude}, long:${adresse.longitude}, height:${adresse.height}, width:${adresse.width}, angle:${adresse.angle}, direction:${adresse.direction}"
+            // Inkluderer addressString og lagretNavn
+            val addressString = "lat:${adresse.latitude}, long:${adresse.longitude}, height:${adresse.height}, width:${adresse.width}, angle:${adresse.angle}, direction:${adresse.direction}, addr:${adresse.addressString}, name:${adresse.lagretNavn}, numPanel:${adresse.numPanel}, totalPanelAreal:${adresse.totalPanelAreal}, kwp:${adresse.kwp}, pris:${adresse.pris}"
 
-            // Legg til den nye adressen i listen
             currentList.add(addressString)
-
             preferences[ADDRESSES_KEY] = currentList
         }
     }
 
     // Hent lagrede adresser
-    val addresses = context.dataStore.data
+    val addresses: Flow<List<LagreAdresse>> = context.dataStore.data
         .map { preferences ->
-            preferences[ADDRESSES_KEY]?.map { addressString ->
-                val parts = addressString.split(", ")
-                val latitude = parts[0].split(":")[1].toDouble()
-                val longitude = parts[1].split(":")[1].toDouble()
-                val height = parts[2].split(":")[1].toDouble()
-                val width = parts[3].split(":")[1].toDouble()
-                val angle = parts[4].split(":")[1].toDouble()
-                val direction = parts[5].split(":")[1].toDouble()
+            preferences[ADDRESSES_KEY]?.mapNotNull { addressString ->
+                try {
+                    val parts = addressString.split(", ")
+                        .associate { part -> part.substringBefore(":") to part.substringAfter(":") }
 
-                LagreAdresse(latitude, longitude, height, width, angle, direction)
+                    LagreAdresse(
+                        latitude = parts["lat"]?.toDoubleOrNull() ?: return@mapNotNull null,
+                        longitude = parts["long"]?.toDoubleOrNull() ?: return@mapNotNull null,
+                        height = parts["height"]?.toDoubleOrNull() ?: return@mapNotNull null,
+                        width = parts["width"]?.toDoubleOrNull() ?: return@mapNotNull null,
+                        angle = parts["angle"]?.toDoubleOrNull() ?: return@mapNotNull null,
+                        direction = parts["direction"]?.toDoubleOrNull() ?: return@mapNotNull null,
+                        addressString = parts["addr"] ?: "",
+                        lagretNavn = parts["name"] ?: "",
+                        numPanel = parts["numPanel"]?.toIntOrNull() ?: 0,
+                        totalPanelAreal = parts["totalPanelAreal"]?.toDoubleOrNull() ?: 0.0,
+                        kwp = parts["kwp"]?.toIntOrNull() ?: 0,
+                        pris = parts["pris"]?.toIntOrNull() ?: 0
+                    )
+                } catch (e: Exception) {
+                    null // Hopper over ugyldige adresser
+                }
             } ?: emptyList()
         }
 
-    // Funksjon for å slette alle lagrede adresser
+    // Slett alle adresser
     suspend fun deleteAllAddresses() {
         context.dataStore.edit { preferences ->
-            preferences.remove(ADDRESSES_KEY) // Fjerner alle adresser
+            preferences.remove(ADDRESSES_KEY)
         }
     }
 

@@ -1,4 +1,4 @@
-package no.uio.ifi.in2000.team_43.ui.sharedScreenComponents
+package no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,13 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-
-
+import androidx.compose.ui.graphics.Color
 
 @Composable
-fun MonthSelector(
-    selectedMonth: Int,
-    onMonthSelected: (Int) -> Unit
+fun MonthlySavingsDisplay(
+    savingsPerMonth: List<Float>
 ) {
     val months = listOf(
         "Jan", "Feb", "Mar", "Apr", "Mai", "Jun",
@@ -31,13 +29,10 @@ fun MonthSelector(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        itemsIndexed(months) { index, month ->
-            val isSelected = index == selectedMonth
-
+        itemsIndexed(savingsPerMonth) { index, amount ->
             Card(
-                onClick = { onMonthSelected(index) },
                 colors = CardDefaults.cardColors(
-                    containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+                    containerColor = Color(0xFF304745) // endret bakgrunn
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
@@ -47,9 +42,9 @@ fun MonthSelector(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = month,
+                        text = "${months.getOrNull(index) ?: "?"}:\n${amount.toInt()}kr",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                        color = Color.White // endret tekstfarge
                     )
                 }
             }
