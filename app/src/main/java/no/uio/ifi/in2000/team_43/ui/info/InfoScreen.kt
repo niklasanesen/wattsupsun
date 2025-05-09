@@ -1,6 +1,7 @@
 package no.uio.ifi.in2000.team_43.ui.info
 
 // --- Standard imports ---
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -53,11 +54,11 @@ fun InfoScreen(
     var isMetSelected by remember { mutableStateOf(true) }
     var showDialog by remember { mutableStateOf(false) }
 
-
-    val produksjonsMap: MutableMap<Instant, Double> = calculatedMetData.toMap().toMutableMap()
     val totalProduksjon = remember { mutableStateOf(0.0) }
 
-    totalProduksjon.value = produksjonsMap.values.sum()
+
+
+
 
     // ---- crate context for data storage ----
     val context = LocalContext.current
@@ -120,9 +121,10 @@ fun InfoScreen(
             // Legg til i lista
             calculatedMetData.add(Pair(date, produksjon))
         }
+        Log.i("testNoe", "metdata caclulated: $calculatedMetData")
     }
 
-    totalProduksjon.value = produksjonsMap.values.sum()
+
 
 
 
@@ -352,7 +354,11 @@ fun InfoScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        val produksjonsMap: MutableMap<Instant, Double> = calculatedMetData.toMap().toMutableMap()
+        totalProduksjon.value = produksjonsMap.values.sum()
+
         CoffeeCard(calculateCoffe(totalProduksjon.value) )
+        Log.i("testcoffee", "coffedata: ${calculateCoffe(totalProduksjon.value)}")
 
         Spacer(modifier = Modifier.height(32.dp))
 
