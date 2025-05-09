@@ -8,7 +8,14 @@ Dataflyten og filstrukturen vår er inspirert av [Model–view–viewmodel (MVVM
 
 ### Model
 
-Alt starter med en modell, som egentlig bare er en [objektorientert](https://en.wikipedia.org/wiki/Object-oriented_programming) måte å representere data på. En modell kan inneholde data (kalt felter/attributter) og kan utføre handlinger (kalt metoder/prosedyrer) kun spesifikt til seg selv, som bidrar til [høy kohesjon](<https://en.wikipedia.org/wiki/Cohesion_(computer_science)>).
+Alt starter med en modell, som egentlig bare er en [objektorientert](https://en.wikipedia.org/wiki/Object-oriented_programming) måte å representere data på. En modell kan inneholde data (kalt felter/attributter) og kan utføre handlinger (kalt metoder/prosedyrer) kun spesifikt til seg selv, som bidrar til [høy kohesjon](<https://en.wikipedia.org/wiki/Cohesion_(computer_science)>). Her er et eksempel av en modell som vi skal ta gjennom hele dataflyten:
+
+```kotlin
+data class Point(
+    val x: Int,
+    val y: Int
+)
+```
 
 ### View
 
