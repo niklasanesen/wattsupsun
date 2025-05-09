@@ -42,12 +42,7 @@ enum class HomeScreen(val route: String) {
     Start("Kart"),
     Input("Registrer takflate"),
     Info("Info"),
-<<<<<<< HEAD
-    Satellite("Tegn takflate"),
-    InfoApp("App Info")
-=======
     Satellite("Tegn takflate")
->>>>>>> 7830a4d03c34043f780b30a05e29101411546f55
 }
 
 @Composable
@@ -146,10 +141,6 @@ fun TopAppBar(
 ) {
     CenterAlignedTopAppBar(
         title = { Text(currentScreen.route) },
-<<<<<<< HEAD
-        //colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xff83c1eb)),
-=======
->>>>>>> 7830a4d03c34043f780b30a05e29101411546f55
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             titleContentColor = MaterialTheme.colorScheme.primary,
