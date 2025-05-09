@@ -1,8 +1,8 @@
 package no.uio.ifi.in2000.team_43.ui.input
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -19,18 +19,19 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -52,10 +53,12 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import no.uio.ifi.in2000.team_43.R
+import no.uio.ifi.in2000.team_43.data.CoordinateCache
 import no.uio.ifi.in2000.team_43.model.areal.Areal
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.model.input.Direction
@@ -71,12 +74,13 @@ import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
 
 @Composable
 fun InputScreen(
-    ctx: Ctx,
-    metViewModel: MetViewModel,
-    pvgisViewModel: PVGISViewModel,
-    onNextBtnClicked: (input: Input) -> Unit,
     modifier: Modifier = Modifier,
+    ctx: Ctx,
+    metViewModel: MetViewModel? = null,
+    pvgisViewModel: PVGISViewModel? = null,
+    onNextBtnClicked: (input: Input) -> Unit,
     navController: NavHostController = rememberNavController(),
+    inputViewModel: InputViewModel = viewModel()
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentScreen = HomeScreen.valueOf(
@@ -84,16 +88,15 @@ fun InputScreen(
     )
 
     LaunchedEffect(ctx.coords) {
-        ctx.coords?.let {
-            metViewModel.fetchWeatherData(Coordinates(it.latitude(), it.longitude()))
+        val newCoordinates = ctx.coords
+        Log.d("InputScreen", "ctx.coords = ${ctx.coords} and lastCoordinates = ${CoordinateCache.lastCoordinates}")
+        if (newCoordinates != null && newCoordinates != CoordinateCache.lastCoordinates) {
+            CoordinateCache.lastCoordinates = newCoordinates
+            metViewModel?.fetchWeatherData(Coordinates(newCoordinates.latitude(), newCoordinates.longitude()))
+            pvgisViewModel?.fetchPVGISData(Coordinates(newCoordinates.latitude(), newCoordinates.longitude()))
         }
     }
 
-    LaunchedEffect(ctx.coords) {
-        ctx.coords?.let {
-            pvgisViewModel.fetchPVGISData(Coordinates(it.latitude(), it.longitude()))
-        }
-    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -108,7 +111,8 @@ fun InputScreen(
         InputForm(
             ctx = ctx,
             onNextButtonClicked = onNextBtnClicked,
-            modifier = modifier
+            modifier = modifier,
+            inputViewModel = inputViewModel
         )
     }
 }
@@ -119,14 +123,15 @@ fun InputForm(
     ctx: Ctx,
     onNextButtonClicked: (input: Input) -> Unit,
     modifier: Modifier = Modifier,
+    inputViewModel: InputViewModel
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    var length by remember { mutableStateOf("") }
-    var width by remember { mutableStateOf("") }
-    var angle by remember { mutableStateOf("") }
-    var direction: Direction by remember { mutableStateOf(Direction.NORTH)}
-    var selectedPanel by remember { mutableStateOf<SunPanel?>(null) }
+    val length = inputViewModel.length
+    val width = inputViewModel.width
+    val angle = inputViewModel.angle
+    val direction = inputViewModel.direction
+    val selectedPanel = inputViewModel.selectedPanel
 
     var angleError by remember { mutableStateOf("") }
     var error by remember { mutableStateOf("") }
@@ -137,18 +142,18 @@ fun InputForm(
 
     fun updateDimensionsFromContext(areal: Areal) {
         if (length.isEmpty() && width.isEmpty()) {
-            length = areal.length.toInt().toString()
-            width = areal.width.toInt().toString()
+            inputViewModel.length = areal.length.toInt().toString()
+            inputViewModel.width = areal.width.toInt().toString()
         }
     }
 
     fun onAngleChanged(newAngle: String) {
-        angle = newAngle
+        inputViewModel.angle = newAngle
         angleError = validateAngle(newAngle)
     }
 
     fun onDirectionSelected(newDirection: Direction) {
-        direction = newDirection
+        inputViewModel.direction = newDirection
         expanded = false
     }
 
@@ -160,8 +165,9 @@ fun InputForm(
                     width.toInt(),
                     angle.toInt(),
                     getDegrees(direction),
-                    selectedPanel!!
+                    selectedPanel
                 )
+
             )
         } else {
             error = "Pass på at du har fylt ut alle feltene og valgt en type solcellepanel før du går videre."
@@ -199,7 +205,7 @@ fun InputForm(
                     InputField(
                         modifier = Modifier.weight(1f),
                         value = length,
-                        onValueChange = { length = it },
+                        onValueChange = { inputViewModel.length = it },
                         label = "Lengde i m",
                         keyboardController = keyboardController
                     )
@@ -209,7 +215,7 @@ fun InputForm(
                     InputField(
                         modifier = Modifier.weight(1f),
                         value = width,
-                        onValueChange = { width = it },
+                        onValueChange = { inputViewModel.width = it },
                         label = "Bredde i m",
                         keyboardController = keyboardController
                     )
@@ -243,7 +249,7 @@ fun InputForm(
                                     expanded = expanded
                                 )
                             },
-                            modifier = Modifier.menuAnchor()
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable)
                         )
 
                         ExposedDropdownMenu(
@@ -254,7 +260,7 @@ fun InputForm(
                                 DropdownMenuItem(
                                     text = { Text(getDirection(entry)) },
                                     onClick = {
-                                        direction = entry
+                                        inputViewModel.direction = entry
                                         expanded = false
                                         directionChange = false
                                     },
@@ -304,7 +310,7 @@ fun InputForm(
 
             PanelSelector(
                 selectedPanel = selectedPanel,
-                onPanelSelected = { selectedPanel = it }
+                onPanelSelected = { inputViewModel.selectedPanel = it }
             )
 
             Spacer(modifier = Modifier.height(20.dp))

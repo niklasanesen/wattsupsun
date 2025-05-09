@@ -24,8 +24,8 @@ import no.uio.ifi.in2000.team_43.model.map.Suggestion
 import no.uio.ifi.in2000.team_43.model.stromdistrikt.Fylker
 import no.uio.ifi.in2000.team_43.model.stromdistrikt.StromDistrikt
 
-private const val MAX_SUGGESTIONS = 4;
-private const val MAX_NAME_LEN = 56;
+private const val MAX_SUGGESTIONS = 4
+private const val MAX_NAME_LEN = 56
 
 class MapViewModel() : ViewModel() {
     private val placeAutocomplete = PlaceAutocomplete.create()
