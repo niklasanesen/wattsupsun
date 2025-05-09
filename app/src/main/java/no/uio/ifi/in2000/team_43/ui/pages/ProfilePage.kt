@@ -50,7 +50,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -193,11 +195,11 @@ fun ProfileScreen(
             // verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Card (
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    containerColor = Color(0xFF304745),
                 ),
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(
@@ -206,11 +208,11 @@ fun ProfileScreen(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
+                    .padding(horizontal = 12.dp)
             ) {
                 Row (
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(20.dp)
                 ) {
                     Box(
                         modifier = Modifier
@@ -242,14 +244,16 @@ fun ProfileScreen(
                     Box(modifier = Modifier.clickable { showDialog = true }) {
                         Text(
                             text = if (firstname.isBlank() && lastname.isBlank()) "Fornavn \nEtternavn" else "$firstname \n$lastname",
-                            fontSize = 28.sp,
+                            fontSize = 26.sp,
                             modifier = Modifier.padding(end = 20.dp),
-                            lineHeight = 34.sp
+                            lineHeight = 34.sp,
+                            color = Color.White
                         )
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = "edit name",
-                            tint = Purple40,
+                            tint = Color.White,
+                            //tint = Purple40,
                             modifier = Modifier
                                 .size(16.dp)
                                 .align(Alignment.TopEnd)
@@ -258,7 +262,7 @@ fun ProfileScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Column (
                 modifier = Modifier.padding(horizontal = 20.dp),
@@ -296,16 +300,45 @@ fun ProfileScreen(
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
-
-                Text(
-                    text = "Lagrede adresser",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .padding(vertical = 4.dp)
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 16.dp),
+                    thickness = 1.dp,
                 )
+                //Spacer(modifier = Modifier.height(16.dp))
 
+                Row (
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Lagrede adresser ♡",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .padding(vertical = 4.dp)
+                    )
+                    if (addresses.isNotEmpty()) {
+                        Button(
+                            onClick = {
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    dataStoreManager.deleteAllAddresses()
+                                }
+                            },
+                            enabled = true,
+                            modifier = Modifier
+                                .width(112.dp),
+                                // .padding(24.dp)
+                                //.height(24.dp),
+                            //.paddingFromBaseline(bottom = padding.calculateBottomPadding()),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                        ) {
+                            Text("Slett alle", color = MaterialTheme.colorScheme.onError)
+                        }
+                    }
+                }
+
+                /*
                 Button(
                     onClick = {
                         CoroutineScope(Dispatchers.IO).launch {
@@ -321,7 +354,7 @@ fun ProfileScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
                     Text("Slett alle adresser", color = MaterialTheme.colorScheme.onError)
-                }
+                }*/
             }
 
             Column (
@@ -333,7 +366,7 @@ fun ProfileScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(horizontal = 16.dp),
+                            .padding(horizontal = 20.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.Top
                     ) {
                         Card(
@@ -353,7 +386,7 @@ fun ProfileScreen(
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = "Gå til kart, velg adresse og registrer takflater for å lagre en adresse!",
+                                text = "Gå til kart, velg adresse og registrer takflate for å lagre en adresse!",
                                 modifier = Modifier
                                     .paddingFromBaseline(bottom = 24.dp)
                                     .padding(horizontal = 20.dp),
@@ -364,8 +397,8 @@ fun ProfileScreen(
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 24.dp)
-                            .padding(top = 8.dp),
+                            .padding(horizontal = 20.dp),
+                            //.padding(top = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -507,7 +540,7 @@ fun AddressCard(address: LagreAdresse, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
+            //.padding(vertical = 4.dp)
             .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
