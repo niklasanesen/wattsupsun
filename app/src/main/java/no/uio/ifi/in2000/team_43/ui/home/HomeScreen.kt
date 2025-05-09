@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import no.uio.ifi.in2000.team_43.ui.pages.MapPage
 import no.uio.ifi.in2000.team_43.ui.pages.ProfilePage
-import no.uio.ifi.in2000.team_43.ui.pages.SavedPage
 
 
 
@@ -35,12 +34,12 @@ fun HomeScreen(
 ) {
     val navItemList = listOf(
         NavItem("Map", Icons.Default.LocationOn),
-        NavItem("Saved", Icons.Outlined.Favorite),
+        // NavItem("Saved", Icons.Outlined.Favorite),
         NavItem("Profile", Icons.Default.Person),
         NavItem("Home", Icons.Default.Home)
     )
     var selectedIndex by remember {
-        mutableIntStateOf(0)
+        mutableIntStateOf(1)
     }
 
     // State to track if welcome screen is shown
@@ -63,7 +62,7 @@ fun HomeScreen(
                         NavigationBarItem(
                             selected = selectedIndex == index,
                             onClick = {
-                                if (index == 3) { // Home button
+                                if (index == 2) { // Home button
                                     showWelcomeScreen = true
                                 } else {
                                     selectedIndex = index
@@ -90,7 +89,6 @@ fun HomeScreen(
 fun ContentScreen(modifier: Modifier = Modifier, selectedIndex: Int) {
     when(selectedIndex) {
         0 -> MapPage(modifier)
-        1 -> SavedPage(modifier)
-        2 -> ProfilePage(modifier)
+        1 -> ProfilePage(modifier)
     }
 }
