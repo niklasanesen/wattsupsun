@@ -8,17 +8,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -39,8 +36,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
+
+// Logic for how to show the UI thing:
 @Composable
-fun totalPriceAnimated(numPanel: Int, totalPanelPrice: Int): Int {
+fun totalCostLogic(numPanel: Int, totalPanelPrice: Int, isLoading: Boolean) {
+    if (isLoading) {
+        CalculatingCardBox("Teller mynter - snart klart!")
+    } else {
+        // Soory for this bad code
+        // pls ask before touching this, might break easly
+        val haaland = totalCostAnimated(numPanel, totalPanelPrice)
+        if(haaland < 0) {
+            CalculatingCardBox("Teller mynter - snart klart!")
+        }
+    }
+}
+
+// The UI componenet:
+@Composable
+fun totalCostAnimated(numPanel: Int, totalPanelPrice: Int): Int {
     var flipped by remember { mutableStateOf(false) }
     var showContent by remember { mutableStateOf(false) }
 
@@ -94,7 +108,7 @@ fun totalPriceAnimated(numPanel: Int, totalPanelPrice: Int): Int {
                         verticalAlignment = Alignment.Top
                     ) {
                         Text(
-                            text = "Estimert kostnad for $numPanel paneler:",
+                            text = "Estimert kostnad for $numPanel paneler",
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 20.sp,

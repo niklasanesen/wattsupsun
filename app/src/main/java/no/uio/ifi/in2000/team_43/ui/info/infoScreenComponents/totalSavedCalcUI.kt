@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -22,8 +21,24 @@ import androidx.compose.animation.core.tween
 import kotlinx.coroutines.delay
 
 
+// Logic for the UI thing:
 @Composable
-fun totalMoneyAnimated(supportAmount: Double): Int {
+fun TotalSavedLogic(totalMoneySaved: Float, isLoading: Boolean) {
+    if (isLoading) {
+        CalculatingCardBox("Teller mynter - snart klart!")
+    } else {
+        // Soory for this bad code
+        val show = totalSavedAnimated(totalMoneySaved.toDouble() )
+        if((show < 0) && (totalMoneySaved == 0.0.toFloat())) {
+            CalculatingCardBox("Teller mynter - snart klart!")
+        }
+    }
+}
+
+
+// The actual animation UI thing:
+@Composable
+fun totalSavedAnimated(supportAmount: Double): Int {
     var flipped by remember { mutableStateOf(false) }
     var showContent by remember { mutableStateOf(false) }
 
@@ -115,7 +130,7 @@ fun totalMoneyAnimated(supportAmount: Double): Int {
             ) {
                 Box(modifier = Modifier.padding(16.dp), contentAlignment = Alignment.Center) {
                     Text(
-                        text = "Beregningene er basert på METs klimadata og strømpriser for 2024. Faktisk inntjening avhenger av fremtidig vær og strømpriser.",
+                        text = "Beregningene er basert på MET/PVGIS sine klimadata og strømpriser for 2024. Faktisk inntjening avhenger av fremtidig vær og strømpriser.",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = if (isZeroSupport) Color(0xFFB00020) else Color(0xFF006064),
                             fontWeight = FontWeight.Medium
@@ -182,10 +197,10 @@ fun CalculatingCardBox(text: String) {
 
 @Preview(showBackground = true)
 @Composable
-fun TotalMoneyAnimatedPreview() {
+fun TotalSavedAnimatedPreview() {
     Column(modifier = Modifier.padding(16.dp)) {
-        totalMoneyAnimated(supportAmount = 18500.0)
+        totalSavedAnimated(supportAmount = 18500.0)
         Spacer(modifier = Modifier.height(16.dp))
-        totalMoneyAnimated(supportAmount = 0.0)
+        totalSavedAnimated(supportAmount = 0.0)
     }
 }
