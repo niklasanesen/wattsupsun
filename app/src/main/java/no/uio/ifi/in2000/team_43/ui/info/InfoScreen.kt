@@ -188,7 +188,7 @@ fun InfoScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // ---- 3. row that shows  ----
+                // ---- 2. row that shows  ----
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -207,61 +207,37 @@ fun InfoScreen(
                     ValueBox(label = "Retning", value = directionText, modifier = Modifier.weight(1f))
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
 
-                // ---- 3. row that shows  ----
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    if (isLoading) {
-                        // Midlertidige "loading"-bokser
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(80.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(80.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
-                    } else {
-                        // Vanlige ValueBox-er med tekst
-                        ValueBox(label = "kostnader av $numPanel paneler", value = "$totalPanelPrice kr", modifier = Modifier.weight(1f))
-                        ValueBox(label = "Totalt Spart (2024)", value = "${totalMoneySaved.toInt()} kr", modifier = Modifier.weight(1f))
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
 
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+
+        // Coffee card on screen
+        Spacer(modifier = Modifier.height(16.dp))
+        CoffeeCard(calculateCoffe(totalProduksjon) )
+        Log.i("testcoffee", "coffedata: ${calculateCoffe(totalProduksjon)}")
 
         // Enova on infoscreen:
         val wPerPanel = ctx.input?.panel?.effekt?.toDouble()
         val kwpPerPanel = ((wPerPanel ?: 1.0) / 1000.0)
-
+        Spacer(modifier = Modifier.height(16.dp))
         EnovaCard(calculateEnova(kwpPerPanel, numPanel))
 
-        Spacer(modifier = Modifier.height(12.dp))
 
-        CoffeeCard(calculateCoffe(totalProduksjon) )
-        Log.i("testcoffee", "coffedata: ${calculateCoffe(totalProduksjon)}")
+        // Total money card on screen
+        // pls ask before touching any of this
+        Spacer(modifier = Modifier.height(16.dp))
+        TotalSavedLogic(totalMoneySaved, isLoading)
 
-        Spacer(modifier = Modifier.height(32.dp))
+        // total price for panels
+        // Pls ask before touching this
+        Spacer(modifier = Modifier.height(16.dp))
+        totalCostLogic(numPanel, totalPanelPrice, isLoading)
+
 
         // ---- graf + switch + saved money for each month ----
+        Spacer(modifier = Modifier.height(32.dp))
         Column {
             when {
                 isLoading -> {
