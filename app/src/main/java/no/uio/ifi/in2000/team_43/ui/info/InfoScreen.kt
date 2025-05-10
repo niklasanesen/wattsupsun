@@ -230,26 +230,10 @@ fun InfoScreen(
         Spacer(modifier = Modifier.height(16.dp))
         TotalSavedLogic(totalMoneySaved, isLoading)
 
-
         // total price for panels
+        // Pls ask before touching this
         Spacer(modifier = Modifier.height(16.dp))
         totalCostLogic(numPanel, totalPanelPrice, isLoading)
-//        if (isLoading) {
-//            CalculatingCardBox("Teller mynter - snart klart!")
-//        } else {
-//            // Soory for this bad code
-//            // pls ask before touching this, might break easly
-//            val haaland = totalPriceAnimated(numPanel, totalPanelPrice)
-//            if(haaland < 0) {
-//                CalculatingCardBox("Teller mynter - snart klart!")
-//            }
-//        }
-
-
-
-
-
-
 
 
         // ---- graf + switch + saved money for each month ----
