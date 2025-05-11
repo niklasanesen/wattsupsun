@@ -42,7 +42,7 @@ class PointDataSource {
 }
 ```
 
-Så skjer alt av eventuell logikk og prosessering av dataen skjer i det som kalles et `repository`:
+Så skjer alt av eventuell logikk og prosessering av dataen i det som kalles et `repository`:
 
 ```kotlin
 class PointRepository {
