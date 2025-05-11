@@ -199,7 +199,7 @@ fun ProfileScreen(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(top = padding.calculateTopPadding()),
+                .padding(top = padding.calculateTopPadding(), bottom = 12.dp),
             // verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -215,7 +215,7 @@ fun ProfileScreen(
                     colors = CardDefaults.cardColors(
                         containerColor = Color(0xFF304745),
                     ),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(12.dp),
                     elevation = CardDefaults.cardElevation(
                         defaultElevation = 20.dp
                     ),
@@ -345,28 +345,36 @@ fun ProfileScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            // Spacer(modifier = Modifier.height(8.dp))
+
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = 16.dp, horizontal = 20.dp),
+                modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
                 thickness = 1.dp,
             )
             //Spacer(modifier = Modifier.height(16.dp))
 
             
-            Column (
-                modifier = Modifier.padding(horizontal = 20.dp),
+            Card (
+                modifier = Modifier.padding(horizontal = 12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFE6E9EA)
+                )
             ) {
                 Row (
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .padding(top = 8.dp)
                 ) {
                     Text(
                         text = "Lagrede adresser ♡",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
-                            .padding(8.dp)
-                            .padding(vertical = 4.dp)
+                            //.padding(8.dp)
+                            .padding(horizontal = 12.dp)
+                            .padding(top = 12.dp)
                     )
                     if (addresses.isNotEmpty()) {
                         Button(
@@ -384,6 +392,69 @@ fun ProfileScreen(
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                         ) {
                             Text("Slett alle", color = MaterialTheme.colorScheme.onError)
+                        }
+                    }
+                }
+
+                Column (
+                    modifier = Modifier.fillMaxSize(),
+                    //verticalArrangement = Arrangement.SpaceBetween,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (addresses.isEmpty()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 16.dp)
+                                .padding(top = 12.dp),
+                            verticalArrangement = Arrangement.Top
+                        ) {
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color(0xffe8ca89),
+                                ),
+                                modifier = Modifier
+                            ) {
+                                Text(
+                                    text = "Ingen adresser lagret enda.",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xff9c2d17),
+                                    modifier = Modifier
+                                        .paddingFromBaseline(top = 40.dp)
+                                        .padding(horizontal = 20.dp),
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "Gå til kart, velg adresse og registrer takflate for å lagre en adresse!",
+                                    modifier = Modifier
+                                        .paddingFromBaseline(bottom = 24.dp)
+                                        .padding(horizontal = 20.dp),
+                                )
+                            }
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            //.padding(top = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            items(addresses) { address ->
+                                // For å legge til padding over (så skyggene blir riktig)
+                                if (address == addresses[0]) {
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+
+                                AddressCard(address = address, onClick = { onCardClick(address) })
+
+                                // For å legge til padding under (så skyggene blir riktig)
+                                if (address == addresses[addresses.size - 1]) {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                }
+                            }
                         }
                     }
                 }
@@ -407,67 +478,7 @@ fun ProfileScreen(
                 }*/
             }
 
-            Column (
-                modifier = Modifier.fillMaxSize(),
-                //verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if (addresses.isEmpty()) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 20.dp, vertical = 12.dp),
-                        verticalArrangement = Arrangement.Top
-                    ) {
-                        Card(
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color(0xffe8ca89),
-                            ),
-                            modifier = Modifier
-                        ) {
-                            Text(
-                                text = "Ingen adresser lagret enda.",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xff9c2d17),
-                                modifier = Modifier
-                                    .paddingFromBaseline(top = 40.dp)
-                                    .padding(horizontal = 20.dp),
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = "Gå til kart, velg adresse og registrer takflate for å lagre en adresse!",
-                                modifier = Modifier
-                                    .paddingFromBaseline(bottom = 24.dp)
-                                    .padding(horizontal = 20.dp),
-                            )
-                        }
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp),
-                            //.padding(top = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        items(addresses) { address ->
-                            // For å legge til padding over (så skyggene blir riktig)
-                            if (address == addresses[0]) {
-                                Spacer(modifier = Modifier.height(16.dp))
-                            }
 
-                            AddressCard(address = address, onClick = { onCardClick(address) })
-
-                            // For å legge til padding under (så skyggene blir riktig)
-                            if (address == addresses[addresses.size - 1]) {
-                                Spacer(modifier = Modifier.height(16.dp))
-                            }
-                        }
-                    }
-                }
-            }
 
 
             // Popup for personvernerklæring
@@ -592,7 +603,7 @@ fun AddressCard(address: LagreAdresse, onClick: () -> Unit) {
             .fillMaxWidth()
             //.padding(vertical = 4.dp)
             .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
