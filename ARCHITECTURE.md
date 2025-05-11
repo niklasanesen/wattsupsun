@@ -54,6 +54,24 @@ class PointRepository {
 }
 ```
 
+Til slutt lager vi en `viewmodel` som håndterer datatillstanden, og gjør at viewen kan enkelt hente dataen:
+
+```kotlin
+class PointViewModel() : ViewModel() {
+    private val _point = MutableStateFlow<Point?>(null)
+    val point: StateFlow<Point?> = _point.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            _point.value = repository.getPoint()
+        }
+    }
+
+    private suspend fun fetchPoint() {
+    }
+}
+```
+
 ## Filstruktur
 
 - `model`: model
