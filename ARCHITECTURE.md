@@ -19,6 +19,16 @@ data class Point(
 
 ### View
 
+View representerer UI-delen av appen, altså det brukeren ser og interakterer med. Vi bruker [Jetpack Compose](https://developer.android.com/compose) for å simplet kunne lage skjermer ved bruk av composable:
+
+```kotlin
+@Composable
+fun PointScreen(viewModel: PointViewModel) {
+    val point by viewModel.point.collectAsState()
+    Text("Punkt: (${point.x}, ${point.y})")
+}
+```
+
 ### ViewModel
 
 ## Filstruktur
@@ -26,3 +36,7 @@ data class Point(
 - `model`: model
 - `data`: viewmodel
 - `ui`: view
+
+```
+
+```
