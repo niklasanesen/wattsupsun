@@ -1,10 +1,10 @@
 package no.uio.ifi.in2000.team_43.ui.pages
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -17,16 +17,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import no.uio.ifi.in2000.team_43.R
 import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
 import no.uio.ifi.in2000.team_43.ui.home.HomeViewModel
 import no.uio.ifi.in2000.team_43.ui.home.MapScreen
@@ -34,6 +30,14 @@ import no.uio.ifi.in2000.team_43.ui.info.InfoScreen
 import no.uio.ifi.in2000.team_43.ui.input.InputScreen
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.satellite.SatelliteScreen
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import no.uio.ifi.in2000.team_43.ui.popUpHelper.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 
 /**
  * enum values that represent the screens in the app
@@ -68,7 +72,7 @@ fun MapPage(
             TopAppBar(
                 currentScreen = currentScreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() }
+                navigateUp = { navController.navigateUp() },
             )
         },
     ) { innerPadding ->
@@ -139,21 +143,52 @@ fun TopAppBar(
     canNavigateBack: Boolean,
     navigateUp: () -> Unit
 ) {
-    CenterAlignedTopAppBar(
-        title = { Text(currentScreen.route) },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.primary,
-        ),
-        navigationIcon = {
-            if (canNavigateBack) {
-                IconButton(onClick = navigateUp) {
+    var showHelp by remember { mutableStateOf(false) }
+
+
+    Surface(
+        tonalElevation = 4.dp,
+        shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp),
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        CenterAlignedTopAppBar(
+            title = {
+                Text(
+                    text = currentScreen.route,
+                    style = MaterialTheme.typography.titleLarge
+                )
+            },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = Color.Transparent, // Bruker Surface-farge
+                titleContentColor = MaterialTheme.colorScheme.onSurface,
+            ),
+            navigationIcon = {
+                if (canNavigateBack) {
+                    IconButton(onClick = navigateUp) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Tilbake"
+                        )
+                    }
+                }
+            },
+            actions = {
+                IconButton(onClick = { showHelp = true }) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back_button)
+                        imageVector = Icons.Filled.Info,
+                        contentDescription = "Hjelp"
                     )
                 }
             }
+        )
+    }
+
+    if (showHelp) {
+        when (currentScreen) {
+            HomeScreen.Start -> HelpOnMapScreen { showHelp = false }
+            HomeScreen.Input -> HelpOnInputScreen { showHelp = false }
+            HomeScreen.Info -> HelpOnInfoScreen { showHelp = false }
+            HomeScreen.Satellite -> HelpOnSateliteScreen { showHelp = false }
         }
-    )
+    }
 }

@@ -76,6 +76,11 @@ import java.io.File
 import androidx.core.net.toUri
 import androidx.navigation.NavController
 import no.uio.ifi.in2000.team_43.ui.home.WelcomeScreen
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.*
+import androidx.compose.runtime.rememberCoroutineScope
+
+
 
 @Composable
 fun ProfilePage(modifier: Modifier = Modifier) {
@@ -102,6 +107,7 @@ fun ProfilePage(modifier: Modifier = Modifier) {
                 address = address,
                 navController = navController,
                 modifier = modifier
+
             )
         }
         composable("appinfo") {
@@ -123,6 +129,8 @@ fun ProfileScreen(
     val context = LocalContext.current
     val dataStoreManager = remember { DataStoreManager(context) }
     val addresses by dataStoreManager.addresses.collectAsState(initial = emptyList())
+    val coroutineScope = rememberCoroutineScope()
+
 
     val firstname by dataStoreManager.firstnameFlow.collectAsState(initial = "")
     val lastname by dataStoreManager.lastnameFlow.collectAsState(initial = "")
@@ -377,22 +385,45 @@ fun ProfileScreen(
                             .padding(top = 12.dp)
                     )
                     if (addresses.isNotEmpty()) {
-                        Button(
-                            onClick = {
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    dataStoreManager.deleteAllAddresses()
-                                }
-                            },
-                            enabled = true,
-                            modifier = Modifier
-                                .width(112.dp),
-                                // .padding(24.dp)
-                                //.height(24.dp),
-                            //.paddingFromBaseline(bottom = padding.calculateBottomPadding()),
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                        ) {
-                            Text("Slett alle", color = MaterialTheme.colorScheme.onError)
+                        var showDialog by remember { mutableStateOf(false) }
+                        val coroutineScope = rememberCoroutineScope()
+
+                        Column {
+                            Button(
+                                onClick = { showDialog = true },
+                                enabled = true,
+                                modifier = Modifier.width(112.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                            ) {
+                                Text("Slett alle", color = MaterialTheme.colorScheme.onError)
+                            }
+
+                            if (showDialog) {
+                                AlertDialog(
+                                    onDismissRequest = { showDialog = false },
+                                    title = { Text("Bekreft sletting") },
+                                    text = { Text("Er du sikker på at du vil slette alle adresser?") },
+                                    confirmButton = {
+                                        TextButton(
+                                            onClick = {
+                                                coroutineScope.launch {
+                                                    dataStoreManager.deleteAllAddresses()
+                                                }
+                                                showDialog = false
+                                            }
+                                        ) {
+                                            Text("Ja", color = MaterialTheme.colorScheme.error)
+                                        }
+                                    },
+                                    dismissButton = {
+                                        TextButton(onClick = { showDialog = false }) {
+                                            Text("Avbryt")
+                                        }
+                                    }
+                                )
+                            }
                         }
+
                     }
                 }
 
@@ -448,8 +479,16 @@ fun ProfileScreen(
                                     Spacer(modifier = Modifier.height(8.dp))
                                 }
 
-                                AddressCard(address = address, onClick = { onCardClick(address) })
 
+                                AddressCard(
+                                    address = address,
+                                    onClick = { onCardClick(address) },
+                                    onDelete = { addressToDelete ->
+                                        coroutineScope.launch {
+                                            dataStoreManager.deleteAddress(addressToDelete)
+                                        }
+                                    }
+                                )
                                 // For å legge til padding under (så skyggene blir riktig)
                                 if (address == addresses[addresses.size - 1]) {
                                     Spacer(modifier = Modifier.height(16.dp))
@@ -597,33 +636,66 @@ fun ProfileScreen(
 
 
 @Composable
-fun AddressCard(address: LagreAdresse, onClick: () -> Unit) {
+fun AddressCard(
+    address: LagreAdresse,
+    onClick: () -> Unit,
+    onDelete: (LagreAdresse) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            //.padding(vertical = 4.dp)
             .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = address.lagretNavn,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = address.lagretNavn,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
 
-            Spacer(modifier = Modifier.height(4.dp))
+                    Box {
+                        IconButton(onClick = { expanded = true }) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "Flere alternativer"
+                            )
+                        }
 
-            Text(
-                text = address.addressString,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Slett") },
+                                onClick = {
+                                    expanded = false
+                                    onDelete(address)
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = address.addressString,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
     }
 }
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)

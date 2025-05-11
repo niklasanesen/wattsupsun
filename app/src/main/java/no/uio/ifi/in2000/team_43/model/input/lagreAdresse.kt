@@ -1,20 +1,21 @@
 package no.uio.ifi.in2000.team_43.model.input
 
 import kotlinx.serialization.Serializable
+import java.util.UUID
 
 @Serializable
 data class LagreAdresse(
-    val longitude: Double,     // Lengdegrad
-    val latitude: Double,      // Breddegrad
-    val height: Double,        // Høyde
-    val width: Double,         // Bredde
-    val angle: Double,         // Vinkel
-    val direction: Double,     // Retning
-    val addressString: String, // Full adresse som tekst
-    val lagretNavn: String,     // Brukerens navn på adressen (f.eks. "Hjem")
-    val numPanel: Int,             // Antall paneler
-    val totalPanelAreal: Double,   // Totalt areal av panelene
-    val kwp: Int,                  // Effektkapasitet per panel i kWp
-    val pris: Int                  // Pris for panelene
-
+    val latitude: Double,
+    val longitude: Double,
+    val height: Double,
+    val width: Double,
+    val angle: Double,
+    val direction: Double,
+    val addressString: String,
+    val lagretNavn: String,
+    val numPanel: Int,
+    val totalPanelAreal: Double,
+    val kwp: Int,
+    val pris: Int,
+    val uniqueId: String = UUID.randomUUID().toString()  // Genererer UUID hvis det ikke blir spesifisert
 )
