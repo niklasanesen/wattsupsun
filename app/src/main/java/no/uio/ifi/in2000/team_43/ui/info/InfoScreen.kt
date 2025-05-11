@@ -233,7 +233,7 @@ fun InfoScreen(
         // total price for panels
         // Pls ask before touching this
         Spacer(modifier = Modifier.height(16.dp))
-        totalCostLogic(numPanel, totalPanelPrice, isLoading)
+        TotalCostLogic(numPanel, totalPanelPrice, isLoading)
 
 
         // ---- graf + switch + saved money for each month ----
@@ -271,6 +271,7 @@ fun InfoScreen(
                             onValueSelected = { month, kwh ->
                                 selectedMonth = month
                                 selectedKwh = kwh
+                                Log.i("YearlyChart", kwh)
                             }
                         )
                     }

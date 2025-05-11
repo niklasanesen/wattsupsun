@@ -35,11 +35,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import java.text.NumberFormat
+import java.util.Locale
 
 
 // Logic for how to show the UI thing:
 @Composable
-fun totalCostLogic(numPanel: Int, totalPanelPrice: Int, isLoading: Boolean) {
+fun TotalCostLogic(numPanel: Int, totalPanelPrice: Int, isLoading: Boolean) {
     if (isLoading) {
         CalculatingCardBox("Teller mynter - snart klart!")
     } else {
@@ -57,6 +59,10 @@ fun totalCostLogic(numPanel: Int, totalPanelPrice: Int, isLoading: Boolean) {
 fun totalCostAnimated(numPanel: Int, totalPanelPrice: Int): Int {
     var flipped by remember { mutableStateOf(false) }
     var showContent by remember { mutableStateOf(false) }
+
+    val readableTotalPanelPrice = NumberFormat.getInstance(Locale("no", "NO")).format(
+        totalPanelPrice
+    )
 
     // This is really really not optimal but it is what it is
     LaunchedEffect(totalPanelPrice) {
@@ -126,7 +132,7 @@ fun totalCostAnimated(numPanel: Int, totalPanelPrice: Int): Int {
 
                     Text(
                         text =
-                        "${totalPanelPrice} kr",
+                        "$readableTotalPanelPrice kr",
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold,
                             color = textColor

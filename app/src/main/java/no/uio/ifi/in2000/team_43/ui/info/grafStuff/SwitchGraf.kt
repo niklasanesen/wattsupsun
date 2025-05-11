@@ -34,6 +34,9 @@ import no.uio.ifi.in2000.team_43.model.garfStuff.MonthValueFormatter
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import java.text.NumberFormat
+import java.util.Locale
+
 @Composable
 fun YearlyChartWithValueDisplay(
     allMeasurements: List<GrafMeasurement>,
@@ -49,7 +52,7 @@ fun YearlyChartWithValueDisplay(
         LineChartWithSwitch(
             allMeasurements = allMeasurements,
             onValueSelected = { x, y ->
-                onValueSelected(x.toInt().toString(), y.toString())
+                onValueSelected(x.toInt().toString(), NumberFormat.getInstance(Locale("no", "NO")).format(y.toInt()))
             }
         )
     }
