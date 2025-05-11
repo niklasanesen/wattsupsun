@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.animation.core.tween
+import androidx.compose.ui.text.style.TextOverflow
 import kotlinx.coroutines.delay
 import java.text.NumberFormat
 import java.util.Locale
@@ -132,14 +133,22 @@ fun totalSavedAnimated(supportAmount: Double): Int {
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = if (isZeroSupport) Color(0xFFFFE0E0) else Color(0xFFE0F2F1))
             ) {
-                Box(modifier = Modifier.padding(16.dp), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
                     Text(
                         text = "Beregningene er basert på MET/PVGIS sine klimadata og strømpriser for 2024. Faktisk inntjening avhenger av fremtidig vær og strømpriser.",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = if (isZeroSupport) Color(0xFFB00020) else Color(0xFF006064),
                             fontWeight = FontWeight.Medium
                         ),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                        softWrap = true,
+                        overflow = TextOverflow.Clip
                     )
                 }
             }
