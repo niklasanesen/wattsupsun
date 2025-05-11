@@ -31,12 +31,19 @@ fun PointScreen(viewModel: PointViewModel) {
 
 ### ViewModel
 
+ViewModel er selve data staten, og fungerer som limet mellom Model og View. Den starter ved å hente data i samme format som modellen i det som kalles en `datasource`. I vårt tilfelle gjør vi API kall til tredjeparts datakilder ved bruk av [Ktor](https://ktor.io):
+
+```kotlin
+class PointDataSource {
+    suspend fun getPointData(): Point? {
+        val url = "https://example.com/point-data"
+        return client.get(url).body()
+    }
+}
+```
+
 ## Filstruktur
 
 - `model`: model
 - `data`: viewmodel
 - `ui`: view
-
-```
-
-```
