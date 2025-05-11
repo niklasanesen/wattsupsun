@@ -15,6 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun MonthlySavingsDisplay(
@@ -42,7 +44,7 @@ fun MonthlySavingsDisplay(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "${months.getOrNull(index) ?: "?"}:\n${amount.toInt()}kr",
+                        text = "${months.getOrNull(index) ?: "?"}:\n${NumberFormat.getInstance(Locale("no", "NO")).format(amount.toInt())} kr", // Same but added code that makes the number easier to read
                         style = MaterialTheme.typography.bodyLarge,
                         color = Color(0xFF006064) // endret tekstfarge
                     )

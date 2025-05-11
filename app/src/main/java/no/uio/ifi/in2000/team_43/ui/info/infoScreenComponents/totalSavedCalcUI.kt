@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.animation.core.tween
 import kotlinx.coroutines.delay
+import java.text.NumberFormat
+import java.util.Locale
 
 
 // Logic for the UI thing:
@@ -41,6 +43,8 @@ fun TotalSavedLogic(totalMoneySaved: Float, isLoading: Boolean) {
 fun totalSavedAnimated(supportAmount: Double): Int {
     var flipped by remember { mutableStateOf(false) }
     var showContent by remember { mutableStateOf(false) }
+
+    val readableSupportAmount = NumberFormat.getInstance(Locale("no", "NO")).format(supportAmount.toInt())
 
     // This is really really not optimal but it is what it is
     LaunchedEffect(supportAmount) {
@@ -110,7 +114,7 @@ fun totalSavedAnimated(supportAmount: Double): Int {
 
                     Text(
                         text =
-                            "${supportAmount.toInt()} kr",
+                            "$readableSupportAmount kr",
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold,
                             color = textColor
