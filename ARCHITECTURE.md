@@ -66,9 +66,6 @@ class PointViewModel() : ViewModel() {
             _point.value = repository.getPoint()
         }
     }
-
-    private suspend fun fetchPoint() {
-    }
 }
 ```
 
