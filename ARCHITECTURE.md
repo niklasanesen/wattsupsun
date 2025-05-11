@@ -42,6 +42,18 @@ class PointDataSource {
 }
 ```
 
+Så skjer alt av eventuell logikk og prosessering av dataen skjer i det som kalles et `repository`:
+
+```kotlin
+class PointRepository {
+    suspend fun getPoint(): Point? {
+        var point = dataSource.getPointData()
+        // some logic
+        return point
+    }
+}
+```
+
 ## Filstruktur
 
 - `model`: model
