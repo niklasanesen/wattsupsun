@@ -199,157 +199,182 @@ fun ProfileScreen(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(top = padding.calculateTopPadding()),
+                .padding(top = padding.calculateTopPadding(), bottom = 12.dp),
             // verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Card (
+                modifier = Modifier.padding(horizontal = 12.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF304745),
-                ),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 10.dp
-                ),
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
+                    containerColor = Color(0xFFA8CFE5)
+                )
             ) {
-                Row (
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(24.dp)
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFF304745),
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = 20.dp
+                    ),
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .fillMaxWidth()
+                        //.padding(horizontal = 12.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(80.dp)
-                            .clip(CircleShape)
-                            .clickable { showPhotoOptDialog = true }
-                            .background(Color.White),
-                        contentAlignment = Alignment.Center,
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(24.dp)
                     ) {
-                        if (profilePhotoUri.isNotEmpty()) {
-                            Image(
-                                painter = rememberAsyncImagePainter(profilePhotoUri.toUri()),
-                                contentDescription = "profile",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "profile",
-                                tint = Purple40,
-                                modifier = Modifier.size(124.dp)
-                            )
+                        Box(
+                            modifier = Modifier
+                                .size(80.dp)
+                                .clip(CircleShape)
+                                .clickable { showPhotoOptDialog = true }
+                                .background(Color.White),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            if (profilePhotoUri.isNotEmpty()) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(profilePhotoUri.toUri()),
+                                    contentDescription = "profile",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = "profile",
+                                    tint = Purple40,
+                                    modifier = Modifier.size(124.dp)
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.padding(12.dp))
+
+                        Column() {
+                            Box(modifier = Modifier.clickable { showDialog = true }) {
+                                Text(
+                                    text = if (firstname.isBlank() && lastname.isBlank()) "Fornavn Etternavn" else "$firstname $lastname",
+                                    fontSize = 26.sp,
+                                    modifier = Modifier.padding(end = 20.dp),
+                                    lineHeight = 34.sp,
+                                    color = Color.White
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "edit name",
+                                    tint = Color.White,
+                                    //tint = Purple40,
+                                    modifier = Modifier
+                                        .size(16.dp)
+                                        .align(Alignment.TopEnd)
+                                )
+                            }
+
+                            Row {
+                                Text(
+                                    text = if (addresses.size == 1) "${addresses.size} lagret adresse" else "${addresses.size} lagrede adresser",
+                                    color = Color.White,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
                         }
                     }
+                }
 
-                    Spacer(modifier = Modifier.padding(12.dp))
+                // Spacer(modifier = Modifier.height(16.dp))
 
-                    Column() {
-                        Box(modifier = Modifier.clickable { showDialog = true }) {
-                            Text(
-                                text = if (firstname.isBlank() && lastname.isBlank()) "Fornavn Etternavn" else "$firstname $lastname",
-                                fontSize = 26.sp,
-                                modifier = Modifier.padding(end = 20.dp),
-                                lineHeight = 34.sp,
-                                color = Color.White
-                            )
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = "edit name",
-                                tint = Color.White,
-                                //tint = Purple40,
-                                modifier = Modifier
-                                    .size(16.dp)
-                                    .align(Alignment.TopEnd)
-                            )
-                        }
 
-                        Row {
-                            Text(
-                                text = "${addresses.size} lagrede adresser",
-                                color = Color.White,
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
-                        }
+                Column (
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(
+                        onClick = { navController.navigate("appinfo") },
+                        enabled = true,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xff3b7d9c)
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(44.dp)
+                    ) {
+                        Text("Info om appen")
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Button(
+                        onClick = {},
+                        enabled = true,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xff3b7d9c)
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(44.dp)
+                    ) {
+                        Text("Innstillinger")
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Personvernerklæringsknapp
+                    Button(
+                        onClick = {
+                            // Når knappen trykkes, vis personvernerklæringen i en popup
+                            showPrivacyDialog = true
+                        },
+                        enabled = true,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xff3b7d9c)
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(44.dp)
+                    ) {
+                        Text("Personvernerklæring")
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            // Spacer(modifier = Modifier.height(8.dp))
 
-            Column (
-                modifier = Modifier.padding(horizontal = 20.dp),
-            ) {
-                Button(
-                    onClick = { navController.navigate("appinfo") },
-                    enabled = true,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xff3b7d9c)
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(44.dp)
-                ) {
-                    Text("Info om appen")
-                }
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
+                thickness = 1.dp,
+            )
+            //Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Button(
-                    onClick = {},
-                    enabled = true,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xff3b7d9c)
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(44.dp)
-                ) {
-                    Text("Innstillinger")
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Personvernerklæringsknapp
-                Button(
-                    onClick = {
-                        // Når knappen trykkes, vis personvernerklæringen i en popup
-                        showPrivacyDialog = true
-                    },
-                    enabled = true,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xff3b7d9c)
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(44.dp)
-                ) {
-                    Text("Personvernerklæring")
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 16.dp),
-                    thickness = 1.dp,
+            
+            Card (
+                modifier = Modifier.padding(horizontal = 12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFE6E9EA)
                 )
-                //Spacer(modifier = Modifier.height(16.dp))
-
+            ) {
                 Row (
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .padding(top = 8.dp)
                 ) {
                     Text(
                         text = "Lagrede adresser ♡",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
-                            .padding(8.dp)
-                            .padding(vertical = 4.dp)
+                            //.padding(8.dp)
+                            .padding(horizontal = 12.dp)
+                            .padding(top = 12.dp)
                     )
                     if (addresses.isNotEmpty()) {
                         Button(
@@ -367,6 +392,69 @@ fun ProfileScreen(
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                         ) {
                             Text("Slett alle", color = MaterialTheme.colorScheme.onError)
+                        }
+                    }
+                }
+
+                Column (
+                    modifier = Modifier.fillMaxSize(),
+                    //verticalArrangement = Arrangement.SpaceBetween,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (addresses.isEmpty()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 16.dp)
+                                .padding(top = 12.dp),
+                            verticalArrangement = Arrangement.Top
+                        ) {
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color(0xffe8ca89),
+                                ),
+                                modifier = Modifier
+                            ) {
+                                Text(
+                                    text = "Ingen adresser lagret enda.",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xff9c2d17),
+                                    modifier = Modifier
+                                        .paddingFromBaseline(top = 40.dp)
+                                        .padding(horizontal = 20.dp),
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "Gå til kart, velg adresse og registrer takflate for å lagre en adresse!",
+                                    modifier = Modifier
+                                        .paddingFromBaseline(bottom = 24.dp)
+                                        .padding(horizontal = 20.dp),
+                                )
+                            }
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            //.padding(top = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            items(addresses) { address ->
+                                // For å legge til padding over (så skyggene blir riktig)
+                                if (address == addresses[0]) {
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+
+                                AddressCard(address = address, onClick = { onCardClick(address) })
+
+                                // For å legge til padding under (så skyggene blir riktig)
+                                if (address == addresses[addresses.size - 1]) {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                }
+                            }
                         }
                     }
                 }
@@ -390,67 +478,7 @@ fun ProfileScreen(
                 }*/
             }
 
-            Column (
-                modifier = Modifier.fillMaxSize(),
-                //verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if (addresses.isEmpty()) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 20.dp, vertical = 12.dp),
-                        verticalArrangement = Arrangement.Top
-                    ) {
-                        Card(
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color(0xffe8ca89),
-                            ),
-                            modifier = Modifier
-                        ) {
-                            Text(
-                                text = "Ingen adresser lagret enda.",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xff9c2d17),
-                                modifier = Modifier
-                                    .paddingFromBaseline(top = 40.dp)
-                                    .padding(horizontal = 20.dp),
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = "Gå til kart, velg adresse og registrer takflate for å lagre en adresse!",
-                                modifier = Modifier
-                                    .paddingFromBaseline(bottom = 24.dp)
-                                    .padding(horizontal = 20.dp),
-                            )
-                        }
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp),
-                            //.padding(top = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        items(addresses) { address ->
-                            // For å legge til padding over (så skyggene blir riktig)
-                            if (address == addresses[0]) {
-                                Spacer(modifier = Modifier.height(16.dp))
-                            }
 
-                            AddressCard(address = address, onClick = { onCardClick(address) })
-
-                            // For å legge til padding under (så skyggene blir riktig)
-                            if (address == addresses[addresses.size - 1]) {
-                                Spacer(modifier = Modifier.height(16.dp))
-                            }
-                        }
-                    }
-                }
-            }
 
 
             // Popup for personvernerklæring
@@ -575,7 +603,7 @@ fun AddressCard(address: LagreAdresse, onClick: () -> Unit) {
             .fillMaxWidth()
             //.padding(vertical = 4.dp)
             .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {

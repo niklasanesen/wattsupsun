@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
@@ -150,14 +151,17 @@ fun totalCostAnimated(numPanel: Int, totalPanelPrice: Int): Int {
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = if (isZeroSupport) Color(0xFFFFE0E0) else Color(0xFFE0F2F1))
             ) {
-                Box(modifier = Modifier.padding(16.dp), contentAlignment = Alignment.Center) {
+                Box(modifier = Modifier.padding(8.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Text(
                         text = "Antall paneler og kostnader er estimert ut fra takareal og valgt panelpris. Ta kontakt med fagperson for vurdering av takforhold og endelig pris inkl. installasjon.",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = if (isZeroSupport) Color(0xFFB00020) else Color(0xFF006064),
                             fontWeight = FontWeight.Medium
                         ),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                        softWrap = true,
+                        overflow = TextOverflow.Clip
                     )
                 }
             }
