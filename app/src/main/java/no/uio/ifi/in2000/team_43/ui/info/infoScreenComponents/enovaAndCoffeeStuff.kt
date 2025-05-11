@@ -30,6 +30,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import no.uio.ifi.in2000.team_43.R
+import java.text.NumberFormat
+import java.util.Locale
 
 // For testing av card til enovastøtte:
 @Composable
@@ -40,6 +42,8 @@ fun EnovaCard(supportAmount: Double) {
     val context = LocalContext.current
     val enovaInfoLink = "https://www.enova.no/privat/alle-energitiltak/solenergi/solcelleanlegg/?gad_source=1&gad_campaignid=16624425572&gbraid=0AAAAADLywwiacDJN5I7llRB-oOuYbvBmW&gclid=Cj0KCQjw5ubABhDIARIsAHMighb65GEWXVeJy3jCq8CYd0rcsR4L1n7G4GHf9wBGVB-ngIYtISqzJIIaAp3fEALw_wcB"
 
+    // for better readability of the number
+    val readableSupportAmmount = NumberFormat.getInstance(Locale("no", "NO")).format(supportAmount.toInt())
     Card(
         modifier = Modifier
             .fillMaxWidth(),
@@ -86,7 +90,7 @@ fun EnovaCard(supportAmount: Double) {
                 )
             } else {
                 Text(
-                    text = "${supportAmount.toInt()} kr",
+                    text = "$readableSupportAmmount kr",
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = textColor
@@ -123,6 +127,9 @@ fun CoffeeCard(production: Int) {
     val backgroundColor = Color(0xFFFFE0B2)  // Lys oransje
     val textColor = Color(0xFFBF360C)  // Mørk rød
 
+    // for better readability of the number
+    val readablePrduction = NumberFormat.getInstance(Locale("no", "NO")).format(production)
+
     Card(
         modifier = Modifier
             .fillMaxWidth(),
@@ -145,7 +152,7 @@ fun CoffeeCard(production: Int) {
                 )
                 // Teksten som beskriver produksjon
                 Text(
-                    text = if (isZeroProduction) "Koker opp kaffe, et øyeblikk..." else "Solcellepanel hos deg kan koke opp ${production.toInt()} kopper kaffe årlig!",
+                    text = if (isZeroProduction) "Koker opp kaffe, et øyeblikk..." else "Solcellepanel hos deg kan koke opp $readablePrduction kopper kaffe årlig!",
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
