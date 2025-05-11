@@ -76,3 +76,7 @@ Filstrukturen vår er simpel og speiler arkitekturvalgene vi har gjort:
 - `model`: Deklarering av dataklasse modellene vi bruker.
 - `data`: Alle datasources og repositories, altså der dataen hentes og prosesseres.
 - `ui`: Skjermene våre og deres viewmodels
+
+## Android versjon
+
+Vi bruker API-level 34, fordi det er den vi har brukt i tidligere obliger og dermed har mest kjennskap til.
