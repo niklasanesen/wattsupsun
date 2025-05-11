@@ -70,7 +70,7 @@ import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.DirectionCard
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.pages.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
-
+import no.uio.ifi.in2000.team_43.ui.popUpHelper.*
 
 @Composable
 fun InputScreen(
