@@ -71,6 +71,8 @@ class PointViewModel() : ViewModel() {
 
 ## Filstruktur
 
-- `model`: model
-- `data`: viewmodel
-- `ui`: view
+Filstrukturen vår er simpel og speiler arkitekturvalgene vi har gjort:
+
+- `model`: Deklarering av dataklasse modellene vi bruker.
+- `data`: Alle datasources og repositories, altså der dataen hentes og prosesseres.
+- `ui`: Skjermene våre og deres viewmodels
