@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -33,6 +35,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
@@ -151,7 +154,13 @@ fun totalCostAnimated(numPanel: Int, totalPanelPrice: Int): Int {
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = if (isZeroSupport) Color(0xFFFFE0E0) else Color(0xFFE0F2F1))
             ) {
-                Box(modifier = Modifier.padding(8.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxSize()
+                        .fillMaxHeight(),
+                    contentAlignment = Alignment.Center
+                ) {
                     Text(
                         text = "Antall paneler og kostnader er estimert ut fra takareal og valgt panelpris. Ta kontakt med fagperson for vurdering av takforhold og endelig pris inkl. installasjon.",
                         style = MaterialTheme.typography.bodyMedium.copy(
@@ -159,9 +168,10 @@ fun totalCostAnimated(numPanel: Int, totalPanelPrice: Int): Int {
                             fontWeight = FontWeight.Medium
                         ),
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth(),
-                        softWrap = true,
-                        overflow = TextOverflow.Clip
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.Center),
+                        softWrap = true
                     )
                 }
             }
@@ -170,4 +180,15 @@ fun totalCostAnimated(numPanel: Int, totalPanelPrice: Int): Int {
     return 1
 }
 
+
+@Preview(showBackground = true)
+@Composable
+fun TotalCostAnimatedPreview() {
+    Column(modifier = Modifier.padding(16.dp)) {
+        totalCostAnimated(2, 3000)
+        Spacer(modifier = Modifier.height(16.dp))
+        totalCostAnimated(0, 0)
+
+    }
+}
 

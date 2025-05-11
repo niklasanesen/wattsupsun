@@ -136,7 +136,8 @@ fun totalSavedAnimated(supportAmount: Double): Int {
                 Box(
                     modifier = Modifier
                         .padding(8.dp)
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -146,11 +147,14 @@ fun totalSavedAnimated(supportAmount: Double): Int {
                             fontWeight = FontWeight.Medium
                         ),
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.Center),
                         softWrap = true,
                         overflow = TextOverflow.Clip
                     )
                 }
+
             }
         }
     }
