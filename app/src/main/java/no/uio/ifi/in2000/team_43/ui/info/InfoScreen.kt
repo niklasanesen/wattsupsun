@@ -142,8 +142,8 @@ fun InfoScreen(
 
     Column(modifier = modifier
         .padding(20.dp)
-        .verticalScroll(scrollState)) {
-
+        .verticalScroll(scrollState))
+    {
         Text(
             text = "$address",
             style = MaterialTheme.typography.headlineMedium.copy(
