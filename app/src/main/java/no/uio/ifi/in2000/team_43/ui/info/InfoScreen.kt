@@ -63,6 +63,7 @@ fun InfoScreen(
     val panelPrice = ctx.input?.panel?.pris ?: 0
     val totalPanelPrice = numPanel * panelPrice
 
+    Log.d("sui", "$weatherList")
     val calculatedMetData = remember(weatherList, ctx.input) {
         val result = mutableListOf<Pair<Instant, Double>>()
         val angle = ctx.input?.angle
