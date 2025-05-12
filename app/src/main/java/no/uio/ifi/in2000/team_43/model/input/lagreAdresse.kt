@@ -17,5 +17,6 @@ data class LagreAdresse(
     val totalPanelAreal: Double,
     val kwp: Int,
     val pris: Int,
+    val MoneySaved: Float,
     val uniqueId: String = UUID.randomUUID().toString()  // Genererer UUID hvis det ikke blir spesifisert
 )

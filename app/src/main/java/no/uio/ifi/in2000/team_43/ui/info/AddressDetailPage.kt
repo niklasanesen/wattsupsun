@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.team_43.ui.info
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,11 +44,19 @@ import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
 import no.uio.ifi.in2000.team_43.model.met.Coordinates
 import no.uio.ifi.in2000.team_43.ui.info.grafStuff.MonthSelector
 import no.uio.ifi.in2000.team_43.ui.info.grafStuff.MonthlyChartWithValueDisplay
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.CoffeeCard
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.EnovaCard
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.TotalCostLogic
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.TotalSavedLogic
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.ValueBox
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.met.beregnStromproduksjon
 import no.uio.ifi.in2000.team_43.ui.pages.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calcMoneySaved
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateCoffe
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateEnova
+import java.time.Instant
 import java.time.ZoneId
 
 
@@ -69,12 +79,13 @@ fun AddressDetailPage(
     val scrollState = rememberScrollState()
 
     val selectedMonth = remember { mutableIntStateOf(0) } // 0 = Januar
-    val isLoading = remember { mutableStateOf(true) } // Lastestatus
+    var isLoading by remember { mutableStateOf(true) } // Lastestatus
+
 
     // Fyll dataene (kun én gang)
     LaunchedEffect(weatherList) {
         // Sett isLoading til true før lasting
-        isLoading.value = true
+        isLoading = true
 
         // Simulering av datainnhenting
         weatherList?.dailyObservation?.forEach { (date, weatherDataList) ->
@@ -90,7 +101,7 @@ fun AddressDetailPage(
 
             val areal = address.height * address.width
             if (temperatur != null && solinnstraling != null) {
-                isLoading.value = false
+                isLoading = false
                 val produksjon = beregnStromproduksjon(
                     areal = areal,
                     vinkel = address.angle.toInt(),
@@ -120,6 +131,8 @@ fun AddressDetailPage(
     }
 
 
+
+
     Scaffold (
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -130,10 +143,6 @@ fun AddressDetailPage(
             )
         }
     ) { innerPadding ->
-
-
-
-
         // ---- input data ----
         Column(
             modifier = Modifier
@@ -142,6 +151,38 @@ fun AddressDetailPage(
                 .verticalScroll(scrollState)
                 .padding(20.dp)
         ) {
+
+
+            // Total money card on screen
+            // pls ask before touching any of this
+            Spacer(modifier = Modifier.height(16.dp))
+            TotalSavedLogic(address.MoneySaved, isLoading)
+
+            // total price for panels
+            // Pls ask before touching this
+            Spacer(modifier = Modifier.height(16.dp))
+            TotalCostLogic(address.numPanel, address.totalPanelAreal.toInt(), isLoading)
+
+            // Coffee card on screen
+            //Spacer(modifier = Modifier.height(16.dp))
+            //CoffeeCard(calculateCoffe(totalProduksjon) )
+
+
+            // Enova on infoscreen:
+            val wPerPanel = address.kwp.toDouble()
+            val kwpPerPanel = (wPerPanel / 1000.0)
+            Spacer(modifier = Modifier.height(16.dp))
+            EnovaCard(calculateEnova(kwpPerPanel, address.numPanel))
+
+
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+
+
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -227,7 +268,7 @@ fun AddressDetailPage(
                     selectedMonth = selectedMonth.intValue,
                     onMonthSelected = { selectedMonth.intValue = it }
                 )
-                if (isLoading.value) {
+                if (isLoading) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
