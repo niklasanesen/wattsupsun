@@ -130,7 +130,7 @@ fun AddressDetailPage(
         }
     }
 
-
+    val totalProduksjon =
 
 
     Scaffold (
@@ -161,11 +161,7 @@ fun AddressDetailPage(
             // total price for panels
             // Pls ask before touching this
             Spacer(modifier = Modifier.height(16.dp))
-            TotalCostLogic(address.numPanel, address.totalPanelAreal.toInt(), isLoading)
-
-            // Coffee card on screen
-            //Spacer(modifier = Modifier.height(16.dp))
-            //CoffeeCard(calculateCoffe(totalProduksjon) )
+            TotalCostLogic(address.numPanel, address.totalPanelAreal.toInt(), false)
 
 
             // Enova on infoscreen:
