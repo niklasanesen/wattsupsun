@@ -196,7 +196,7 @@ fun InfoScreen(
                 ) {
                     ValueBox(label = "Vinkel", value = "${ctx.input?.angle}°", modifier = Modifier.weight(1f))
 
-                    val directionText = when (ctx.input?.direction?.toInt()) {
+                    val directionText = when (ctx.input?.direction) {
                         0 -> "Nord"
                         90 -> "Øst"
                         180 -> "Sør"

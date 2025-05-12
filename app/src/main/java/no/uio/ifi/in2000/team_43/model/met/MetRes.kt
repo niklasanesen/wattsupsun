@@ -8,7 +8,8 @@ import java.time.Instant
 @Serializable
 data class WeatherStation(
     val name: String,
-    val id: String
+    val id: String,
+    val distance: Double?
 )
 
 @Serializable

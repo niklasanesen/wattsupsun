@@ -9,11 +9,14 @@ import no.uio.ifi.in2000.team_43.model.met.WeatherList
 import no.uio.ifi.in2000.team_43.model.met.WeatherStation
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.met.formatDate
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.met.getMostRecentStation
+import java.time.DateTimeException
 import java.time.Duration
 import java.time.Instant
 import java.time.Month
+import java.time.Year
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
 class MetRepository(private val metDataSource: MetDataSource = MetDataSource(APIClient.client)) {
@@ -32,21 +35,6 @@ class MetRepository(private val metDataSource: MetDataSource = MetDataSource(API
         val mostRecentTimes = weatherElements.map { weatherElement ->
             val allTimesForElement = metDataSource.getStartTime(weatherStation, weatherElement)
 
-            val yearList = allTimesForElement?.validYearsList?.map { year ->
-                Pair(year.validTo, year.validFrom)
-            }
-
-            println("allTimesForElement: $allTimesForElement")
-            println("size of yearList: ${yearList?.size}")
-
-            yearList?.forEach { year ->
-                println("the weatherelement has these valid dates: from: ${year.second}, to: ${year.first}")
-            }
-
-            if (allTimesForElement == null || allTimesForElement.validYearsList.isEmpty()) {
-                println("No valid years returned for $weatherElement at station ${weatherStation.id}")
-            }
-
             val validDate = allTimesForElement?.validYearsList?.takeIf { it.isNotEmpty() }
                 ?.let { getMostRecentStation(allTimesForElement) }
 
@@ -55,7 +43,7 @@ class MetRepository(private val metDataSource: MetDataSource = MetDataSource(API
                 return null
             }
 
-            Pair(validDate.validFrom, validDate.validTo)
+            validDate
         }
 
         if (mostRecentTimes.size < weatherElements.size) {
@@ -63,128 +51,304 @@ class MetRepository(private val metDataSource: MetDataSource = MetDataSource(API
             return null
         }
 
-        val latestDate = mostRecentTimes.minByOrNull { it.second }?.second
-
-        val localDate = latestDate?.atZone(ZoneOffset.UTC)?.toLocalDate()
-
-        val newLocalDate = localDate?.minusYears(1)
-
-        println("earliest date is: $latestDate and it is valid until: ${newLocalDate?.atStartOfDay(ZoneOffset.UTC)?.toInstant()}")
+        val latestDateObj = mostRecentTimes.minByOrNull { it.validTo }
+        val latestDate = latestDateObj?.validTo
 
         if (latestDate != null) {
-            if (mostRecentTimes.all { (start, end) ->
-                    latestDate >= start && latestDate <= end
-                }) {
-                val localDate = latestDate.atZone(ZoneOffset.UTC).toLocalDate()
-                val newLocalDate = localDate.minusYears(1)
-                val earliestDate = newLocalDate.atStartOfDay(ZoneOffset.UTC).toInstant()
 
-                return ValidYears(
-                    validTo = latestDate,
-                    validFrom = earliestDate,
-                    elementId = "",
-                    weatherStation = weatherStation
-                )
+            var overlappingCount =  mostRecentTimes.count {
+                latestDate >= it.validFrom && latestDate <= it.validTo
+            }
+
+            val localDate = latestDate.atZone(ZoneOffset.UTC).toLocalDate()
+            val newLocalDate = localDate.minusYears(1)
+            val earliestDate = newLocalDate.atStartOfDay(ZoneOffset.UTC).toInstant()
+
+            println("earliest date is: $latestDate and it is valid until: ${newLocalDate?.atStartOfDay(ZoneOffset.UTC)?.toInstant()}")
+
+            when(overlappingCount) {
+
+                4 -> {
+                    Log.d("bliblo", "fant 4 like")
+                    return ValidYears(
+                        validTo = latestDate,
+                        validFrom = earliestDate,
+                        elementId = "success",
+                        weatherStation = weatherStation
+                    )
+                }
+
+                3 -> {
+                    Log.d("bliblo", "fant 3 like")
+                    if (latestDate >= Instant.parse("2005-01-01T00:00:00Z")) {
+                        val badObject = mostRecentTimes.find { it.validFrom > latestDate }
+
+                        return ValidYears(
+                            validFrom = earliestDate,
+                            validTo = latestDate,
+                            elementId = badObject!!.elementId,
+                            weatherStation = weatherStation
+                        )
+                    }
+                }
+
+                else -> {
+                    Log.d("bliblo", "fant 1/2 like")
+                    val badObject = mostRecentTimes.find { it.validTo == latestDate }
+                    val almostRecentTimes = mostRecentTimes.filter { it.validFrom > latestDate }
+
+                    val secondLatestDate = almostRecentTimes.minByOrNull { it.validTo }?.validTo
+
+                    if (secondLatestDate != null) {
+                        val secondOverlappingCount = almostRecentTimes.count {
+                            secondLatestDate >= it.validFrom && secondLatestDate <= it.validTo
+                        }
+
+                        val secondLocalDate = secondLatestDate.atZone(ZoneOffset.UTC).toLocalDate()
+                        val newSecondLocalDate = secondLocalDate.minusYears(1)
+                        val secondEarliestDate = newSecondLocalDate.atStartOfDay(ZoneOffset.UTC).toInstant()
+
+                        if (secondOverlappingCount == 3) {
+                            return ValidYears(
+                                validFrom = secondEarliestDate,
+                                validTo = secondLatestDate,
+                                elementId = badObject!!.elementId,
+                                weatherStation = weatherStation
+                            )
+                        }
+                    }
+                }
             }
         }
 
         return null
     }
 
-    suspend fun getDataSet(weatherStation: WeatherStation, validYears: ValidYears): WeatherList? {
-        val formattedStartDate = formatDate(validYears.validFrom)
-        val formattedEndDate = formatDate(validYears.validTo)
+    suspend fun getValidTimeOneObject(weatherStation: WeatherStation, elementId: String, startDate: Instant, endDate: Instant): ValidYears? {
+        Log.d("bliblo", "henter siste elem: $elementId, for start: $startDate og slutt: $endDate, for stasjon ${weatherStation.name} avstand er: ${weatherStation.distance}")
+        val allTimes = metDataSource.getStartTime(weatherStation, elementId)
+        val mostRecent = allTimes?.validYearsList?.takeIf { it.isNotEmpty() }
+            ?.let { getMostRecentStation(allTimes) }
 
-        return metDataSource.getWeatherData(weatherStation, validYears.elementId, formattedStartDate, formattedEndDate)
-    }
 
-    suspend fun getGlobalRadiationData(weatherStation: WeatherStation, validYears: ValidYears): WeatherList? {
-        val formattedStartDate = formatDate(validYears.validFrom)
-        val formattedEndDate = formatDate(validYears.validTo)
-
-        val allSolarData = metDataSource.getWeatherData(weatherStation, validYears.elementId, formattedStartDate, formattedEndDate)
-
-        val groupedByDay = allSolarData!!.dataList.groupBy {
-            formatDate(it.timeMeasured)
-        }
-
-        val dailyAverage = groupedByDay.map { (date, weatherDataList) ->
-            val sumValue = weatherDataList.sumOf { it.value.coerceAtLeast(0.0) }
-            WeatherData(
-                elementId = validYears.elementId,
-                value = sumValue,
-                unit = weatherDataList.first().unit,
-                weatherStation = weatherStation,
-                timeMeasured = Instant.parse("${date}T00:00:00Z")
+        if (mostRecent != null && mostRecent.validFrom <= startDate && mostRecent.validTo <= endDate) {
+            return ValidYears(
+                validFrom = startDate,
+                validTo = endDate,
+                elementId = elementId,
+                weatherStation = weatherStation
             )
         }
 
-        return WeatherList(dataList = dailyAverage)
+        return null
+    }
+
+    suspend fun getDataSet(weatherStation: WeatherStation, validYears: ValidYears): WeatherList? {
+        val startDate = validYears.validFrom
+        val endDate = validYears.validTo
+
+        var formattedStartDate = formatDate(startDate)
+        var formattedEndDate = formatDate(endDate)
+        val expectedDays = ChronoUnit.DAYS.between(startDate, endDate).toInt()
+
+        var weatherData = metDataSource.getWeatherData(weatherStation, validYears.elementId, formattedStartDate, formattedEndDate)
+
+
+        if (weatherData == null || weatherData.dataList.size < expectedDays) {
+            val now = Instant.now()
+            val tryLater = endDate.atZone(ZoneId.of("UTC")).plusYears(1).toInstant().isBefore(now)
+
+            val altStartDate = if (tryLater) {
+                startDate.atZone(ZoneId.of("UTC")).plusYears(1).toInstant()
+            } else {
+                startDate.atZone(ZoneId.of("UTC")).minusYears(1).toInstant()
+            }
+
+            val altEndDate = if (tryLater) {
+                endDate.atZone(ZoneId.of("UTC")).plusYears(1).toInstant()
+            } else {
+                endDate.atZone(ZoneId.of("UTC")).minusYears(1).toInstant()
+            }
+
+            formattedStartDate = formatDate(altStartDate)
+            formattedEndDate = formatDate(altEndDate)
+
+            val altData = metDataSource.getWeatherData(weatherStation, validYears.elementId, formattedStartDate, formattedEndDate)
+
+            if (altData != null) {
+                val combined = (weatherData?.dataList ?: emptyList()) + altData.dataList
+
+                // Group by MM-DD
+                val groupedByMonthDay = combined.groupBy { data ->
+                    val zdt = data.timeMeasured.atZone(ZoneId.of("UTC"))
+                    Pair(zdt.monthValue, zdt.dayOfMonth)
+                }
+
+                val hasFeb29InOriginalRange = generateSequence(startDate) { it.plus(1, ChronoUnit.DAYS) }
+                    .takeWhile { it <= endDate }
+                    .any { it.atZone(ZoneId.of("UTC")).monthValue == 2 && it.atZone(ZoneId.of("UTC")).dayOfMonth == 29 }
+
+                val normalizedByMonthDay = groupedByMonthDay.mapValues { (_, sameDayEntries) ->
+                    sameDayEntries.maxByOrNull { it.timeMeasured }!!
+                }
+
+
+
+                val completeDateRange = generateSequence(startDate) { it.plus(1, ChronoUnit.DAYS) }
+                    .takeWhile { it < endDate }
+                    .mapNotNull { date ->
+                        val zdt = date.atZone(ZoneId.of("UTC"))
+                        val month = zdt.monthValue
+                        val day = zdt.dayOfMonth
+
+                        // Skip Feb 29 if base year doesn't support it
+                        if (month == 2 && day == 29 && !hasFeb29InOriginalRange) {
+                            return@mapNotNull null
+                        }
+
+                        val dataForDay = normalizedByMonthDay[Pair(month, day)]
+
+                        val filledData = if (dataForDay != null) {
+                            val newTime = ZonedDateTime.of(zdt.year, month, day, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant()
+                            dataForDay.copy(timeMeasured = newTime)
+                        } else {
+                            // Fill with zero or null value if no data available
+                            WeatherData(
+                                elementId = validYears.elementId,
+                                value = 0.0, // or null depending on requirements
+                                unit = "",  // Optional: define default unit
+                                weatherStation = weatherStation,
+                                timeMeasured = ZonedDateTime.of(zdt.year, month, day, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant()
+                            )
+                        }
+
+                        filledData
+                    }.toList()
+
+                weatherData = WeatherList(completeDateRange.sortedBy { it.timeMeasured })
+            }
+        }
+        Log.d("dataaa", "amount of days: ${weatherData?.dataList?.size}, for ${weatherData?.dataList?.first()?.elementId}")
+        return weatherData
+    }
+
+    suspend fun getGlobalRadiationData(weatherStation: WeatherStation, validYears: ValidYears): WeatherList? {
+        val now = Instant.now()
+        val startDate = validYears.validFrom
+        val endDate = validYears.validTo
+        val formattedStartDate = formatDate(startDate)
+        val formattedEndDate = formatDate(endDate)
+
+        var allSolarData = metDataSource.getWeatherData(weatherStation, validYears.elementId, formattedStartDate, formattedEndDate)
+
+        if (allSolarData == null) {
+            val tryLater = endDate.atZone(ZoneId.of("UTC")).plusYears(1).toInstant().isBefore(now)
+
+            val altStart = if (tryLater) {
+                startDate.atZone(ZoneId.of("UTC")).plusYears(1).toInstant()
+            } else {
+                startDate.atZone(ZoneId.of("UTC")).minusYears(1).toInstant()
+            }
+            val altEnd = if (tryLater) {
+                endDate.atZone(ZoneId.of("UTC")).plusYears(1).toInstant()
+            } else {
+                endDate.atZone(ZoneId.of("UTC")).minusYears(1).toInstant()
+            }
+
+            allSolarData = metDataSource.getWeatherData(weatherStation, validYears.elementId, formatDate(altStart), formatDate(altEnd))
+        }
+
+        if (allSolarData == null) return null
+
+        val groupedByDay = allSolarData.dataList.groupBy {
+            formatDate(it.timeMeasured)
+        }
+
+        val fullDateRange = generateSequence(startDate) { it.plus(1, ChronoUnit.DAYS) }
+            .takeWhile { it < endDate }
+            .toList()
+
+        val completeDailyData = fullDateRange.map { date ->
+            val formatted = formatDate(date)
+            val matchingData = groupedByDay[formatted]
+
+            val value = matchingData?.sumOf { it.value.coerceAtLeast(0.0) } ?: 0.0
+            val unit = matchingData?.firstOrNull()?.unit ?: "unknown"
+
+            WeatherData(
+                elementId = validYears.elementId,
+                value = value,
+                unit = unit,
+                weatherStation = weatherStation,
+                timeMeasured = date
+            )
+        }
+
+        Log.d("dataaa", "amount of days for glopbal rad is ${completeDailyData.size}")
+        return WeatherList(dataList = completeDailyData)
     }
 
     suspend fun getSnowThickness(weatherStation: WeatherStation, validYears: ValidYears): WeatherList? {
-        val formattedStartDate = formatDate(validYears.validFrom)
-        val formattedEndDate = formatDate(validYears.validTo)
-        val dates = generateSequence(validYears.validFrom) { it.plus(1, ChronoUnit.DAYS) }
-            .takeWhile { it <= validYears.validTo.minus(Duration.ofDays(1)) }
-        val datesList = dates.toList()
+        val startDate = validYears.validFrom
+        val endDate = validYears.validTo
+        val formattedStartDate = formatDate(startDate)
+        val formattedEndDate = formatDate(endDate)
 
-        val allSnowData = metDataSource.getWeatherData(weatherStation, validYears.elementId, formattedStartDate, formattedEndDate)
+        var snowData = metDataSource.getWeatherData(weatherStation, validYears.elementId, formattedStartDate, formattedEndDate)
 
-        allSnowData?.dataList?.forEach { data ->
-            Log.d("monthCheck", "the months in this list: ${data.timeMeasured}")
+        if (snowData == null || snowData.dataList.size < 12) {
+
+            val altStart = startDate.atZone(ZoneId.of("UTC")).minusYears(5).toInstant()
+
+            val altEnd = endDate.atZone(ZoneId.of("UTC")).plusYears(5).toInstant()
+
+            snowData = metDataSource.getWeatherData(weatherStation, validYears.elementId, formatDate(altStart), formatDate(altEnd))
         }
 
-        // Group by month from the data
-        val groupedByMonth: Map<Month, WeatherData> = allSnowData!!.dataList.associateBy {
+        if (snowData == null) return null
+
+        val groupedByMonth = snowData.dataList.groupBy {
             it.timeMeasured.atZone(ZoneId.of("UTC")).month
+        }.mapValues { entry ->
+            val avgValue = entry.value.map { it.value }.average()
+            val first = entry.value.first()
+            WeatherData(
+                elementId = first.elementId,
+                unit = first.unit,
+                value = avgValue,
+                weatherStation = first.weatherStation,
+                timeMeasured = first.timeMeasured
+            )
         }
 
         val allMonths = Month.entries.toTypedArray()
-        val firstYearStartMonth = validYears.validFrom.atZone(ZoneId.of("UTC")).month
-        val firstYear = validYears.validFrom.atZone(ZoneId.of("UTC")).year
-        val correctValidTo = validYears.validTo.minus(Duration.ofDays(1))
-        val secondYear = correctValidTo.atZone(ZoneId.of("UTC")).year
+        val firstYearStartMonth = startDate.atZone(ZoneId.of("UTC")).month
+        val firstYear = startDate.atZone(ZoneId.of("UTC")).year
+        val secondYear = endDate.minus(Duration.ofDays(1)).atZone(ZoneId.of("UTC")).year
 
-        // Create completeMonthMap, filling in missing months with default data
-        val completeMonthMap: Map<Month, WeatherData> = allMonths.associateWith { month: Month ->
-            // Check if the month belongs to the first or second year
-            val yearToUse = when {
-                month >= firstYearStartMonth -> firstYear // months >= start month in the first year
-                else -> secondYear // months in the second year
-            }
-
-            groupedByMonth.getOrDefault(month, WeatherData(
-                elementId = "mean(surface_snow_thickness P1M)",
-                unit = "cm",
-                value = 0.0,
-                timeMeasured = Instant.parse("${yearToUse}-${month.value.toString().padStart(2, '0')}-01T00:00:00Z"),
-                weatherStation = validYears.weatherStation
-            ))
-        }
-
-        // Log the grouped months
-        groupedByMonth.forEach { dato ->
-            Log.d("monthCheck", "The months in this list: ${dato.key}")
-        }
-
-        Log.d("monthCheck", "size: ${groupedByMonth.size}")
-
-        // Create the data list for all days by mapping over the date range
-        val dataForAllDays = datesList.mapNotNull { date ->
-            val zonedDateTime = date.atZone(ZoneId.of("UTC"))
-            val firstMonthData = completeMonthMap[zonedDateTime.month]
-
-            firstMonthData?.let {
+        val completeMonthMap = allMonths.associateWith { month ->
+            val year = if (month >= firstYearStartMonth) firstYear else secondYear
+            groupedByMonth.getOrElse(month) {
                 WeatherData(
-                    elementId = it.elementId,
-                    value = it.value,
-                    unit = it.unit,
-                    weatherStation = it.weatherStation,
-                    timeMeasured = date
+                    elementId = "mean(surface_snow_thickness P1M)",
+                    unit = "cm",
+                    value = 0.0,
+                    timeMeasured = Instant.parse("${year}-${month.value.toString().padStart(2, '0')}-01T00:00:00Z"),
+                    weatherStation = validYears.weatherStation
                 )
             }
         }
+
+        val dates = generateSequence(startDate) { it.plus(1, ChronoUnit.DAYS) }
+            .takeWhile { it < endDate }
+            .toList()
+
+        val dataForAllDays = dates.mapNotNull { date ->
+            val month = date.atZone(ZoneId.of("UTC")).month
+            completeMonthMap[month]?.copy(timeMeasured = date)
+        }
+
+        Log.d("dataaa", "ampunt of days for snowthickness is ${dataForAllDays.size}")
         return WeatherList(dataList = dataForAllDays)
     }
 }
