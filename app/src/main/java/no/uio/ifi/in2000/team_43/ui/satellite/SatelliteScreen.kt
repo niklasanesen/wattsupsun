@@ -41,6 +41,9 @@ import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import no.uio.ifi.in2000.team_43.R
 import no.uio.ifi.in2000.team_43.model.areal.Areal
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
+import no.uio.ifi.in2000.team_43.ui.theme.Cerulean
+import no.uio.ifi.in2000.team_43.ui.theme.DarkSlate
+import no.uio.ifi.in2000.team_43.ui.theme.ErrorColor
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.map.getBitmapFromVectorDrawable
 import kotlin.math.floor
 
@@ -116,7 +119,7 @@ fun SatelliteScreen(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(
                     modifier = Modifier
-                        .background(color = Color.White, shape = RoundedCornerShape(8.dp))
+                        .background(color = Color.White, shape = RoundedCornerShape(16.dp))
                         .padding(16.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -126,7 +129,7 @@ fun SatelliteScreen(
                             fontSize = 16.sp,
                             lineHeight = 24.sp,
                             fontWeight = FontWeight.Medium,
-                            color = Color.Black,
+                            color = Cerulean,
                             textAlign = TextAlign.Center
                         )
                     )
@@ -137,8 +140,8 @@ fun SatelliteScreen(
                 if (savedPolygons.isNotEmpty()) {
                     Box(
                         modifier = Modifier
-                            .background(Color(0xFF394D3E), RoundedCornerShape(8.dp))
-                            .padding(8.dp)
+                            .background(DarkSlate, RoundedCornerShape(16.dp))
+                            .padding(12.dp)
                     ) {
                         Text(
                             text = "$areaInSquareMeters m²",
@@ -154,8 +157,10 @@ fun SatelliteScreen(
 
             when {
                 points.isNotEmpty() -> {
-                    Button(onClick = { satelliteViewModel.undoLastPoint() }) {
-                        Text("Angre punkt")
+                    Button(
+                        onClick = { satelliteViewModel.undoLastPoint() }
+                    ) {
+                        Text(text = "Angre punkt")
                     }
                 }
 
@@ -167,7 +172,7 @@ fun SatelliteScreen(
                     ) {
                         Button(
                             onClick = { satelliteViewModel.deletePolygon() },
-                            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error)
+                            colors = ButtonDefaults.buttonColors(ErrorColor)
                         ) {
                             Text("Slett takflate")
                         }

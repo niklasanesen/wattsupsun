@@ -11,32 +11,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF3B7D9C),
-    onPrimary = Color.White,
-
-    secondary = Color(0xFFE8CA89),
-    onSecondary = Color(0xFF1C1B1F),
-
-    tertiary = Color(0xFF9C2D17),
-    onTertiary = Color.White,
-
-    background = Color(0xFF121212),
-    onBackground = Color(0xFFF1F1F1),
-
-    surface = Color(0xFF1E1E1E),
-    onSurface = Color(0xFFF1F1F1)
-)
-
-
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF5AA9E6),     // En klar og frisk blå
+    primary = Cerulean,
     onPrimary = Color.White,
 
-    secondary = Color(0xFFE1B964), // En dempet gyllen karamellfarge
+    secondary = Blue,
     onSecondary = Color(0xFF1C1B1F),
 
-    tertiary = Color(0xFFEE6C4D),    // En varm rød-oransje som gir kontrast
+    tertiary = MutedError,
     onTertiary = Color.White,
 
     background = Color(0xFFFFFBFE),
@@ -45,9 +27,6 @@ private val LightColorScheme = lightColorScheme(
     surface = Color(0xFFFFFBFE),
     onSurface = Color(0xFF1C1B1F)
 )
-
-
-
 
 @Composable
 fun Team_43Theme(
@@ -61,6 +40,7 @@ fun Team_43Theme(
             dynamicLightColorScheme(context)
         }
 
+        // We do not change colors based on dark theme or not
         darkTheme -> LightColorScheme
         else -> LightColorScheme
     }

@@ -23,6 +23,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -70,7 +71,11 @@ import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.DirectionCard
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.pages.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
-import no.uio.ifi.in2000.team_43.ui.popUpHelper.*
+import no.uio.ifi.in2000.team_43.ui.theme.Blue
+import no.uio.ifi.in2000.team_43.ui.theme.BottomBarColor
+import no.uio.ifi.in2000.team_43.ui.theme.Cerulean
+import no.uio.ifi.in2000.team_43.ui.theme.ErrorColor
+import no.uio.ifi.in2000.team_43.ui.theme.LightRed
 
 @Composable
 fun InputScreen(
@@ -275,7 +280,9 @@ fun InputForm(
             if (angleError.isNotEmpty()) {
                 Text(
                     text = angleError,
-                    color = Color.Red,
+                    color = ErrorColor,
+                    fontSize = 14.sp,
+                    lineHeight = 22.sp,
                     modifier = Modifier.padding(12.dp)
                 )
             }
@@ -285,7 +292,7 @@ fun InputForm(
             if (!expanded) {
                 when(direction){
                     Direction.NORTH -> {
-                        DirectionCard("Obs! Nordvendte paneler er ikke veldig lønnsomt i Norge.", color = Color(0xFFFFCDD2), textcolor = Color(0xFFB71C1C))
+                        DirectionCard("Obs! Nordvendte paneler er ikke veldig lønnsomt i Norge.", color = LightRed, textcolor = ErrorColor)
                     }
                     Direction.EAST -> {
                         DirectionCard("Østvendte paneler gir mest strømproduksjon tidlig på dagen.")
@@ -318,7 +325,7 @@ fun InputForm(
             if (error.isNotEmpty()) {
                 Text(
                     text = error,
-                    color = Color.Red,
+                    color = ErrorColor,
                     fontSize = 14.sp,
                     lineHeight = 22.sp,
                     modifier = Modifier
@@ -333,6 +340,7 @@ fun InputForm(
                 onClick = {
                     onNextClicked()
                 },
+                colors = ButtonDefaults.buttonColors(containerColor = Cerulean),
             ) {
                 Text("Neste")
                 Icon(
@@ -424,7 +432,7 @@ fun PanelSelector(
                 onClick = { onPanelSelected(if (isSelected) null else panel) },
                 colors = CardDefaults.cardColors(
                     containerColor = if (isSelected)
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                        BottomBarColor
                     else
                         MaterialTheme.colorScheme.surface
                 ),

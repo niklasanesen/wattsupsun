@@ -1,8 +1,6 @@
 package no.uio.ifi.in2000.team_43.ui.home
 
-import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,16 +10,13 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -50,24 +45,19 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.sp
-import no.uio.ifi.in2000.team_43.data.CoordinateCache
-import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.model.stromdistrikt.StromDistrikt
-import no.uio.ifi.in2000.team_43.ui.theme.Purple40
-
-
-
-
+import no.uio.ifi.in2000.team_43.ui.theme.BottomBarColor
+import no.uio.ifi.in2000.team_43.ui.theme.Cerulean
+import no.uio.ifi.in2000.team_43.ui.theme.ErrorColor
+import no.uio.ifi.in2000.team_43.ui.theme.LightRed
 
 
 @Composable
@@ -134,13 +124,13 @@ fun MapScreen(
                         Text(text = "Registrer takflate")
                     },
                     text = {
-                        Text(text = "Vi trenger informasjon om dine takflater for å kunne gi deg relevant info. Velg å enten tegne takflate på kart eller manuelt oppgi mål. Vi anbefaler å oppgi mål for mest korrekte beregninger.")
+                        Text(text = "Vi trenger informasjon om din takflate for å kunne gi deg relevant info. Velg å enten tegne takflate på kart eller manuelt oppgi mål. Vi anbefaler å oppgi mål for mest korrekte beregninger.")
                     },
                     onDismissRequest = {
                         showDialog = false
                     },
                     confirmButton = {
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Column {
                             Button(
                                 onClick = {
                                     if (coords != null) {
@@ -149,7 +139,7 @@ fun MapScreen(
                                           },
                                 enabled = true,
                                 modifier = Modifier.fillMaxWidth(),
-                                colors = ButtonDefaults.buttonColors(containerColor = Purple40)
+                                colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
                             ) {
                                 Text("Oppgi mål")
                             }
@@ -157,7 +147,7 @@ fun MapScreen(
                                 onClick = { onSatelliteBtnClicked(coords, address, stromdistrikt) },
                                 enabled = true,
                                 modifier = Modifier.fillMaxWidth(),
-                                colors = ButtonDefaults.buttonColors(containerColor = Purple40)
+                                colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
                             ) {
                                 Text("Tegn takflate")
                             }
@@ -229,8 +219,8 @@ fun MapScreen(
                             .weight(0.275f)
                             .fillMaxHeight(),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.LightGray,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            containerColor = LightRed,
+                            contentColor = ErrorColor
                         )
                     ) {
                         Text(
@@ -250,7 +240,7 @@ fun MapScreen(
                         modifier = Modifier
                             .weight(0.725f)
                             .fillMaxHeight(),
-                        colors = ButtonDefaults.buttonColors(containerColor = Purple40)
+                        colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
                     ) {
                         Text(
                             "Bekreft adresse",

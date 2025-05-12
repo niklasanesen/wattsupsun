@@ -79,7 +79,10 @@ import no.uio.ifi.in2000.team_43.ui.home.WelcomeScreen
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.rememberCoroutineScope
-
+import no.uio.ifi.in2000.team_43.ui.theme.Cerulean
+import no.uio.ifi.in2000.team_43.ui.theme.ErrorColor
+import no.uio.ifi.in2000.team_43.ui.theme.MutedError
+import no.uio.ifi.in2000.team_43.ui.theme.TopBarColor
 
 
 @Composable
@@ -255,7 +258,7 @@ fun ProfileScreen(
                                 Icon(
                                     imageVector = Icons.Default.Person,
                                     contentDescription = "profile",
-                                    tint = Purple40,
+                                    tint = Cerulean,
                                     modifier = Modifier.size(124.dp)
                                 )
                             }
@@ -365,7 +368,7 @@ fun ProfileScreen(
             Card (
                 modifier = Modifier.padding(horizontal = 12.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFE6E9EA)
+                    containerColor = Color(0xFFEEF0F1)
                 )
             ) {
                 Row (
@@ -393,7 +396,7 @@ fun ProfileScreen(
                                 onClick = { showDialog = true },
                                 enabled = true,
                                 modifier = Modifier.width(112.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                                colors = ButtonDefaults.buttonColors(containerColor = MutedError)
                             ) {
                                 Text("Slett alle", color = MaterialTheme.colorScheme.onError)
                             }
@@ -497,24 +500,6 @@ fun ProfileScreen(
                         }
                     }
                 }
-
-                /*
-                Button(
-                    onClick = {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            dataStoreManager.deleteAllAddresses()
-                        }
-                    },
-                    enabled = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        // .padding(24.dp)
-                        .height(48.dp),
-                    //.paddingFromBaseline(bottom = padding.calculateBottomPadding()),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text("Slett alle adresser", color = MaterialTheme.colorScheme.onError)
-                }*/
             }
 
 
@@ -553,7 +538,7 @@ fun ProfileScreen(
                                 photoPickerLauncher.launch("image/*")
                                 showPhotoOptDialog = false
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Purple40)
+                            colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
                         ) {
                             Text("Velg fra galleri")
                         }
@@ -564,7 +549,7 @@ fun ProfileScreen(
                                 cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
                                 showPhotoOptDialog = false
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Purple40)
+                            colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
                         ) {
                             Text("Ta nytt bilde")
                         }
@@ -609,7 +594,7 @@ fun ProfileScreen(
                                 }
                                 showDialog = false
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Purple40)
+                            colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
                         ) {
                             Text("Lagre")
                         }
@@ -659,14 +644,16 @@ fun AddressCard(
                     Text(
                         text = address.lagretNavn,
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary
+                        color = Cerulean
                     )
 
-                    Box {
+                    Box (
+                        modifier = Modifier.size(24.dp)
+                    ) {
                         IconButton(onClick = { expanded = true }) {
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
-                                contentDescription = "Flere alternativer"
+                                contentDescription = "Flere alternativer",
                             )
                         }
 
@@ -685,7 +672,7 @@ fun AddressCard(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                     text = address.addressString,
@@ -704,7 +691,7 @@ fun TopAppBarProfile() {
     CenterAlignedTopAppBar(
         title = { Text("Profil") },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0xff88aabd),
+            containerColor = TopBarColor,
             titleContentColor = Color.White
         )
     )
