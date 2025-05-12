@@ -230,7 +230,7 @@ fun InfoScreen(
         // total price for panels
         // Pls ask before touching this
         Spacer(modifier = Modifier.height(16.dp))
-        TotalCostLogic(numPanel, totalPanelPrice, isLoading)
+        TotalCostLogic(numPanel = numPanel, totalPanelPrice = totalPanelPrice, isLoading = false) // It does not need to load, since data is already ready, therefor send with false
 
 
         // ---- graf + switch + saved money for each month ----
