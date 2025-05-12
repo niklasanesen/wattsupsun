@@ -101,8 +101,8 @@ class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewM
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
-    var nearestMaxCount = 1
-    val maxAttempts = 31 //the amount of stations that match the relevant elements in Norway
+    private var nearestMaxCount = 1
+    private val maxAttempts = 31 //the amount of stations that match the relevant elements in Norway
 
     fun calcInsolation(cloudData: Double, snowData: Double, globalRadiation: Double): Double {
         val calcCloud = 1 - (cloudData.toDouble() / 8) * 0.75
@@ -132,6 +132,29 @@ class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewM
         }
 
         return tryGetValidYear(coordinates, nearestMaxCount + 1, attempts + 1)
+
+    }
+
+    suspend fun tryGetLastElement(coordinates: Coordinates, nearestMaxCount: Int, otherStationValidYears: ValidYears, attempts: Int = nearestMaxCount - 1): ValidYears? {
+        if (attempts >= maxAttempts) {
+            _errorMessage.value = "Unable to find valid years after $maxAttempts attempts."
+            return null
+        }
+
+        val station: WeatherStation? = metRepo.getWeatherStation(coordinates, nearestMaxCount)
+
+        if (station == null) {
+            _errorMessage.value = "Weather station not found or no valid year found"
+            return null
+        }
+
+        val validYears: ValidYears? = metRepo.getValidTimeOneObject(station, otherStationValidYears.elementId, otherStationValidYears.validFrom, otherStationValidYears.validTo)
+
+        if (validYears != null) {
+            return validYears
+        }
+
+        return tryGetLastElement(coordinates, nearestMaxCount + 1, otherStationValidYears, attempts + 1)
     }
 
     private suspend fun fetchWeatherDataForElement(validYears: ValidYears, elementId: String): WeatherList? {
@@ -184,30 +207,46 @@ class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewM
             try {
 
                 val validYears = tryGetValidYear(coordinates, nearestMaxCount)
+                if (validYears == null) return@launch
 
-                if (validYears == null) {
-                    return@launch
-                }
-
-                // Fetch weather data for different elements
-                val tempWeatherList = fetchWeatherDataForElement(validYears, "mean(air_temperature P1D)")
-                val cloudWeatherList = fetchWeatherDataForElement(validYears, "mean(cloud_area_fraction P1D)")
-                val snowWeatherList = fetchWeatherDataForElement(validYears, "mean(surface_snow_thickness P1M)")
-                val radiationWeatherList = fetchWeatherDataForElement(validYears, "mean(surface_downwelling_shortwave_flux_in_air PT1H)")
-
-                // Check for null responses
-                if (tempWeatherList == null || cloudWeatherList == null || snowWeatherList == null || radiationWeatherList == null) {
-                    _errorMessage.value = "No weather data available for one or more elements."
-                    return@launch
-                }
-                
-                // Aggregate data by date
-                val aggregatedData = aggregateDataByDate(
-                    tempWeatherList.dataList + cloudWeatherList.dataList + snowWeatherList.dataList + radiationWeatherList.dataList
+                val standardElementIds = listOf(
+                    "mean(air_temperature P1D)",
+                    "mean(cloud_area_fraction P1D)",
+                    "mean(surface_snow_thickness P1M)",
+                    "mean(surface_downwelling_shortwave_flux_in_air PT1H)"
                 )
 
-                // Create the AggregatedData object
+                val weatherElements = mutableMapOf<String, WeatherList>()
+
+                // Check if we can get a more specific lastElement
+                if (validYears.elementId != "success") {
+                    val lastElement = tryGetLastElement(coordinates, nearestMaxCount, validYears)
+                    if (lastElement == null) return@launch
+
+                    val fetchedLast = fetchWeatherDataForElement(lastElement, validYears.elementId)
+                    if (fetchedLast != null && standardElementIds.contains(lastElement.elementId)) {
+                        weatherElements[lastElement.elementId] = fetchedLast
+                    }
+                }
+
+                // Fetch only the missing default elements
+                for (elementId in standardElementIds) {
+                    if (!weatherElements.containsKey(elementId)) {
+                        val data = fetchWeatherDataForElement(validYears, elementId)
+                        if (data == null) {
+                            _errorMessage.value = "No weather data available for $elementId."
+                            return@launch
+                        }
+                        weatherElements[elementId] = data
+                    }
+                }
+
+                val aggregatedData = aggregateDataByDate(
+                    weatherElements.values.flatMap { it.dataList }
+                )
+
                 _dataSortedByDate.value = AggregatedData(dailyObservation = aggregatedData)
+
 
             } catch (e: Exception) {
                 println("Error fetching data: ${e.message}")

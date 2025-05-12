@@ -87,13 +87,13 @@ fun InputScreen(
         backStackEntry?.destination?.route ?: HomeScreen.Input.name
     )
 
-    LaunchedEffect(ctx.coords) {
-        val newCoordinates = ctx.coords
-        Log.d("InputScreen", "ctx.coords = ${ctx.coords} and lastCoordinates = ${CoordinateCache.lastCoordinates}")
-        if (newCoordinates != null && newCoordinates != CoordinateCache.lastCoordinates) {
-            CoordinateCache.lastCoordinates = newCoordinates
-            metViewModel?.fetchWeatherData(Coordinates(newCoordinates.latitude(), newCoordinates.longitude()))
-            pvgisViewModel?.fetchPVGISData(Coordinates(newCoordinates.latitude(), newCoordinates.longitude()))
+    Log.d("InputScreen", "ctx.coords = ${ctx.coords} and lastCoordinates = ${CoordinateCache.lastCoordinates}")
+    if (ctx.coords != null && ctx.coords != CoordinateCache.lastCoordinates) {
+        LaunchedEffect(ctx.coords) {
+            CoordinateCache.lastCoordinates = ctx.coords
+            Log.d("InputScreen", "the lastcoords are: ${CoordinateCache.lastCoordinates}")
+            metViewModel?.fetchWeatherData(Coordinates(ctx.coords.latitude(), ctx.coords.longitude()))
+            pvgisViewModel?.fetchPVGISData(Coordinates(ctx.coords.latitude(), ctx.coords.longitude()))
         }
     }
 
