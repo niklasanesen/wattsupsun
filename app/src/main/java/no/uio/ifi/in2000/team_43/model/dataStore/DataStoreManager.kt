@@ -31,7 +31,7 @@ class DataStoreManager(private val context: Context) {
             val uniqueId = UUID.randomUUID().toString()
 
             // Lag en addressString med alle adresseparametrene
-            val addressString = "lat:${adresse.latitude}, long:${adresse.longitude}, height:${adresse.height}, width:${adresse.width}, angle:${adresse.angle}, direction:${adresse.direction}, addr:${adresse.addressString}, name:${adresse.lagretNavn}, numPanel:${adresse.numPanel}, totalPanelAreal:${adresse.totalPanelAreal}, kwp:${adresse.kwp}, pris:${adresse.pris}"
+            val addressString = "lat:${adresse.latitude}, long:${adresse.longitude}, height:${adresse.height}, width:${adresse.width}, angle:${adresse.angle}, direction:${adresse.direction}, addr:${adresse.addressString}, name:${adresse.lagretNavn}, numPanel:${adresse.numPanel}, totalPanelAreal:${adresse.totalPanelAreal}, kwp:${adresse.kwp}, pris:${adresse.pris}, moneySaved:${adresse.MoneySaved}"
 
             // Kombinerer UUID med addressString
             val addressWithId = "$uniqueId|$addressString"
@@ -72,6 +72,7 @@ class DataStoreManager(private val context: Context) {
                         totalPanelAreal = addressParts["totalPanelAreal"]?.toDoubleOrNull() ?: 0.0,
                         kwp = addressParts["kwp"]?.toIntOrNull() ?: 0,
                         pris = addressParts["pris"]?.toIntOrNull() ?: 0,
+                        MoneySaved = addressParts["moneySaved"]?.toFloatOrNull() ?: 0f,
                         uniqueId = uniqueId  // Legg til uniqueId i objet
                     )
                 } catch (e: Exception) {
@@ -87,7 +88,7 @@ class DataStoreManager(private val context: Context) {
             val currentList = preferences[ADDRESSES_KEY]?.toMutableSet() ?: mutableSetOf()
 
             // Lag en addressString med alle adresseparametrene
-            val addressString = "lat:${address.latitude}, long:${address.longitude}, height:${address.height}, width:${address.width}, angle:${address.angle}, direction:${address.direction}, addr:${address.addressString}, name:${address.lagretNavn}, numPanel:${address.numPanel}, totalPanelAreal:${address.totalPanelAreal}, kwp:${address.kwp}, pris:${address.pris}"
+            val addressString = "lat:${address.latitude}, long:${address.longitude}, height:${address.height}, width:${address.width}, angle:${address.angle}, direction:${address.direction}, addr:${address.addressString}, name:${address.lagretNavn}, numPanel:${address.numPanel}, totalPanelAreal:${address.totalPanelAreal}, kwp:${address.kwp}, pris:${address.pris}, moneySaved:${address.MoneySaved}"
 
             // Kombiner UUID med addressString
             val addressWithId = "${address.uniqueId}|$addressString"

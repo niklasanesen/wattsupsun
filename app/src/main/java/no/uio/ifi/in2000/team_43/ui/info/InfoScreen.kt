@@ -142,8 +142,8 @@ fun InfoScreen(
 
     Column(modifier = modifier
         .padding(20.dp)
-        .verticalScroll(scrollState)) {
-
+        .verticalScroll(scrollState))
+    {
         Text(
             text = "$address",
             style = MaterialTheme.typography.headlineMedium.copy(
@@ -206,9 +206,6 @@ fun InfoScreen(
 
                     ValueBox(label = "Retning", value = directionText, modifier = Modifier.weight(1f))
                 }
-
-
-
             }
         }
 
@@ -358,6 +355,7 @@ fun InfoScreen(
                     totalPanelAreal = totalPanelAreal,
                     kwp = ctx.input?.panel?.effekt?: 0,
                     pris = ctx.input?.panel?.pris?: 0,
+                    MoneySaved = totalMoneySaved
                 )
 
                 CoroutineScope(Dispatchers.IO).launch {

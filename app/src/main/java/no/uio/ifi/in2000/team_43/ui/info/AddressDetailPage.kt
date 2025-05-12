@@ -16,7 +16,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -40,52 +39,26 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mapbox.geojson.Point
 import no.uio.ifi.in2000.team_43.data.CoordinateCache
-import no.uio.ifi.in2000.team_43.model.PVGIS.MonthlyEntry
 import no.uio.ifi.in2000.team_43.model.garfStuff.GrafMeasurement
 import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
 import no.uio.ifi.in2000.team_43.model.met.Coordinates
-import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
 import no.uio.ifi.in2000.team_43.ui.info.grafStuff.MonthSelector
 import no.uio.ifi.in2000.team_43.ui.info.grafStuff.MonthlyChartWithValueDisplay
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.CoffeeCard
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.EnovaCard
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.TotalCostLogic
+import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.TotalSavedLogic
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.ValueBox
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.met.beregnStromproduksjon
 import no.uio.ifi.in2000.team_43.ui.pages.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calcMoneySaved
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateCoffe
+import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateEnova
 import java.time.Instant
 import java.time.ZoneId
 
-data class DirectionInfo(val backgroundColor: Color, val textColor: Color, val message: String)
-
-fun directionText(direction: Double): DirectionInfo {
-    return when (direction) {
-        0.0 -> DirectionInfo(
-            backgroundColor = Color(0xFFFFCDD2), // Lys rød
-            textColor = Color(0xFFB71C1C),       // Mørk rød
-            message = "Nord: Basert på retningen du har valgt lønner det seg ikke å ha solcellepaneler."
-        )
-        90.0 -> DirectionInfo(
-            backgroundColor = Color(0xFFC8E6C9), // Lys grønn
-            textColor = Color(0xFF388E3C),       // Mørk grønn
-            message = "Øst: Basert på retningen du har valgt genererer du mest strøm på starten av dagen."
-        )
-        180.0 -> DirectionInfo(
-            backgroundColor = Color(0xFFC8E6C9), // Lys grønn
-            textColor = Color(0xFF388E3C),       // Mørk grønn
-            message = "Sør: Basert på retningen  du har valgt lønner det seg å ha solcellepaneler."
-        )
-        270.0 -> DirectionInfo(
-            backgroundColor = Color(0xFFC8E6C9), // Lys grønn
-            textColor = Color(0xFF388E3C),       // Mørk grønn
-            message = "Vest: Basert på retningen du har valgt genererer du mest strøm på slutten av dagen."
-        )
-        else -> DirectionInfo(
-            backgroundColor = Color.LightGray,
-            textColor = Color.Black,
-            message = "Ukjent retning"
-        )
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class) // If using Experimental APIs
 @Composable
@@ -93,20 +66,71 @@ fun AddressDetailPage(
     modifier: Modifier = Modifier,
     address: LagreAdresse,
     navController: NavHostController = rememberNavController(),
-    pvgisViewModel: PVGISViewModel = viewModel(),
     metViewModel: MetViewModel = viewModel(),
 
     ) {
 
+    val weatherList by metViewModel.dataSortedByDate.collectAsState()
+    val allMeasurements = remember { MutableList(12) { mutableListOf<GrafMeasurement>() } }
+
     val backStackEntry by navController.currentBackStackEntryAsState()
     val route = backStackEntry?.destination?.route
     val currentScreen = HomeScreen.entries.find { it.route == route } ?: HomeScreen.Input
+    val scrollState = rememberScrollState()
 
-    //val dataStoreManager = remember { DataStoreManager(context) }
-    //val drCalcData by pvgisViewModel.drCalcData.collectAsState() // Henter DRcalc data
-    //val drCalcTotalSum by pvgisViewModel.drCalcDataTotalSum.collectAsState() // Henter kalkulert totalsum
-    //val stromprisData by stromprisViewModel.data.collectAsState()
-    //val context = LocalContext.current
+    val selectedMonth = remember { mutableIntStateOf(0) } // 0 = Januar
+    var isLoading by remember { mutableStateOf(true) } // Lastestatus
+
+
+    // Fyll dataene (kun én gang)
+    LaunchedEffect(weatherList) {
+        // Sett isLoading til true før lasting
+        isLoading = true
+
+        // Simulering av datainnhenting
+        weatherList?.dailyObservation?.forEach { (date, weatherDataList) ->
+            var temperatur: Double? = null
+            var solinnstraling: Double? = null
+
+            weatherDataList.dataList.forEach { weatherData ->
+                when (weatherData.elementId) {
+                    "mean(air_temperature P1D)" -> temperatur = weatherData.value
+                    "mean(solar_irradiance P1D)" -> solinnstraling = weatherData.value
+                }
+            }
+
+            val areal = address.height * address.width
+            if (temperatur != null && solinnstraling != null) {
+                isLoading = false
+                val produksjon = beregnStromproduksjon(
+                    areal = areal,
+                    vinkel = address.angle.toInt(),
+                    temperatur = temperatur,
+                    solinnstraling = solinnstraling,
+                    direction = address.direction.toInt()
+                )
+
+                val zdt = date.atZone(ZoneId.systemDefault())
+                val monthIndex = zdt.monthValue - 1
+                allMeasurements[monthIndex].add(
+                    GrafMeasurement(
+                        time = zdt.dayOfMonth.toFloat(),
+                        value = produksjon.toFloat()
+                    )
+                )
+            }
+        }
+    }
+    val point: Point = Point.fromLngLat(address.latitude, address.longitude)
+    LaunchedEffect(point.coordinates()) {
+        address.let {
+            if (it != CoordinateCache.lastCoordinates ) {
+                metViewModel.fetchWeatherData(Coordinates(it.latitude, it.longitude))
+            }
+        }
+    }
+
+    val totalProduksjon =
 
 
     Scaffold (
@@ -119,23 +143,7 @@ fun AddressDetailPage(
             )
         }
     ) { innerPadding ->
-
-        // Samler data fra ViewModels
-        val pvgisData by pvgisViewModel.data.collectAsState()
-        val weatherList by metViewModel.dataSortedByDate.collectAsState() //Henter all værdata
-        var isMetSelected by remember { mutableStateOf(true) }
-        val produksjonsliste = mutableListOf<Pair<Instant, Double>>()  // strømproduskjon for alle dager i et år
-        val pvgisSolData by pvgisViewModel.productionData.collectAsState() // Henter pvgis solinnstrålingsdata
-        val ferdigBeregnetProdData = mutableListOf<Double>() // legger inn beregnet strøm produksjonsdata
-        val errorMessage by metViewModel.errorMessage.collectAsState()
-        val scrollState = rememberScrollState()
-        var selectedMonth by remember { mutableIntStateOf(0) } // 0 = Januar
-        val dataene: List<MonthlyEntry>? = pvgisData?.outputs?.monthly?.fixed
-
-        dataene?.forEachIndexed() { index, mnd ->
-            Log.d("testpvgisM", "global irradiance mnd nr. $index: ${mnd.H_i_m} kWh/m2/month")
-        }
-
+        // ---- input data ----
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -144,12 +152,33 @@ fun AddressDetailPage(
                 .padding(20.dp)
         ) {
 
-            // Skillelinje
-            //HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-            //Spacer(modifier = Modifier.height(80.dp)) // avstand fra toppen av kjermen
+            // Total money card on screen
+            // pls ask before touching any of this
+            Spacer(modifier = Modifier.height(16.dp))
+            TotalSavedLogic(address.MoneySaved, isLoading)
 
-            // Takflate-verdier boks
+            // total price for panels
+            // Pls ask before touching this
+            Spacer(modifier = Modifier.height(16.dp))
+            TotalCostLogic(address.numPanel, address.totalPanelAreal.toInt(), false)
+
+
+            // Enova on infoscreen:
+            val wPerPanel = address.kwp.toDouble()
+            val kwpPerPanel = (wPerPanel / 1000.0)
+            Spacer(modifier = Modifier.height(16.dp))
+            EnovaCard(calculateEnova(kwpPerPanel, address.numPanel))
+
+
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+
+
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -167,7 +196,6 @@ fun AddressDetailPage(
                         ),
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
-
                     // Første rad
                     Row(
                         modifier = Modifier
@@ -185,9 +213,7 @@ fun AddressDetailPage(
                             modifier = Modifier.weight(1f)
                         )
                     }
-
                     Spacer(modifier = Modifier.height(8.dp))
-
                     // Andre rad
                     Row(
                         modifier = Modifier
@@ -208,104 +234,37 @@ fun AddressDetailPage(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
 
-            val directionInfo = directionText(address.direction)
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = 8.dp,
-                shape = RoundedCornerShape(16.dp),
-                backgroundColor = directionInfo.backgroundColor
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = directionInfo.message,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-                            color = directionInfo.textColor
-                        ),
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                }
-            }
+
+
+
+
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            val point: Point = Point.fromLngLat(address.latitude, address.longitude)
-            LaunchedEffect(point.coordinates()) {
-                address.let {
-                    if (it != CoordinateCache.lastCoordinates ) {
-                        metViewModel.fetchWeatherData(Coordinates(it.latitude, it.longitude))
-                    }
-                }
-            }
 
-            Spacer(modifier = Modifier.height(32.dp))
 
-            val selectedMonth = remember { mutableIntStateOf(0) } // 0 = Januar
-            val isLoading = remember { mutableStateOf(true) } // Lastestatus
-            val allMeasurements = remember { MutableList(12) { mutableListOf<GrafMeasurement>() } }
 
-            // Fyll dataene (kun én gang)
-            LaunchedEffect(weatherList) {
-                // Sett isLoading til true før lasting
-                isLoading.value = true
 
-                // Simulering av datainnhenting
-                weatherList?.dailyObservation?.forEach { (date, weatherDataList) ->
-                    var temperatur: Double? = null
-                    var solinnstraling: Double? = null
 
-                    weatherDataList.dataList.forEach { weatherData ->
-                        when (weatherData.elementId) {
-                            "mean(air_temperature P1D)" -> temperatur = weatherData.value
-                            "mean(solar_irradiance P1D)" -> solinnstraling = weatherData.value
-                        }
-                    }
 
-                    val areal = address.height * address.width
-                    if (temperatur != null && solinnstraling != null) {
-                        isLoading.value = false
-                        val produksjon = beregnStromproduksjon(
-                            areal = areal,
-                            vinkel = address.angle.toInt(),
-                            temperatur = temperatur,
-                            solinnstraling = solinnstraling,
-                            direction = address.direction.toInt()
-                        )
 
-                        val zdt = date.atZone(ZoneId.systemDefault())
-                        val monthIndex = zdt.monthValue - 1
-                        allMeasurements[monthIndex].add(
-                            GrafMeasurement(
-                                time = zdt.dayOfMonth.toFloat(),
-                                value = produksjon.toFloat()
-                            )
-                        )
-                    }
-                }
 
-                // Når dataene er lastet, sett isLoading til false
-            }
 
-            // Hovedvisning
+
+
+
+            // ---- garf and month selector ----
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    //.padding(bottom = innerPadding.calculateBottomPadding())
             ) {
-                // 👉 Legg til MonthSelector
                 MonthSelector(
                     selectedMonth = selectedMonth.intValue,
                     onMonthSelected = { selectedMonth.intValue = it }
                 )
-
-                // 👉 Vis enten lastesirkel eller graf
-                Log.d("isLoading.value", isLoading.value.toString())
-                if (isLoading.value) {
-                    // Loading-indikator
+                if (isLoading) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -315,14 +274,23 @@ fun AddressDetailPage(
                         CircularProgressIndicator()
                     }
                 } else {
-                    // Når dataene er lastet, vis grafen
                     MonthlyChartWithValueDisplay(
-                        selectedMonth = selectedMonth.intValue + 1, // 1-basert måned
+                        selectedMonth = selectedMonth.intValue + 1,
                         allMeasurements = allMeasurements
                     )
                 }
             }
-           // Spacer(modifier = Modifier.height(50.dp))
         }
+
+
+
+
+
+
+
+
+
+
+
     }
 }
