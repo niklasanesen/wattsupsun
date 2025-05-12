@@ -368,7 +368,7 @@ fun ProfileScreen(
             Card (
                 modifier = Modifier.padding(horizontal = 12.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFE8EFF5)
+                    containerColor = Color(0xFFEEF0F1)
                 )
             ) {
                 Row (
