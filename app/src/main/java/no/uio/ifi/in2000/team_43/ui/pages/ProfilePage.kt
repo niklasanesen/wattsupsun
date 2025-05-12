@@ -79,7 +79,7 @@ import no.uio.ifi.in2000.team_43.ui.home.WelcomeScreen
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.rememberCoroutineScope
-
+import no.uio.ifi.in2000.team_43.ui.theme.TopBarColor
 
 
 @Composable
@@ -704,7 +704,7 @@ fun TopAppBarProfile() {
     CenterAlignedTopAppBar(
         title = { Text("Profil") },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0xff88aabd),
+            containerColor = TopBarColor,
             titleContentColor = Color.White
         )
     )

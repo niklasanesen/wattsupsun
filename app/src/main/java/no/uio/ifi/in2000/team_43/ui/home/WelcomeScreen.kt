@@ -48,6 +48,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import no.uio.ifi.in2000.team_43.R
 import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
+import no.uio.ifi.in2000.team_43.ui.theme.Cerulean
 import no.uio.ifi.in2000.team_43.ui.theme.Purple40
 
 @Composable
@@ -63,7 +64,6 @@ fun WelcomeScreen(
 
     // State to track if this is the first app launch and if tutorial should show
     var showTutorialDialog by remember { mutableStateOf(false) }
-    var showAppInfoDialog by remember { mutableStateOf(false) }
 
     // Check if this is the first launch
     val isFirstLaunch = remember {
@@ -72,7 +72,6 @@ fun WelcomeScreen(
     }
 
     var buttonText = "Kom i gang"
-
     if (!startup) {
         buttonText = "Lukk"
     }
@@ -82,29 +81,21 @@ fun WelcomeScreen(
         modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFF5F5F5))
-            // .padding(top = 28.dp)
     ) {
-
-        /*
-        // Exit button
-        if (!startup) {
-            IconButton(
-                onClick = { onGetStartedClick() },
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(4.dp)
-                    .size(64.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Close",
-                    modifier = Modifier.size(28.dp),
-                    tint = Color(0xFF3B7D9C)
-                )
-            }
+        IconButton(
+            onClick = { showTutorialDialog = true },
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(4.dp)
+                .size(64.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = "Info",
+                modifier = Modifier.size(28.dp),
+                tint = Cerulean
+            )
         }
-
-         */
 
         LazyColumn(
             modifier = Modifier
@@ -131,7 +122,7 @@ fun WelcomeScreen(
                     text = "Velkommen til",
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontSize = 28.sp,
-                        color = Color(0xFF3B7D9C)
+                        color = Cerulean
                     )
                 )
 
@@ -140,7 +131,7 @@ fun WelcomeScreen(
                     style = MaterialTheme.typography.headlineLarge.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 40.sp,
-                        color = Color(0xFF3B7D9C)
+                        color = Cerulean
                     )
                 )
 
@@ -161,7 +152,7 @@ fun WelcomeScreen(
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF3B7D9C)
+                                color = Cerulean
                             ),
                             modifier = Modifier
                                 .padding(vertical = 8.dp, horizontal = 16.dp)
@@ -188,7 +179,7 @@ fun WelcomeScreen(
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 22.sp,
-                                color = Color(0xFF3B7D9C)
+                                color = Cerulean
                             )
                         )
 
@@ -224,7 +215,7 @@ fun WelcomeScreen(
                         .fillMaxWidth()
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF3B7D9C)
+                        containerColor = Cerulean
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -254,13 +245,6 @@ fun WelcomeScreen(
                 }
             )
         }
-
-        // App Info Dialog
-        if (showAppInfoDialog) {
-            AppInfoDialog(
-                onDismiss = { showAppInfoDialog = false }
-            )
-        }
     }
 }
 
@@ -270,15 +254,10 @@ fun TutorialDialog(
 ) {
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            dismissOnBackPress = true,
-            dismissOnClickOutside = true
-        )
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+                .fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
@@ -298,47 +277,13 @@ fun TutorialDialog(
                 )
 
                 Text(
-                    text = "1. Skriv inn din adresse i søkefeltet",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 16.sp
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                )
-
-                Text(
-                    text = "2. Velg adressen fra forslagene som dukker opp",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 16.sp
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                )
-
-                Text(
-                    text = "3. Trykk på 'Bekreft adresse'",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 16.sp
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                )
-
-                Text(
-                    text = "4. Oppgi informasjon om taket ditt eller tegn takflaten",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 16.sp
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
+                    text =
+                    "1. Gå til kart-skjermen nede i venstre hjørne\n" +
+                            "2. Skriv inn din adresse i søkefeltet\n" +
+                            "3. Velg adressen fra forslagene som dukker opp\n" +
+                            "4. Trykk på 'Bekreft adresse'\n" +
+                            "5. Oppgi informasjon om taket ditt eller tegn takflaten\n" +
+                            "6. Lagre adressen",
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -349,80 +294,12 @@ fun TutorialDialog(
                         .fillMaxWidth()
                         .height(48.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Purple40
+                        containerColor = Cerulean
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
                         text = "Forstått",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun AppInfoDialog(
-    onDismiss: () -> Unit
-) {
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            dismissOnBackPress = true,
-            dismissOnClickOutside = true
-        )
-    ) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(24.dp)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // App Info Content directly embedded
-                Image(
-                    painter = painterResource(R.drawable.logo),
-                    contentDescription = "App Icon",
-                    modifier = Modifier.padding(horizontal = 40.dp)
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                Text(
-                    text = "Velkommen til WattsUpSun!",
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 12.dp)
-                )
-
-                Text(
-                    text = "Denne appen gir deg relevant og nyttig informasjon når det kommer til å installere solcellepaneler på eiendommen din. Målet med appen er at du enklere skal kunne vurdere nytten ved solcelleplaneler og om dette kan være noe for deg:) \n\nDu vil også kunne bruke appen videre til å få en oversikt over strømproduksjon og annet nyttig!",
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
-
-                Spacer(Modifier.height(32.dp))
-
-                Button(
-                    onClick = onDismiss,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Purple40
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = "Lukk",
                         style = MaterialTheme.typography.titleMedium
                     )
                 }

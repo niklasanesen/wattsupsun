@@ -38,6 +38,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
+import no.uio.ifi.in2000.team_43.ui.theme.Blue
+import no.uio.ifi.in2000.team_43.ui.theme.BottomBarColor
+import no.uio.ifi.in2000.team_43.ui.theme.Cerulean
+import no.uio.ifi.in2000.team_43.ui.theme.DarkSlate
+import no.uio.ifi.in2000.team_43.ui.theme.TopBarColor
 
 /**
  * enum values that represent the screens in the app
@@ -145,43 +150,37 @@ fun TopAppBar(
 ) {
     var showHelp by remember { mutableStateOf(false) }
 
-
-    Surface(
-        tonalElevation = 4.dp,
-        shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp),
-        color = MaterialTheme.colorScheme.surface
-    ) {
-        CenterAlignedTopAppBar(
-            title = {
-                Text(
-                    text = currentScreen.route,
-                    style = MaterialTheme.typography.titleLarge
-                )
-            },
-            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                containerColor = Color.Transparent, // Bruker Surface-farge
-                titleContentColor = MaterialTheme.colorScheme.onSurface,
-            ),
-            navigationIcon = {
-                if (canNavigateBack) {
-                    IconButton(onClick = navigateUp) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Tilbake"
-                        )
-                    }
-                }
-            },
-            actions = {
-                IconButton(onClick = { showHelp = true }) {
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = currentScreen.route,
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = TopBarColor,
+            titleContentColor = Color.White,
+        ),
+        navigationIcon = {
+            if (canNavigateBack) {
+                IconButton(onClick = navigateUp) {
                     Icon(
-                        imageVector = Icons.Filled.Info,
-                        contentDescription = "Hjelp"
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Tilbake"
                     )
                 }
             }
-        )
-    }
+        },
+        actions = {
+            IconButton(onClick = { showHelp = true }) {
+                Icon(
+                    imageVector = Icons.Filled.Info,
+                    contentDescription = "Hjelp",
+                    tint = DarkSlate
+                )
+            }
+        }
+    )
 
     if (showHelp) {
         when (currentScreen) {
