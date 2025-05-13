@@ -53,8 +53,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.sp
-import no.uio.ifi.in2000.team_43.model.stromdistrikt.StromDistrikt
-import no.uio.ifi.in2000.team_43.ui.theme.BottomBarColor
+import no.uio.ifi.in2000.team_43.model.electricityDistrict.ElectricityDistrict
 import no.uio.ifi.in2000.team_43.ui.theme.Cerulean
 import no.uio.ifi.in2000.team_43.ui.theme.ErrorColor
 import no.uio.ifi.in2000.team_43.ui.theme.LightRed
@@ -64,13 +63,13 @@ import no.uio.ifi.in2000.team_43.ui.theme.LightRed
 fun MapScreen(
     modifier: Modifier = Modifier,
     viewModel: MapViewModel = viewModel(),
-    onInputBtnClicked: (coords: Point?, address: String?, stromdistrikt: StromDistrikt?) -> Unit,
-    onSatelliteBtnClicked: (coords: Point?, address: String?, stromdistrikt: StromDistrikt?) -> Unit,
+    onInputBtnClicked: (coordinates: Point?, address: String?, electricityDistrict: ElectricityDistrict?) -> Unit,
+    onSatelliteBtnClicked: (coordinates: Point?, address: String?, electricityDistrict: ElectricityDistrict?) -> Unit,
 ) {
     val suggestions by viewModel.suggestions.collectAsState()
-    val coords by viewModel.coords.collectAsState()
+    val coordinates by viewModel.coordinates.collectAsState()
     val address by viewModel.address.collectAsState()
-    val stromdistrikt by viewModel.stromdistrikt.collectAsState()
+    val electricityDistrict by viewModel.electricityDistrict.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     var searchIsActive by remember { mutableStateOf(false) }
     var addressIsSelected by remember { mutableStateOf(false) }
@@ -88,15 +87,15 @@ fun MapScreen(
     val mapViewportState = rememberMapViewportState {
         setCameraOptions {
             zoom(4.0)
-            center(coords)
+            center(coordinates)
             pitch(0.0)
             bearing(0.0)
         }
     }
 
     if (addressIsSelected) {
-        LaunchedEffect(coords) {
-            coords?.let {
+        LaunchedEffect(coordinates) {
+            coordinates?.let {
                 mapViewportState.flyTo(
                     CameraOptions.Builder()
                         .center(it)
@@ -133,8 +132,8 @@ fun MapScreen(
                         Column {
                             Button(
                                 onClick = {
-                                    if (coords != null) {
-                                    onInputBtnClicked(coords, address, stromdistrikt)
+                                    if (coordinates != null) {
+                                    onInputBtnClicked(coordinates, address, electricityDistrict)
                                     }
                                           },
                                 enabled = true,
@@ -144,7 +143,7 @@ fun MapScreen(
                                 Text("Oppgi mål")
                             }
                             Button(
-                                onClick = { onSatelliteBtnClicked(coords, address, stromdistrikt) },
+                                onClick = { onSatelliteBtnClicked(coordinates, address, electricityDistrict) },
                                 enabled = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
@@ -203,7 +202,7 @@ fun MapScreen(
                     }
                 }
             }
-            // REMOVE ! TO ENABLE SEARCH
+
             if (!addressIsSelected) {
                 Row(modifier = Modifier.fillMaxWidth().height(56.dp)) {
                     Button(

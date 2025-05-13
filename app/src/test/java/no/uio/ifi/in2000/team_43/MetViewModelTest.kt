@@ -49,7 +49,8 @@ class MetViewModelTest {
 
         val station = WeatherStation(
             id = "SN18700",
-            name = "OSLO - BLINDERN"
+            name = "OSLO - BLINDERN",
+            distance = 8.17602469651
         )
 
         val validYears = ValidYears(

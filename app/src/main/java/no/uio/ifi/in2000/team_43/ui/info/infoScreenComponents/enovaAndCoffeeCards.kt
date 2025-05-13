@@ -1,7 +1,6 @@
 package no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,11 +28,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import no.uio.ifi.in2000.team_43.R
 import java.text.NumberFormat
 import java.util.Locale
 
-// For testing av card til enovastøtte:
+// For testing av card til enova support:
 @Composable
 fun EnovaCard(supportAmount: Double) {
     val isZeroSupport = supportAmount <= 0
@@ -43,7 +43,7 @@ fun EnovaCard(supportAmount: Double) {
     val enovaInfoLink = "https://www.enova.no/privat/alle-energitiltak/solenergi/solcelleanlegg/?gad_source=1&gad_campaignid=16624425572&gbraid=0AAAAADLywwiacDJN5I7llRB-oOuYbvBmW&gclid=Cj0KCQjw5ubABhDIARIsAHMighb65GEWXVeJy3jCq8CYd0rcsR4L1n7G4GHf9wBGVB-ngIYtISqzJIIaAp3fEALw_wcB"
 
     // for better readability of the number
-    val readableSupportAmmount = NumberFormat.getInstance(Locale("no", "NO")).format(supportAmount.toInt())
+    val readableSupportAmount = NumberFormat.getInstance(Locale("no", "NO")).format(supportAmount.toInt())
     Card(
         modifier = Modifier
             .fillMaxWidth(),
@@ -74,7 +74,7 @@ fun EnovaCard(supportAmount: Double) {
                         .clickable {
                             val intent = Intent(
                                 Intent.ACTION_VIEW,
-                                Uri.parse(enovaInfoLink)
+                                enovaInfoLink.toUri()
                             )
                             context.startActivity(intent)
                         }
@@ -90,7 +90,7 @@ fun EnovaCard(supportAmount: Double) {
                 )
             } else {
                 Text(
-                    text = "$readableSupportAmmount kr",
+                    text = "$readableSupportAmount kr",
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = textColor
@@ -103,7 +103,7 @@ fun EnovaCard(supportAmount: Double) {
 
 
 
-// preview av testcardet for enova:
+// preview of the test card for enova:
 @Preview(showBackground = true)
 @Composable
 fun EnovaSupportCardPreview_Positive() {
@@ -124,11 +124,11 @@ fun EnovaSupportCardPreview_Zero() {
 @Composable
 fun CoffeeCard(production: Int) {
     val isZeroProduction = production <= 0
-    val backgroundColor = Color(0xFFFFE0B2)  // Lys oransje
-    val textColor = Color(0xFFBF360C)  // Mørk rød
+    val backgroundColor = Color(0xFFFFE0B2)  // Light orange
+    val textColor = Color(0xFFBF360C)  // Dark red
 
     // for better readability of the number
-    val readablePrduction = NumberFormat.getInstance(Locale("no", "NO")).format(production)
+    val readableProduction = NumberFormat.getInstance(Locale("no", "NO")).format(production)
 
     Card(
         modifier = Modifier
@@ -143,16 +143,16 @@ fun CoffeeCard(production: Int) {
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Bruker VectorDrawable (XML) kaffekopp-ikonet
+                // Using the VectorDrawable (XML) coffee cup icon
                 Icon(
-                    painter = painterResource(id = R.drawable.coffee_cup), // Bruker .xml VectorDrawable
+                    painter = painterResource(id = R.drawable.coffee_cup), // Using the .xml VectorDrawable
                     contentDescription = "Kaffekopp",
                     modifier = Modifier.size(70.dp).padding(end = 8.dp),
                     tint = textColor
                 )
-                // Teksten som beskriver produksjon
+                // The text that describes production
                 Text(
-                    text = if (isZeroProduction) "Koker opp kaffe, et øyeblikk..." else "Solcellepanel hos deg kan koke opp $readablePrduction kopper kaffe årlig!",
+                    text = if (isZeroProduction) "Koker opp kaffe, et øyeblikk..." else "Solcellepanel hos deg kan koke opp $readableProduction kopper kaffe årlig!",
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,

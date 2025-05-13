@@ -34,7 +34,7 @@ fun MonthlySavingsDisplay(
         itemsIndexed(savingsPerMonth) { index, amount ->
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFE0F2F1) // endret bakgrunn
+                    containerColor = Color(0xFFE0F2F1)
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
@@ -46,7 +46,7 @@ fun MonthlySavingsDisplay(
                     Text(
                         text = "${months.getOrNull(index) ?: "?"}:\n${NumberFormat.getInstance(Locale("no", "NO")).format(amount.toInt())} kr", // Same but added code that makes the number easier to read
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Color(0xFF006064) // endret tekstfarge
+                        color = Color(0xFF006064)
                     )
                 }
             }

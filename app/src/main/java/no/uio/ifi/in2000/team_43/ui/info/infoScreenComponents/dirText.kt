@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,13 +15,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// Card for tips basert på retning:
+// Card for tips based on direction:
 @Composable
 fun DirectionCard(
     text: String,
     modifier: Modifier = Modifier,
     color: Color = Color(0xFFE3F2FD), // Light blue color
-    textcolor: Color = Color(0xFF1976D2) // Darker blue text
+    textColor: Color = Color(0xFF1976D2) // Darker blue text
 ) {
     Card(
         modifier = modifier
@@ -31,14 +29,13 @@ fun DirectionCard(
             .fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         backgroundColor = color,
-        // colors = CardDefaults.cardColors(containerColor = color)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = text,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
-                color = textcolor
+                color = textColor
             )
         }
     }
@@ -58,7 +55,7 @@ fun NorthDirectionCard(text: String) {
         modifier = Modifier
             .fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        backgroundColor = Color(0xFFFFCDD2) // Lys rød bakgrunn
+        backgroundColor = Color(0xFFFFCDD2) // Light red background
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -66,7 +63,7 @@ fun NorthDirectionCard(text: String) {
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
-                    color = Color(0xFFB71C1C) // Mørkere rød tekst
+                    color = Color(0xFFB71C1C) // Darker red text
                 )
             )
         }

@@ -1,3 +1,5 @@
+@file:Suppress("PackageName")
+
 package no.uio.ifi.in2000.team_43.model.PVGIS
 
 import com.google.gson.annotations.SerializedName
@@ -12,10 +14,10 @@ data class PVGISRes(
 
 data class Inputs(
     val location: Location,
-    val meteo_data: MeteoData,
-    val mounting_system: MountingSystem,
-    val pv_module: PVModule,
-    val economic_data: EconomicData
+    val meteoData: MeteoData,
+    val mountingSystem: MountingSystem,
+    val pvModule: PVModule,
+    val economicData: EconomicData
 )
 
 
@@ -28,12 +30,12 @@ data class Location(
 
 
 data class MeteoData(
-    val radiation_db: String,
-    val meteo_db: String,
-    val year_min: Int,
-    val year_max: Int,
-    val use_horizon: Boolean,
-    val horizon_db: String
+    val radiationDb: String,
+    val meteoDb: String,
+    val yearMin: Int,
+    val yearMax: Int,
+    val useHorizon: Boolean,
+    val horizonDb: String
 )
 
 
@@ -62,13 +64,13 @@ data class Azimuth(
 
 data class PVModule(
     val technology: String,
-    val peak_power: Double,
-    val system_loss: Double
+    val peakPower: Double,
+    val systemLoss: Double
 )
 
 
 data class EconomicData(
-    val system_cost: Double?,
+    val systemCost: Double?,
     val interest: Double?,
     val lifetime: Int?
 )
@@ -86,11 +88,11 @@ data class MonthlyData(
 
 data class MonthlyEntry(
     val month: Int,
-    val E_d: Double,
-    val E_m: Double,
-    @SerializedName("H(i)_d") val H_i_d: Double,
-    @SerializedName("H(i)_m") val H_i_m: Double,
-    val SD_m: Double
+    val eD: Double,
+    val eM: Double,
+    @SerializedName("H(i)_d") val hID: Double,
+    @SerializedName("H(i)_m") val hIM: Double,
+    val sdM: Double
 )
 
 
@@ -99,18 +101,18 @@ data class Totals(
 )
 
 data class FixedTotals(
-    val E_d: Double,
-    val E_m: Double,
-    val E_y: Double,
-    val H_i_d: Double,
-    val H_i_m: Double,
-    val H_i_y: Double,
-    val SD_m: Double,
-    val SD_y: Double,
-    val l_aoi: Double,
-    val l_spec: String,
-    val l_tg: Double,
-    val l_total: Double
+    val eD: Double,
+    val eM: Double,
+    val eY: Double,
+    val hID: Double,
+    val hIM: Double,
+    val hIY: Double,
+    val sdM: Double,
+    val sdY: Double,
+    val lAoi: Double,
+    val lSpec: String,
+    val lTg: Double,
+    val lTotal: Double
 )
 
 
@@ -122,10 +124,10 @@ data class Meta(
 
 data class MetaInputs(
     val location: MetaLocation,
-    val meteo_data: MetaMeteoData,
-    val mounting_system: MetaMountingSystem,
-    val pv_module: MetaPVModule,
-    val economic_data: MetaEconomicData
+    val meteoData: MetaMeteoData,
+    val mountingSystem: MetaMountingSystem,
+    val pvModule: MetaPVModule,
+    val economicData: MetaEconomicData
 )
 
 data class MetaLocation(

@@ -19,7 +19,7 @@ import no.uio.ifi.in2000.team_43.monitorInternet.NetworkViewModel
 import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
 import no.uio.ifi.in2000.team_43.ui.home.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
-import no.uio.ifi.in2000.team_43.ui.strompris.StromprisViewModel
+import no.uio.ifi.in2000.team_43.ui.electricityPrice.ElectricityPriceViewModel
 import no.uio.ifi.in2000.team_43.ui.theme.Team_43Theme
 
 
@@ -28,16 +28,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Lås skjermen i portrettmodus
+        // Lock screen in portrait mode
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         // ViewModels
         val metViewModel = MetViewModel()
-        val stromprisViewModel = StromprisViewModel()
+        val electricityPriceViewModel = ElectricityPriceViewModel()
         val pvgisViewModel = PVGISViewModel()
 
         // Logging for debugging
-        setupLogging(metViewModel, stromprisViewModel, pvgisViewModel)
+        setupLogging(metViewModel, electricityPriceViewModel, pvgisViewModel)
 
         setContent {
             Team_43Theme {
@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
     // Helper function to keep onCreate clean
     private fun setupLogging(
         metViewModel: MetViewModel,
-        stromprisViewModel: StromprisViewModel,
+        electricityPriceViewModel: ElectricityPriceViewModel,
         pvgisViewModel: PVGISViewModel
     ) {
         // Log Met API data
@@ -66,45 +66,45 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Log strompris API data
+        // Log electricity price API data
         lifecycleScope.launch {
-            Log.i("TestStrom", "Henter strømprisdata Start")
-            stromprisViewModel.data.collectLatest { dataene ->
-                dataene?.forEach { data ->
-                    Log.d("TestStrom", "Strømpris data: $data")
+            Log.i("TestElectricityPrice", "Fetching electricity price data Start")
+            electricityPriceViewModel.data.collectLatest { data ->
+                data?.forEach { data ->
+                    Log.d("TestElectricityPrice", "electricity price data: $data")
                 }
-                if (dataene == null) {
-                    Log.d("TestStrom", "Ingen strømprisdata tilgjengelig ennå.")
+                if (data == null) {
+                    Log.d("TestElectricityPrice", "No electricity price data available yet.")
                 }
             }
         }
 
         // Log PVGIS data
         lifecycleScope.launch {
-            pvgisViewModel.data.collectLatest { dataene ->
-                if (dataene != null) {
-                    Log.d("TestPVGIS", "Tester med data fra pos Oslo. Hele input: ${dataene.inputs}")
-                    Log.d("TestPVGIS", "Average daily energy production: ${dataene.outputs.totals.fixed.E_d} kWh ")
-                    Log.d("TestPVGIS", "Average monthly energy production: ${dataene.outputs.totals.fixed.E_m} kWh ")
-                    Log.d("TestPVGIS", "Average annual energy production: ${dataene.outputs.totals.fixed.E_y} kWh ")
+            pvgisViewModel.data.collectLatest { data ->
+                if (data != null) {
+                    Log.d("TestPVGIS", "Testing with data from pos Oslo. Whole input: ${data.inputs}")
+                    Log.d("TestPVGIS", "Average daily energy production: ${data.outputs.totals.fixed.eD} kWh ")
+                    Log.d("TestPVGIS", "Average monthly energy production: ${data.outputs.totals.fixed.eM} kWh ")
+                    Log.d("TestPVGIS", "Average annual energy production: ${data.outputs.totals.fixed.eY} kWh ")
                 } else {
-                    Log.d("TestPVGIS", "Data er null, venter på data...")
+                    Log.d("TestPVGIS", "Data is null, waiting for data...")
                 }
             }
         }
 
         // Log DRcalc data
         lifecycleScope.launch {
-            Log.d("TestDRcalc", "Starter å hente data fra PVGISViewModel fra MainActivity")
+            Log.d("TestDRcalc", "Starting to fetch data from PVGISViewModel from MainActivity")
             pvgisViewModel.drCalcData.collectLatest { drcalcData ->
                 if (drcalcData != null) {
                     drcalcData.forEach { data ->
-                        Log.d("TestDRcalc", "Solinnstråling kl: ${data.time} = ${data.G_i} W/m2")
+                        Log.d("TestDRcalc", "Solar insolation kl: ${data.time} = ${data.gI} W/m2")
                     }
                     val drcalcTotal = pvgisViewModel.getDRcalcTotalSum()
-                    Log.d("TestDRcalc", "Totalt for hele dagen: $drcalcTotal W/m2")
+                    Log.d("TestDRcalc", "Total for whole day: $drcalcTotal W/m2")
                 } else {
-                    Log.d("TestDRcalc", "Ingen DRcalc-data tilgjengelig ennå.")
+                    Log.d("TestDRcalc", "No DRcalc data available yet.")
                 }
             }
         }

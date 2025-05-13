@@ -1,4 +1,4 @@
-package no.uio.ifi.in2000.team_43.ui.info.grafStuff
+package no.uio.ifi.in2000.team_43.ui.info.graphComponents
 
 import android.graphics.Color
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -32,12 +32,13 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
-import no.uio.ifi.in2000.team_43.model.garfStuff.GrafMeasurement
+import no.uio.ifi.in2000.team_43.model.graphRes.GraphMeasurement
+import androidx.core.graphics.toColorInt
 
 @Composable
 fun MonthlyChartWithValueDisplay(
-    selectedMonth: Int, // 1-basert måned, f.eks. 1 for januar, 12 for desember
-    allMeasurements: List<List<GrafMeasurement>>
+    selectedMonth: Int, // 1-based month, for example. 1 for January, 12 for December
+    allMeasurements: List<List<GraphMeasurement>>
 ) {
     var selectedValue by remember { mutableStateOf<String?>(null) }
     var selectedDate by remember { mutableStateOf<String?>(null) }
@@ -49,7 +50,7 @@ fun MonthlyChartWithValueDisplay(
         verticalArrangement = Arrangement.Top
     ) {
         LineChartForMonths(
-            selectedMonth = selectedMonth,  // Valgt måned (1-12)
+            selectedMonth = selectedMonth,  // Chosen month (1-12)
             allMeasurements = allMeasurements,
             onValueSelected = { x, y ->
                 selectedDate = "Dato: ${x.toInt()}"
@@ -59,14 +60,14 @@ fun MonthlyChartWithValueDisplay(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Vis dato og verdi i to bokser ved siden av hverandre
+        // Show date and value in two boxes next to each other
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Card(
                 modifier = Modifier.weight(1f),
-                elevation = CardDefaults.cardElevation(4.dp), // Bruk riktig metode for elevation
+                elevation = CardDefaults.cardElevation(4.dp),
                 shape = MaterialTheme.shapes.medium
             ) {
                 Box(
@@ -84,7 +85,7 @@ fun MonthlyChartWithValueDisplay(
 
             Card(
                 modifier = Modifier.weight(1f),
-                elevation = CardDefaults.cardElevation(4.dp), // Bruk riktig metode for elevation
+                elevation = CardDefaults.cardElevation(4.dp),
                 shape = MaterialTheme.shapes.medium
             ) {
                 Box(
@@ -109,7 +110,7 @@ fun MonthlyChartWithValueDisplay(
 @Composable
 fun LineChartForMonths(
     selectedMonth: Int,
-    allMeasurements: List<List<GrafMeasurement>>,
+    allMeasurements: List<List<GraphMeasurement>>,
     onValueSelected: (Float, Float) -> Unit
 ) {
     val isDarkMode = isSystemInDarkTheme()
@@ -117,7 +118,7 @@ fun LineChartForMonths(
 
     val chartRef = remember { mutableStateOf<LineChart?>(null) }
 
-    // Hent data for valgt måned (1–12), juster for 0-indeksert liste
+    // Get data for chosen month (1–12), adjust for 0-indexed list
     val measurements = allMeasurements.getOrNull(selectedMonth - 1) ?: emptyList()
 
     AndroidView(
@@ -139,11 +140,11 @@ fun LineChartForMonths(
 
             val dataSet = LineDataSet(entries, "Produksjon").apply {
                 mode = LineDataSet.Mode.CUBIC_BEZIER
-                color = android.graphics.Color.parseColor("#304745") // mørk grønn
+                color = "#304745".toColorInt() // dark green
                 valueTextColor = txtColor
                 lineWidth = 2.5f
-                circleRadius = 0f // fjern sirkler
-                setCircleColor(Color.parseColor("#304745"))
+                circleRadius = 0f
+                setCircleColor("#304745".toColorInt())
                 setDrawValues(false)
                 setDrawCircles(true)
                 setDrawHighlightIndicators(true)
@@ -169,7 +170,7 @@ fun LineChartForMonths(
                 axisMaximum = 31.5f
                 valueFormatter = object : ValueFormatter() {
                     override fun getFormattedValue(value: Float): String {
-                        return value.toInt().toString() // Viser dag (1–31)
+                        return value.toInt().toString() // Shows day (1–31)
                     }
                 }
             }

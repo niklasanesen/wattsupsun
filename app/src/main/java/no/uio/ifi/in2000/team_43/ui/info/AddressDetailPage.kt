@@ -1,6 +1,5 @@
 package no.uio.ifi.in2000.team_43.ui.info
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,83 +37,78 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mapbox.geojson.Point
 import no.uio.ifi.in2000.team_43.data.CoordinateCache
-import no.uio.ifi.in2000.team_43.model.garfStuff.GrafMeasurement
-import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
+import no.uio.ifi.in2000.team_43.model.graphRes.GraphMeasurement
+import no.uio.ifi.in2000.team_43.model.input.SavedAddress
 import no.uio.ifi.in2000.team_43.model.met.Coordinates
-import no.uio.ifi.in2000.team_43.ui.info.grafStuff.MonthSelector
-import no.uio.ifi.in2000.team_43.ui.info.grafStuff.MonthlyChartWithValueDisplay
-import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.CoffeeCard
+import no.uio.ifi.in2000.team_43.ui.info.graphComponents.MonthSelector
+import no.uio.ifi.in2000.team_43.ui.info.graphComponents.MonthlyChartWithValueDisplay
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.EnovaCard
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.TotalCostLogic
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.TotalSavedLogic
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.ValueBox
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
-import no.uio.ifi.in2000.team_43.ui.met.beregnStromproduksjon
+import no.uio.ifi.in2000.team_43.ui.met.calculateElectricityProduction
 import no.uio.ifi.in2000.team_43.ui.pages.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
-import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calcMoneySaved
-import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateCoffe
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.calculateEnova
-import java.time.Instant
 import java.time.ZoneId
 
 
-@OptIn(ExperimentalMaterial3Api::class) // If using Experimental APIs
 @Composable
 fun AddressDetailPage(
     modifier: Modifier = Modifier,
-    address: LagreAdresse,
+    address: SavedAddress,
     navController: NavHostController = rememberNavController(),
     metViewModel: MetViewModel = viewModel(),
 
     ) {
 
     val weatherList by metViewModel.dataSortedByDate.collectAsState()
-    val allMeasurements = remember { MutableList(12) { mutableListOf<GrafMeasurement>() } }
+    val allMeasurements = remember { MutableList(12) { mutableListOf<GraphMeasurement>() } }
 
     val backStackEntry by navController.currentBackStackEntryAsState()
     val route = backStackEntry?.destination?.route
     val currentScreen = HomeScreen.entries.find { it.route == route } ?: HomeScreen.Input
     val scrollState = rememberScrollState()
 
-    val selectedMonth = remember { mutableIntStateOf(0) } // 0 = Januar
-    var isLoading by remember { mutableStateOf(true) } // Lastestatus
+    val selectedMonth = remember { mutableIntStateOf(0) } // 0 = January
+    var isLoading by remember { mutableStateOf(true) } // Loading status
 
 
-    // Fyll dataene (kun én gang)
+    // Fill in the data (only once)
     LaunchedEffect(weatherList) {
         // Sett isLoading til true før lasting
         isLoading = true
 
-        // Simulering av datainnhenting
+        // Simulation of data fetch
         weatherList?.dailyObservation?.forEach { (date, weatherDataList) ->
-            var temperatur: Double? = null
-            var solinnstraling: Double? = null
+            var temperature: Double? = null
+            var solarInsolation: Double? = null
 
             weatherDataList.dataList.forEach { weatherData ->
                 when (weatherData.elementId) {
-                    "mean(air_temperature P1D)" -> temperatur = weatherData.value
-                    "mean(solar_irradiance P1D)" -> solinnstraling = weatherData.value
+                    "mean(air_temperature P1D)" -> temperature = weatherData.value
+                    "mean(solar_irradiance P1D)" -> solarInsolation = weatherData.value
                 }
             }
 
             val areal = address.height * address.width
-            if (temperatur != null && solinnstraling != null) {
+            if (temperature != null && solarInsolation != null) {
                 isLoading = false
-                val produksjon = beregnStromproduksjon(
+                val production = calculateElectricityProduction(
                     areal = areal,
-                    vinkel = address.angle.toInt(),
-                    temperatur = temperatur,
-                    solinnstraling = solinnstraling,
+                    angle = address.angle.toInt(),
+                    temperature = temperature,
+                    solarInsolation = solarInsolation,
                     direction = address.direction.toInt()
                 )
 
                 val zdt = date.atZone(ZoneId.systemDefault())
                 val monthIndex = zdt.monthValue - 1
                 allMeasurements[monthIndex].add(
-                    GrafMeasurement(
+                    GraphMeasurement(
                         time = zdt.dayOfMonth.toFloat(),
-                        value = produksjon.toFloat()
+                        value = production.toFloat()
                     )
                 )
             }
@@ -129,9 +122,6 @@ fun AddressDetailPage(
             }
         }
     }
-
-    val totalProduksjon =
-
 
     Scaffold (
         modifier = modifier.fillMaxSize(),
@@ -156,28 +146,22 @@ fun AddressDetailPage(
             // Total money card on screen
             // pls ask before touching any of this
             Spacer(modifier = Modifier.height(16.dp))
-            TotalSavedLogic(address.MoneySaved, isLoading)
+            TotalSavedLogic(address.moneySaved, isLoading)
 
             // total price for panels
             // Pls ask before touching this
             Spacer(modifier = Modifier.height(16.dp))
             TotalCostLogic(address.numPanel, address.totalPanelAreal.toInt(), false)
 
-
-            // Enova on infoscreen:
+            // Enova on info screen:
             val wPerPanel = address.kwp.toDouble()
             val kwpPerPanel = (wPerPanel / 1000.0)
+
             Spacer(modifier = Modifier.height(16.dp))
+
             EnovaCard(calculateEnova(kwpPerPanel, address.numPanel))
 
-
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-
-
-
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             Card(
                 modifier = Modifier
@@ -196,7 +180,7 @@ fun AddressDetailPage(
                         ),
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
-                    // Første rad
+                    // First row
                     Row(
                         modifier = Modifier
                             .fillMaxWidth(),
@@ -234,28 +218,9 @@ fun AddressDetailPage(
                 }
             }
 
-
-
-
-
-
-
-
             Spacer(modifier = Modifier.height(32.dp))
 
-
-
-
-
-
-
-
-
-
-
-
-
-            // ---- garf and month selector ----
+            // ---- graph and month selector ----
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -281,16 +246,5 @@ fun AddressDetailPage(
                 }
             }
         }
-
-
-
-
-
-
-
-
-
-
-
     }
 }

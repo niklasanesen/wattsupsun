@@ -26,9 +26,9 @@ class InputScreenTest {
         var receivedInput: Input? = null
 
         val fakeCtx =
-            Ctx(coords = null, areal = null, address = null, input = null, stromdistrikt = null)
+            Ctx(coordinates = null, area = null, address = null, input = null, electricityDistrict = null)
 
-        val fakeSelectedPanel = SunPanel("Sunwind 405W", pris = 3000, effekt = 405, bildeResId = R.drawable.sunwind405w_panel, len = 1.72, width = 1.12)
+        val fakeSelectedPanel = SunPanel("Sunwind 405W", price = 3000, effect = 405, pictureResId = R.drawable.sunwind405w_panel, len = 1.72, width = 1.12)
 
         composeTestRule.setContent {
             InputScreen(
@@ -49,7 +49,7 @@ class InputScreenTest {
 
         // Assert the callback was triggered with correct input
         composeTestRule.runOnIdle {
-            TestCase.assertEquals(Input(12, 8, 30, 0, fakeSelectedPanel), receivedInput) // assuming 0° is "Nord"
+            TestCase.assertEquals(Input(12, 8, 30, 0, fakeSelectedPanel), receivedInput)
         }
     }
 }

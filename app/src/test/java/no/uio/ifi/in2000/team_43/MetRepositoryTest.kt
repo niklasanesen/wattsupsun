@@ -17,7 +17,6 @@ import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import java.time.Instant
-import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
 class MetRepositoryTest{
@@ -33,7 +32,7 @@ class MetRepositoryTest{
     fun metRepositoryTestGlobalRadiation() = runTest {
 
         // Arrange
-        val station = WeatherStation(id = "SN18700", name = "Oslo")
+        val station = WeatherStation(id = "SN18700", name = "OSLO - BLINDERN", distance = 8.17602469651)
         val validYears = ValidYears(
             validTo = Instant.parse("2025-01-01T00:00:00Z"),
             validFrom = Instant.parse("2024-01-01T00:00:00.00Z"),

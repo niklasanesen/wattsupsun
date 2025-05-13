@@ -21,8 +21,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.team_43.model.map.Suggestion
-import no.uio.ifi.in2000.team_43.model.stromdistrikt.Fylker
-import no.uio.ifi.in2000.team_43.model.stromdistrikt.StromDistrikt
+import no.uio.ifi.in2000.team_43.model.electricityDistrict.Counties
+import no.uio.ifi.in2000.team_43.model.electricityDistrict.ElectricityDistrict
+
 
 private const val MAX_SUGGESTIONS = 4
 private const val MAX_NAME_LEN = 56
@@ -34,14 +35,14 @@ class MapViewModel() : ViewModel() {
     private val _suggestions = MutableStateFlow<List<Suggestion>>(emptyList())
     val suggestions: StateFlow<List<Suggestion>> = _suggestions.asStateFlow()
 
-    private val _coords = MutableStateFlow<Point?>(Point.fromLngLat(12.30778, 63.99056))
-    val coords: StateFlow<Point?> = _coords.asStateFlow()
+    private val _coordinates = MutableStateFlow<Point?>(Point.fromLngLat(12.30778, 63.99056))
+    val coordinates: StateFlow<Point?> = _coordinates.asStateFlow()
 
     private val _address = MutableStateFlow<String?>(null)
     val address: StateFlow<String?> = _address.asStateFlow()
 
-    private val _stromdistrikt = MutableStateFlow<StromDistrikt?>(null)
-    val stromdistrikt: StateFlow<StromDistrikt?> = _stromdistrikt.asStateFlow()
+    private val _electricityDistrict = MutableStateFlow<ElectricityDistrict?>(null)
+    val electricityDistrict: StateFlow<ElectricityDistrict?> = _electricityDistrict.asStateFlow()
 
     fun search(text: String)  {
         if (text.isEmpty()) {
@@ -63,22 +64,22 @@ class MapViewModel() : ViewModel() {
         }
     }
 
-    fun select(addr: String) {
+    fun select(address: String) {
         searchEngine.search(
-            addr,
+            address,
             SearchOptions(limit = 1),
             object : SearchSuggestionsCallback {
                 override fun onSuggestions(suggestions: List<SearchSuggestion>, responseInfo: ResponseInfo) {
                     val suggestion = suggestions.firstOrNull()
                     if (suggestion != null) {
-                        _coords.value = suggestion.coordinate
-                        setStromdistrikt(suggestion.coordinate)
+                        _coordinates.value = suggestion.coordinate
+                        setElectricityDistrict(suggestion.coordinate)
                         _address.value = suggestion.fullAddress
                     }
 
                 }
                 override fun onError(e: Exception) {
-                    _coords.value = null
+                    _coordinates.value = null
                 }
             }
         )
@@ -117,8 +118,8 @@ class MapViewModel() : ViewModel() {
         )
     }
 
-    // creds: fredrik
-    fun setStromdistrikt(point: Point?) {
+    // credit to: fredrik
+    fun setElectricityDistrict(point: Point?) {
         if (point == null) {
             return
         }
@@ -132,12 +133,10 @@ class MapViewModel() : ViewModel() {
                 override fun onResults(results: List<SearchResult>, responseInfo: ResponseInfo) {
                     if (results.isNotEmpty()) {
                         val result = results[0]
-                        val fylke =
-                            getFylke(result.address?.place, result.address?.region) ?: return
-                        _stromdistrikt.value = getStromdistrikt(fylke)
+                        val county =
+                            getCounty(result.address?.place, result.address?.region) ?: return
+                        _electricityDistrict.value = getElectricityDistrict(county)
 
-                        // INTE FJERN FOR SVINGENDE
-                        // Ikke vær en slyngel og fjern dette meget pedagogiske kommentaren under:
                         Log.d("MapViewModel", "Full address: ${result.address}")
                         Log.d("MapViewModel", "Street: ${result.address?.street}")
                         Log.d("MapViewModel", "Place: ${result.address?.place}")
@@ -155,33 +154,33 @@ class MapViewModel() : ViewModel() {
         )
     }
 
-    fun getFylke(place: String?, region: String?): Fylker? {
+    fun getCounty(place: String?, region: String?): Counties? {
         val text = region ?: place ?: return null
         val normalizedText = text.trim().lowercase()
 
-        return Fylker.entries.find { fylke ->
-            val normalizedFylke = fylke.name.replace("_", " ").lowercase()
-            normalizedText == normalizedFylke
+        return Counties.entries.find { county ->
+            val normalizedCounty = county.name.replace("_", " ").lowercase()
+            normalizedText == normalizedCounty
         }
     }
 
-    fun getStromdistrikt(fylke: Fylker): StromDistrikt? {
-        return when (fylke) {
-            Fylker.OSLO -> StromDistrikt.NO1
-            Fylker.AKERSHUS -> StromDistrikt.NO1
-            Fylker.ØSTFOLD -> StromDistrikt.NO1
-            Fylker.BUSKERUD -> StromDistrikt.NO1
-            Fylker.INNLANDET -> StromDistrikt.NO1
-            Fylker.VESTFOLD -> StromDistrikt.NO2
-            Fylker.TELEMARK -> StromDistrikt.NO2
-            Fylker.AGDER -> StromDistrikt.NO2
-            Fylker.ROGALAND -> StromDistrikt.NO2
-            Fylker.VESTLAND -> StromDistrikt.NO5
-            Fylker.MØRE_OG_ROMSDAL -> StromDistrikt.NO3
-            Fylker.TRØNDELAG -> StromDistrikt.NO3
-            Fylker.NORDLAND -> StromDistrikt.NO4
-            Fylker.TROMS -> StromDistrikt.NO4
-            Fylker.FINNMARK -> StromDistrikt.NO4
+    fun getElectricityDistrict(county: Counties): ElectricityDistrict? {
+        return when (county) {
+            Counties.OSLO -> ElectricityDistrict.NO1
+            Counties.AKERSHUS -> ElectricityDistrict.NO1
+            Counties.ØSTFOLD -> ElectricityDistrict.NO1
+            Counties.BUSKERUD -> ElectricityDistrict.NO1
+            Counties.INNLANDET -> ElectricityDistrict.NO1
+            Counties.VESTFOLD -> ElectricityDistrict.NO2
+            Counties.TELEMARK -> ElectricityDistrict.NO2
+            Counties.AGDER -> ElectricityDistrict.NO2
+            Counties.ROGALAND -> ElectricityDistrict.NO2
+            Counties.VESTLAND -> ElectricityDistrict.NO5
+            Counties.MØRE_OG_ROMSDAL -> ElectricityDistrict.NO3
+            Counties.TRØNDELAG -> ElectricityDistrict.NO3
+            Counties.NORDLAND -> ElectricityDistrict.NO4
+            Counties.TROMS -> ElectricityDistrict.NO4
+            Counties.FINNMARK -> ElectricityDistrict.NO4
         }
     }
 }
