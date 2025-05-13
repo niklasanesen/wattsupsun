@@ -10,7 +10,7 @@
 
 WattsUpSun er en app designet for huseiere som ønsker å vurdere lønnsomheten av solcellepaneler. Appen lar huseier enkelt slå opp adresse, tegne takflate og legge inn areal/vinkel/retning for å beregne forventet strømproduksjon.
 
-<img src="app/src/main/res/drawable/mockup.png" alt="mockup">
+<img src="app/src/main/res/drawable/mockup.png" width="800" alt="mockup">
 
 ## Installasjon
 
