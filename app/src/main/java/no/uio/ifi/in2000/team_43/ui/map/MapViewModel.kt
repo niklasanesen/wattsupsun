@@ -1,4 +1,4 @@
-package no.uio.ifi.in2000.team_43.ui.home
+package no.uio.ifi.in2000.team_43.ui.map
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -20,17 +20,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import no.uio.ifi.in2000.team_43.model.map.Suggestion
 import no.uio.ifi.in2000.team_43.model.electricityDistrict.Counties
 import no.uio.ifi.in2000.team_43.model.electricityDistrict.ElectricityDistrict
-
+import no.uio.ifi.in2000.team_43.model.map.Suggestion
 
 private const val MAX_SUGGESTIONS = 4
 private const val MAX_NAME_LEN = 56
 
 class MapViewModel() : ViewModel() {
-    private val placeAutocomplete = PlaceAutocomplete.create()
-    private val searchEngine = SearchEngine.createSearchEngine(SearchEngineSettings())
+    private val placeAutocomplete = PlaceAutocomplete.Companion.create()
+    //although this function is deprecated, this was the only viable solution we found in
+    // implementing search for mapbox
+    @Suppress("DEPRECATION")
+    private val searchEngine = SearchEngine.Companion.createSearchEngine(SearchEngineSettings())
 
     private val _suggestions = MutableStateFlow<List<Suggestion>>(emptyList())
     val suggestions: StateFlow<List<Suggestion>> = _suggestions.asStateFlow()
@@ -127,7 +129,7 @@ class MapViewModel() : ViewModel() {
             ReverseGeoOptions(
                 center = point,
                 limit = 1,
-                countries = listOf(IsoCountryCode.NORWAY)
+                countries = listOf(IsoCountryCode.Companion.NORWAY)
             ),
             object : SearchCallback {
                 override fun onResults(results: List<SearchResult>, responseInfo: ResponseInfo) {

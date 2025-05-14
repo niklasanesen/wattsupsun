@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
+import androidx.compose.material3.Card
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
@@ -57,9 +57,9 @@ fun InfoScreen(
     val roofWidth = ctx.input?.width?.toDouble()
     val panelLength = ctx.input?.panel?.len
     val panelWidth = ctx.input?.panel?.width
-    val panelArel = if (panelLength != null && panelWidth != null) panelLength * panelWidth else 0.0
+    val panelArea = if (panelLength != null && panelWidth != null) panelLength * panelWidth else 0.0
     val numPanel = calculateNumPanels(roofLength, roofWidth, panelLength, panelWidth)
-    val totalPanelAreal = numPanel * panelArel
+    val totalPanelAreal = numPanel * panelArea
     val panelPrice = ctx.input?.panel?.price ?: 0
     val totalPanelPrice = numPanel * panelPrice
 
@@ -127,11 +127,12 @@ fun InfoScreen(
     val direction = ctx.input?.direction ?: 0
     val moneySavedList = calcMoneySaved(direction, electricityPriceDataPerMonth, displayedData)
     val totalMoneySaved = moneySavedList.sum()
+    Log.d("saveIssue", "moneysavedlist = $moneySavedList and totalMoneySaved = $totalMoneySaved")
     val totalProduction = calculatedMetData.sumOf { it.second }
 
 
     LaunchedEffect(ctx.electricityDistrict) {
-        electricityPriceViewModel.fetchStromData(ctx.electricityDistrict)
+        electricityPriceViewModel.fetchElectricityData(ctx.electricityDistrict)
     }
 
     // Testing if it works to fetch electricity price per month
@@ -161,9 +162,9 @@ fun InfoScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth(),
-            elevation = 8.dp,
+            elevation = CardDefaults.cardElevation(8.dp),
             shape = RoundedCornerShape(16.dp),
-            backgroundColor = Color.White
+            colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
@@ -355,8 +356,10 @@ fun InfoScreen(
                     totalPanelAreal = totalPanelAreal,
                     kwp = ctx.input?.panel?.effect?: 0,
                     price = ctx.input?.panel?.price?: 0,
-                    moneySaved = totalMoneySaved
+                    moneySaved = totalMoneySaved,
+                    totalPanelPrice = totalPanelPrice
                 )
+
 
                 CoroutineScope(Dispatchers.IO).launch {
                     dataStoreManager.saveAddress(address)

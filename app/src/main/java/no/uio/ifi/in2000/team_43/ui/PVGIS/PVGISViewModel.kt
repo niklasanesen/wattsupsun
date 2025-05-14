@@ -40,10 +40,12 @@ class PVGISViewModel : ViewModel() {
     // Getting DRcalc-data
     private val _drCalcData = MutableStateFlow<List<DailyProfile>?>(null)
     val drCalcData: StateFlow<List<DailyProfile>?> = _drCalcData.asStateFlow()
+    /*
+    for use at a later time
     val drCalcDataTotalSum: StateFlow<Double?> = drCalcData
         .map { listWithData -> listWithData?.sumOf { it.gI } ?: 0.0 } // Handles null-cases
         .stateIn(viewModelScope, SharingStarted.Lazily, 0.0)
-
+     */
     // Calculates average production per month based on pvgis
     val productionData: StateFlow<List<Double>> = data
         .map { res ->

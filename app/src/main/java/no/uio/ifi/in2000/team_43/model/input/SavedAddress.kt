@@ -18,5 +18,6 @@ data class SavedAddress(
     val kwp: Int,
     val price: Int,
     val moneySaved: Float,
+    val totalPanelPrice: Int,
     val uniqueId: String = UUID.randomUUID().toString()  // Generates UUID if it is not specified
 )

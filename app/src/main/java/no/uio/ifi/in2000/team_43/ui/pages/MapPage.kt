@@ -25,7 +25,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
 import no.uio.ifi.in2000.team_43.ui.home.HomeViewModel
-import no.uio.ifi.in2000.team_43.ui.home.MapScreen
+import no.uio.ifi.in2000.team_43.ui.map.MapScreen
 import no.uio.ifi.in2000.team_43.ui.info.InfoScreen
 import no.uio.ifi.in2000.team_43.ui.input.InputScreen
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel

@@ -20,7 +20,7 @@ class ElectricityPriceDataSource {
             val day = today.format(DateTimeFormatter.ofPattern("dd"))
             val priceLocationCode = electricityDistrict?.name ?: "NO1" // Total of 5 price areas in Norway, NO1 is meant for Oslo; letter O not number
 
-            Log.i("TestElectricity", "Today's date: $year-$month-$day")
+            //Log.i("TestElectricity", "Today's date: $year-$month-$day")
 
             var url = "https://www.hvakosterstrommen.no/api/v1/prices/"
             url += "$year/"
@@ -30,7 +30,7 @@ class ElectricityPriceDataSource {
 
             url += ".json" // Json format
 
-            Log.i("TestElectricity", "Trying to get data from: $url")
+            //Log.i("TestElectricity", "Trying to get data from: $url")
             return APIClient.client.get(url).body()
         } catch (e: Exception) {
             Log.e("TestElectricity", "Error in datasource")
@@ -54,7 +54,7 @@ class ElectricityPriceDataSource {
 
 
 
-            Log.i("TestElectricityPrice", "Getting from date: $year-$month-$day")
+            //Log.i("TestElectricityPrice", "Getting from date: $year-$month-$day")
 
 
             var url = "https://www.hvakosterstrommen.no/api/v1/prices/"
@@ -66,6 +66,7 @@ class ElectricityPriceDataSource {
             url += ".json" // Json format
 
             //Log.i("TestElectricityPrice", "Trying to get data from: $url")
+            //Log.d("TestElectricityPrice", "Response is: ${APIClient.client.get(url).body< List<ElectricityPriceRes>?>()}")
             return APIClient.client.get(url).body()
         } catch (e: Exception) {
             Log.e("TestElectricity", "error in datasource")

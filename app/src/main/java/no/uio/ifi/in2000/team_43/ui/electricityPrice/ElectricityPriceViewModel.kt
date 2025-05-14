@@ -22,7 +22,7 @@ class ElectricityPriceViewModel : ViewModel() {
     private val _dataPerMnd = MutableStateFlow<List<List<ElectricityPriceRes>?>?>(null)
     val dataPerMnd: StateFlow<List<List<ElectricityPriceRes>?>?> = _dataPerMnd.asStateFlow()
 
-    fun fetchStromData(electricityDistrict: ElectricityDistrict?) {
+    fun fetchElectricityData(electricityDistrict: ElectricityDistrict?) {
         viewModelScope.launch {
             try {
                 Log.i("TestElectricityPrice", "Fetching electricity price data from API...")

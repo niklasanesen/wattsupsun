@@ -13,7 +13,7 @@ val Context.dataStore by preferencesDataStore(name = "addresses")
 
 class DataStoreManager(private val context: Context) {
 
-    private val ADDRESSES_KEY = stringSetPreferencesKey("addresses")
+    private val addressesKey = stringSetPreferencesKey("addresses")
 
     companion object {
         val FIRSTNAME = stringPreferencesKey("firstname")
@@ -24,13 +24,27 @@ class DataStoreManager(private val context: Context) {
     // Save an address
     suspend fun saveAddress(address: SavedAddress) {
         context.dataStore.edit { preferences ->
-            val currentList = preferences[ADDRESSES_KEY]?.toMutableSet() ?: mutableSetOf()
+            val currentList = preferences[addressesKey]?.toMutableSet() ?: mutableSetOf()
 
             // Generates a unique ID (UUID) for each address
             val uniqueId = UUID.randomUUID().toString()
 
             // Make an addressString with all the address parameters
-            val addressString = "lat:${address.latitude}, long:${address.longitude}, height:${address.height}, width:${address.width}, angle:${address.angle}, direction:${address.direction}, address:${address.addressString}, name:${address.savedName}, numPanel:${address.numPanel}, totalPanelAreal:${address.totalPanelAreal}, kwp:${address.kwp}, price:${address.price}, moneySaved:${address.moneySaved}"
+            val addressString =
+                "lat:${address.latitude}," +
+                " long:${address.longitude}, " +
+                "height:${address.height}, " +
+                "width:${address.width}, " +
+                "angle:${address.angle}, " +
+                "direction:${address.direction}, " +
+                "address:${address.addressString}, " +
+                "name:${address.savedName}, " +
+                "numPanel:${address.numPanel}, " +
+                "totalPanelAreal:${address.totalPanelAreal}, " +
+                "kwp:${address.kwp}, " +
+                "price:${address.price}, " +
+                "moneySaved:${address.moneySaved}, " +
+                "totalPanelPrice:${address.totalPanelPrice}"
 
             // Combining UUID with addressString
             val addressWithId = "$uniqueId|$addressString"
@@ -39,7 +53,7 @@ class DataStoreManager(private val context: Context) {
             currentList.add(addressWithId)
 
             // Save the updated list back to DataStore
-            preferences[ADDRESSES_KEY] = currentList
+            preferences[addressesKey] = currentList
         }
     }
 
@@ -47,7 +61,7 @@ class DataStoreManager(private val context: Context) {
     // Get saved addresses
     val addresses: Flow<List<SavedAddress>> = context.dataStore.data
         .map { preferences ->
-            preferences[ADDRESSES_KEY]?.mapNotNull { addressString ->
+            preferences[addressesKey]?.mapNotNull { addressString ->
                 try {
                     // Split addressString into uniqueId and address information
                     val parts = addressString.split("|")
@@ -72,6 +86,7 @@ class DataStoreManager(private val context: Context) {
                         kwp = addressParts["kwp"]?.toIntOrNull() ?: 0,
                         price = addressParts["price"]?.toIntOrNull() ?: 0,
                         moneySaved = addressParts["moneySaved"]?.toFloatOrNull() ?: 0f,
+                        totalPanelPrice = addressParts["totalPanelPrice"]?.toIntOrNull() ?: 0,
                         uniqueId = uniqueId  // Add uniqueId in object
                     )
                 } catch (e: Exception) {
@@ -83,10 +98,24 @@ class DataStoreManager(private val context: Context) {
 
     suspend fun deleteAddress(address: SavedAddress) {
         context.dataStore.edit { preferences ->
-            val currentList = preferences[ADDRESSES_KEY]?.toMutableSet() ?: mutableSetOf()
+            val currentList = preferences[addressesKey]?.toMutableSet() ?: mutableSetOf()
 
             // Make an addressString with all the address parameters
-            val addressString = "lat:${address.latitude}, long:${address.longitude}, height:${address.height}, width:${address.width}, angle:${address.angle}, direction:${address.direction}, address:${address.addressString}, name:${address.savedName}, numPanel:${address.numPanel}, totalPanelAreal:${address.totalPanelAreal}, kwp:${address.kwp}, price:${address.price}, moneySaved:${address.moneySaved}"
+            val addressString =
+                "lat:${address.latitude}, " +
+                "long:${address.longitude}, " +
+                "height:${address.height}, " +
+                "width:${address.width}, " +
+                "angle:${address.angle}, " +
+                "direction:${address.direction}, " +
+                "address:${address.addressString}, " +
+                "name:${address.savedName}, " +
+                "numPanel:${address.numPanel}, " +
+                "totalPanelAreal:${address.totalPanelAreal}, " +
+                "kwp:${address.kwp}, " +
+                "price:${address.price}, " +
+                "moneySaved:${address.moneySaved}, " +
+                "totalPanelPrice:${address.totalPanelPrice}"
 
             // Combine UUID with addressString
             val addressWithId = "${address.uniqueId}|$addressString"
@@ -95,7 +124,7 @@ class DataStoreManager(private val context: Context) {
             currentList.remove(addressWithId)
 
             // Save the updated list back to DataStore
-            preferences[ADDRESSES_KEY] = currentList
+            preferences[addressesKey] = currentList
         }
     }
 
@@ -103,7 +132,7 @@ class DataStoreManager(private val context: Context) {
     // Delete all addresses
     suspend fun deleteAllAddresses() {
         context.dataStore.edit { preferences ->
-            preferences.remove(ADDRESSES_KEY)
+            preferences.remove(addressesKey)
         }
     }
 

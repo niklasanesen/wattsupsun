@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.team_43
 
+import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Log
@@ -24,11 +25,13 @@ import no.uio.ifi.in2000.team_43.ui.theme.Team_43Theme
 
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         // Lock screen in portrait mode
+        //this warning is necessary, because we don't want the app to be used in landscape mode
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         // ViewModels

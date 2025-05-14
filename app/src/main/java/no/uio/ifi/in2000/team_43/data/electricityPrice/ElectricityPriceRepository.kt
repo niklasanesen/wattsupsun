@@ -1,13 +1,10 @@
 package no.uio.ifi.in2000.team_43.data.electricityPrice
 
-import no.uio.ifi.in2000.team_43.model.electricityPrice.ElectricityPriceRes
 import no.uio.ifi.in2000.team_43.model.electricityDistrict.ElectricityDistrict
+import no.uio.ifi.in2000.team_43.model.electricityPrice.ElectricityPriceRes
 import java.time.LocalDate
 
 class ElectricityPriceRepository (private val electricityPriceDataSource: ElectricityPriceDataSource){
-    suspend fun getElectricityPrice(electricityDistrict: ElectricityDistrict?): List<ElectricityPriceRes>? {
-        return electricityPriceDataSource.getElectricityPriceData(electricityDistrict)
-    }
 
     suspend fun getElectricityPriceList(electricityDistrict: ElectricityDistrict?): List<ElectricityPriceRes>? {
         return electricityPriceDataSource.getElectricityPriceData(electricityDistrict)
@@ -24,7 +21,7 @@ class ElectricityPriceRepository (private val electricityPriceDataSource: Electr
         var totalSum = 0.0
         val totalHoursFound: Int = listWithElectricityPrice.size
         listWithElectricityPrice.forEach { time ->
-            totalSum += time.nokPerKWh
+            totalSum += time.NOK_per_kWh
         }
 
         val averagePrice: Double = totalSum/totalHoursFound
@@ -35,12 +32,12 @@ class ElectricityPriceRepository (private val electricityPriceDataSource: Electr
 
         val dates = (1..12).map { month -> LocalDate.of(2024, month, 1) }
         val electricityListPerMonth = mutableListOf<List<ElectricityPriceRes>?>()
-
         dates.forEach { date ->
             //Log.i("TestElectricityPrice", "Getting from date.. ${date.dayOfMonth}-${date.month}-${date.year}")
             electricityListPerMonth.add(electricityPriceDataSource.getElectricityPriceDataWithDate(electricityDistrict, date))
         }
 
+        //Log.d("TestElectricityPrice", "value of ePriceOerMonth = $electricityListPerMonth")
         return electricityListPerMonth
     }
 }

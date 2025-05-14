@@ -19,7 +19,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import no.uio.ifi.in2000.team_43.ui.pages.MapPage
 import no.uio.ifi.in2000.team_43.ui.pages.ProfilePage
@@ -44,7 +43,6 @@ fun HomeScreen(
 
 
     // State to track if welcome screen is shown
-    val context = LocalContext.current
     var showWelcomeScreen by remember { mutableStateOf(true) }
 
     if (showWelcomeScreen) {

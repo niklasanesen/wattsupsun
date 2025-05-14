@@ -12,8 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -151,7 +152,7 @@ fun AddressDetailPage(
             // total price for panels
             // Pls ask before touching this
             Spacer(modifier = Modifier.height(16.dp))
-            TotalCostLogic(address.numPanel, address.totalPanelAreal.toInt(), false)
+            TotalCostLogic(address.numPanel, address.totalPanelPrice, false)
 
             // Enova on info screen:
             val wPerPanel = address.kwp.toDouble()
@@ -166,9 +167,9 @@ fun AddressDetailPage(
             Card(
                 modifier = Modifier
                     .fillMaxWidth(),
-                elevation = 8.dp,
+                elevation = CardDefaults.cardElevation(8.dp),
                 shape = RoundedCornerShape(16.dp),
-                backgroundColor = Color.White
+                colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(

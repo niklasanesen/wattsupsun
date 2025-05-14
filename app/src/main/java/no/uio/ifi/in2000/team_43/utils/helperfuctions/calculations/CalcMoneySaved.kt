@@ -1,6 +1,7 @@
 package no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations
 
 
+import android.util.Log
 import no.uio.ifi.in2000.team_43.model.electricityPrice.ElectricityPriceRes
 import no.uio.ifi.in2000.team_43.model.graphRes.GraphMeasurement
 
@@ -9,6 +10,7 @@ fun calcMoneySaved(
     electricityPriceDataPerMonth: List<List<ElectricityPriceRes>?>?,
     productionPerMonth: List<GraphMeasurement>
 ): List<Float> {
+    Log.d("saveIssue", "dir = $direction, electric = $electricityPriceDataPerMonth, prodPrMonth = $productionPerMonth")
     val savingsPerMonth = mutableListOf<Float>()
 
     // Choose electricity price index based on direction
@@ -32,7 +34,7 @@ fun calcMoneySaved(
         val pricesForMonth = electricityPriceDataPerMonth?.getOrNull(index) ?: return@forEachIndexed
         if (priceIndex >= pricesForMonth.size) return@forEachIndexed
 
-        val chosenPrice = pricesForMonth[priceIndex].nokPerKWh.toFloat()
+        val chosenPrice = pricesForMonth[priceIndex].NOK_per_kWh.toFloat()
         val saved = production * chosenPrice * adjustmentFactor
         savingsPerMonth.add(saved)
     }

@@ -114,7 +114,8 @@ fun InputScreen(
         InputForm(
             ctx = ctx,
             onNextButtonClicked = onNextBtnClicked,
-            modifier = modifier,
+            modifier = modifier
+                .padding(bottom = innerPadding.calculateBottomPadding()),
             inputViewModel = inputViewModel
         )
     }

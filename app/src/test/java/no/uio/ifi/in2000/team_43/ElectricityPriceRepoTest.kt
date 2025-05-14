@@ -20,11 +20,11 @@ class ElectricityPriceRepoTest {
         // Arrange: Mock 24 hours with varying prices
         val testData = (0 until 24).map { hour ->
             ElectricityPriceRes(
-                nokPerKWh = if (hour < 12) 20.0 else 10.0, // First 12 hours: 20 kr, rest: 10 kr
-                eurPerKWh = 0.1,  // Not relevant for test
-                exr = 10.0,         // Not relevant
-                timeStart = "2023-01-01T${hour.toString().padStart(2, '0')}:00:00Z",
-                timeEnd = "2023-01-01T${(hour + 1).toString().padStart(2, '0')}:00:00Z"
+                NOK_per_kWh = if (hour < 12) 20.0 else 10.0, // First 12 hours: 20 kr, rest: 10 kr
+                EUR_per_kWh = 0.1,  // Not relevant for test
+                EXR = 10.0,         // Not relevant
+                time_start = "2023-01-01T${hour.toString().padStart(2, '0')}:00:00Z",
+                time_end = "2023-01-01T${(hour + 1).toString().padStart(2, '0')}:00:00Z"
             )
         }
 

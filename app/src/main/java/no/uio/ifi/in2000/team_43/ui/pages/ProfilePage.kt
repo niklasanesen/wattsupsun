@@ -318,22 +318,6 @@ fun ProfileScreen(
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    Button(
-                        onClick = {},
-                        enabled = true,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xff3b7d9c)
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(44.dp)
-                    ) {
-                        Text("Innstillinger")
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
                     // Privacy policy button
                     Button(
                         onClick = {
