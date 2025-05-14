@@ -61,6 +61,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
@@ -288,9 +289,6 @@ fun ProfileScreen(
                     ) {
                         Text("Info om appen")
                     }
-
-
-
 
                     Spacer(modifier = Modifier.height(4.dp))
 
@@ -532,8 +530,6 @@ fun ProfileScreen(
     }
 }
 
-
-
 @Composable
 fun AddressCard(
     address: SavedAddress,
@@ -558,7 +554,10 @@ fun AddressCard(
                     Text(
                         text = address.savedName,
                         style = MaterialTheme.typography.titleLarge,
-                        color = Cerulean
+                        color = Cerulean,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
                     )
 
                     Box (
@@ -597,7 +596,6 @@ fun AddressCard(
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

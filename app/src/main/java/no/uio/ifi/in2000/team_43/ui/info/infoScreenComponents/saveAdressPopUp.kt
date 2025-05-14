@@ -25,7 +25,7 @@ fun AddressNamePopup(
 ) {
     if (showDialog) {
         var input by remember { mutableStateOf("") }
-        val maxLength = 15
+        val maxLength = 30
         val showLimitWarning = input.length >= maxLength
 
         AlertDialog(
@@ -49,7 +49,7 @@ fun AddressNamePopup(
                     )
                     if (showLimitWarning) {
                         Text(
-                            text = "Maksimalt 15 tegn tillatt",
+                            text = "Maksimalt 30 tegn tillatt",
                             color = Color.Red,
                             style = MaterialTheme.typography.bodySmall
                         )
@@ -74,5 +74,3 @@ fun AddressNamePopup(
         )
     }
 }
-
-

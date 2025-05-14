@@ -61,7 +61,6 @@ fun AddressDetailPage(
     address: SavedAddress,
     navController: NavHostController = rememberNavController(),
     metViewModel: MetViewModel = viewModel(),
-
     ) {
 
     val weatherList by metViewModel.dataSortedByDate.collectAsState()
