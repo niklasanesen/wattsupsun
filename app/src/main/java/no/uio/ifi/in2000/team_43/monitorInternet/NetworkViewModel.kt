@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.stateIn
 class NetworkViewModel(application: Application) : AndroidViewModel(application) {
     private val observer = NetworkConnectivityObserver(application)
 
-    // Vær sikker på at vi starter med en fornuftig tilstand (Unavailable), hvis ikke tilgjengelig
+    // Be sure that we start in a sensible state (Unavailable), if not available
     val networkStatus = observer.observe()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), NetworkStatus.Unavailable)
 }

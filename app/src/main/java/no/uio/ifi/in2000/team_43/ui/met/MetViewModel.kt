@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.team_43.data.met.MetRepository
-import no.uio.ifi.in2000.team_43.model.garfStuff.GrafMeasurement
+import no.uio.ifi.in2000.team_43.model.graphRes.GraphMeasurement
 import no.uio.ifi.in2000.team_43.model.met.AggregatedData
 import no.uio.ifi.in2000.team_43.model.met.Coordinates
 import no.uio.ifi.in2000.team_43.model.met.ValidYears
@@ -19,61 +19,61 @@ import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import kotlin.math.min
 
-// Beregninger for stromproduksjon
+// Calculations for electricity production
 
-// kort forklart:
-// 1. alcGHI gir forveentet effekt basert på skydekke, snø per kvadratmeter
-// 2. Gange dette med antall kvadratmeter med flate
-// 3. HVIS temp er over 25 kan man forvente tap på -0.3% per grad (kilde: https://www.otovo.no/blog/solcellepanel-solceller/solceller-norge-virkningsgrad/)
-// (sidenote: ved under 25 grad kan man få økt produksjon men ikke funnet kilde som begrunner enda)
-// 4. Man må anta at bruker har valgt anbefalt optimalvinkel, HVIS IKKE: egen formel som justerer
+// briefly explained:
+// 1. alcGHI gives the expected effect based on cloud cover, snow per square meter
+// 2. Multiply this by the number of square meters of surface
+// 3. IF the temperature is above 25, you can expect a loss of -0.3% per degree (source: https://www.otovo.no/blog/solcellepanel-solceller/solceller-norge-virkningsgrad/)
+// (sidenote: at below 25 degrees you can get increased production but no source has been found to justify it yet)
+// 4. It must be assumed that the user has chosen the recommended optimal angle, IF NOT: own formula that adjusts
 
-fun beregnStromproduksjon(
+fun calculateElectricityProduction(
     areal: Double,
-    vinkel: Int,                 // faktisk vinkel i grader
-    temperatur: Double,          // lufttemperatur i grader C
-    solinnstraling: Double,       // Wh/m²
+    angle: Int,                 // actual angle in degrees
+    temperature: Double,          // air temperature in degrees C
+    solarInsolation: Double,       // Wh/m²
     direction: Int
 ): Double {
-    val optimalVinkel = 35.0 // Antatt optimal vinkel i Norge
+    val optimalAngle = 35.0 // Assumed optimal angle in Norway
     val optimalTemp = 25.0
-    val tempTapPerGrad = 0.003 // 0.3 % tap per grad over 25 °C
+    val tempLossPerDegree = 0.003 // 0.3 % loss per degree over 25 °C
 
-    // 1. Start med forventet produksjon
-    var produksjon = (solinnstraling/1000) * areal
+    // 1. Start with expected production
+    var production = (solarInsolation/1000) * areal
 
-    // 2. Temperaturtap
-    if (temperatur > optimalTemp) {
-        val tempOver = temperatur - optimalTemp
-        val korreksjonsfaktor = 1 - (tempOver * tempTapPerGrad)
-        produksjon *= korreksjonsfaktor
+    // 2. Temperature loss
+    if (temperature > optimalTemp) {
+        val tempOver = temperature - optimalTemp
+        val correctionFactor = 1 - (tempOver * tempLossPerDegree)
+        production *= correctionFactor
     }
 
-    // 3. Vinkelavvik (effekttap hvis vinkel ≠ optimal)
-    val vinkelAvvik = kotlin.math.abs(vinkel - optimalVinkel)
-    produksjon = beregnEffekttap(produksjon, vinkelAvvik)
+    // 3. Angle deviation (effect loss if angle ≠ optimal)
+    val angleDeviation = kotlin.math.abs(angle - optimalAngle)
+    production = calculateEffectLoss(production, angleDeviation)
 
-    // Juster for retning
-    produksjon *= when (direction) {
+    // Adjust for direction
+    production *= when (direction) {
         0 -> 0.258
         90 -> 0.76
         270 -> 0.75
-        180 -> 1.0 // sør
+        180 -> 1.0
         else -> 1.0
     }
 
-    return produksjon
+    return production
 }
 
 
-fun beregnEffekttap(produksjon: Double, avvikVinkel: Double): Double {
-    // Grov tilnærming: 1 % effekttap per 1 grads avvik
+fun calculateEffectLoss(production: Double, deviatingAngle: Double): Double {
+    // Rough approach: 1 % effect loss per 1 degree of deviation
     val tapPerGrad = 0.01
-    val effektTap = 1 - (avvikVinkel * tapPerGrad)
-    return produksjon * effektTap.coerceAtLeast(0.0) // unngå negativt resultat
+    val effectLoss = 1 - (deviatingAngle * tapPerGrad)
+    return production * effectLoss.coerceAtLeast(0.0)
 }
 
-fun convertMetToMeasurements(data: List<Pair<Instant, Double>>): List<GrafMeasurement> {
+fun convertMetToMeasurements(data: List<Pair<Instant, Double>>): List<GraphMeasurement> {
     return data
         .map { (instant, value) ->
             val zdt = instant.atZone(ZoneId.systemDefault())
@@ -84,7 +84,7 @@ fun convertMetToMeasurements(data: List<Pair<Instant, Double>>): List<GrafMeasur
             entry.value.sumOf { it.second }
         }
         .map { (month, totalValue) ->
-            GrafMeasurement(
+            GraphMeasurement(
                 time = month.toFloat(),
                 value = totalValue.toFloat()
             )

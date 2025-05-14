@@ -1,18 +1,12 @@
 package no.uio.ifi.in2000.team_43.ui.home
 
-import android.content.Context
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.SnackbarHost
-import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -25,7 +19,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import no.uio.ifi.in2000.team_43.ui.pages.MapPage
 import no.uio.ifi.in2000.team_43.ui.pages.ProfilePage
@@ -50,7 +43,6 @@ fun HomeScreen(
 
 
     // State to track if welcome screen is shown
-    val context = LocalContext.current
     var showWelcomeScreen by remember { mutableStateOf(true) }
 
     if (showWelcomeScreen) {

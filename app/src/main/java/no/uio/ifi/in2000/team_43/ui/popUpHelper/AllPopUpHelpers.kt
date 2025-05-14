@@ -29,7 +29,8 @@ fun HelpOnMapScreen(onDismiss: () -> Unit) {
             ),
             modifier = Modifier.padding(bottom = 16.dp)
         ) },
-        text = { Text("IDK. 🤷‍♂️") },
+        text = { Text("Trykk på søkefeltet nederst på kart-skjermen og søk opp din adresse.\n" +
+        "Deretter trykk på bekreft adresse hvis det er den korrekte, ellers kan du avbryte og søke på nytt.") },
         confirmButton = {
             TextButton(
                 onClick = onDismiss,
@@ -55,7 +56,8 @@ fun HelpOnInputScreen(onDismiss: () -> Unit) {
             ),
             modifier = Modifier.padding(bottom = 16.dp)
         ) },
-        text = { Text("IDK. 🤷‍♂️") },
+        text = { Text("Her fyller du inn takets lengde, bredde, vinkel og retning.\n" +
+                "Velg deretter ønsket type solcellepanel og klikk «Neste» ") },
         confirmButton = {
             TextButton(
                 onClick = onDismiss,
@@ -81,7 +83,11 @@ fun HelpOnInfoScreen(onDismiss: () -> Unit) {
             ),
             modifier = Modifier.padding(bottom = 16.dp)
         ) },
-        text = { Text("IDK. 🤷‍♂️") },
+        text = { Text("Her får du oversikt over taket ditt og beregnet solenergiproduksjon, basert på takdata, vær- og strømforhold." +
+                "\n\nSlik bruker du grafen nederst:" +
+                "\nBruk bryteren for å bytte mellom PVGIS- og MET-data" +
+                "\nKlikk på grafen for å se energiproduksjonen for en valgt måned" +
+                "\n\nHelt nederst finner du en knapp for å lagre adressen.") },
         confirmButton = {
             TextButton(
                 onClick = onDismiss,
@@ -107,7 +113,13 @@ fun HelpOnSateliteScreen(onDismiss: () -> Unit) {
             ),
             modifier = Modifier.padding(bottom = 16.dp)
         ) },
-        text = { Text("IDK. 🤷‍♂️") },
+        text = { Text("Trinnvis forklaring: \n" +
+                "NB: knapper vil dukke opp etter hvert som ulike operasjoner blir gjort\n" +
+                "1. Trykk på kartet for å legge til punkter\n" +
+                "2. Hvis du setter et punkt feil, benytt 'Angre punkt' knappen\n" +
+                "3. Etter 4 punkter er lagt til, vil en takflate opprettes\n" +
+                "4. Hvis takflaten er feil kan du trykke på 'Slett takflate' for å fjerne takflate\n" +
+                "5. Hvis alt stemmer, trykk på 'Neste for å gå videre'")},
         confirmButton = {
             TextButton(
                 onClick = onDismiss,

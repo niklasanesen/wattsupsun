@@ -1,3 +1,5 @@
+@file:Suppress("PackageName")
+
 package no.uio.ifi.in2000.team_43.data.PVGIS
 
 import android.util.Log
@@ -12,70 +14,72 @@ class PVGISDatasource {
     suspend fun getPVGISData(coordinates: Coordinates): PVGISRes? {
         try {
 
-            // Testdata:
+            // Test data:
 
-            // Et av verktøyene som kan brukes:
-            val tool_name = "PVcalc"
-            // valgt posisjon
-            val lat = coordinates.latitude//"59"
-            val lon = coordinates.longitude//"10"
-            // Beskrevet lengre ned
-            val peakpower = "3.0"
+            // One of the tools that can be used:
+            val toolName = "PVcalc"
+
+            // Chosen position
+            val lat = coordinates.latitude
+            val lon = coordinates.longitude
+
+            // Described further down
+            val peakPower = "3.0"
             val loss = "2.0"
 
 
             var url = "https://re.jrc.ec.europa.eu/api/v5_2/"
-            url += "${tool_name}?"
+            url += "${toolName}?"
             url += "lat=$lat"
             url += "&lon=$lon"
-            url += "&peakpower=$peakpower" // Beskriver "Nominal power of the PV system, in kW"
-            url += "&loss=$loss" // Beskriver "Sum of system losses, in percent."
+            url += "&peakpower=$peakPower" // Descriptor "Nominal power of the PV system, in kW"
+            url += "&loss=$loss" // Descriptor "Sum of system losses, in percent."
 
-            url += "&outputformat=json" // Spesifiserer at man ønsker json
+            url += "&outputformat=json" // Specifies that you want JSON
 
-            Log.i("TestPVGIS", "Prøver å hente data fra $url")
-            Log.i("TestPVGIS", "Prøver å hente data fra lat: $lat og lon: $lon")
+            Log.i("TestPVGIS", "Trying to get data from $url")
+            Log.i("TestPVGIS", "Trying to get data from lat: $lat and lon: $lon")
 
             return APIClient.client.get(url).body()
         } catch (e: Exception) {
-            Log.e("TestPVGIS", "Error i Datasource: msg; ${e.message}")
+            Log.e("TestPVGIS", "Error in Datasource: msg; ${e.message}")
 
             return null
         }
     }
 
 
-    // Get gjennomsnittlig innkommende solenergi per time
+    // Get average incoming solar energy each hour
     suspend fun getDRcalcData(): DRcalcRes? {
         try {
 
-            // Testdata:
+            // Test data:
 
-            // Verktøy: DRcalc
-            val tool_name = "DRcalc"
-            // posisjonen til Oslo
+            // Tool: DRcalc
+            val toolName = "DRcalc"
+            // position of Oslo
             val lat = "59"
             val lon = "10"
-            val month = "7" // tester med juli
-            val global = "1" // Konstant på 1, description: Output the global, direct and diffuse in-plane irradiances.
-            val localtime = "1" // Kontant på 1, viser lokaltid
+            val month = "7" // testing with July
+            val global = "1" // Constant at 1, description: Output the global, direct and diffuse in-plane irradiances.
+            val localtime = "1" // Constant at 1, shows localtime
 
 
 
             var url = "https://re.jrc.ec.europa.eu/api/v5_2/"
-            url += "${tool_name}?"
+            url += "${toolName}?"
             url += "lat=$lat"
             url += "&lon=$lon"
             url += "&month=$month"
             url += "&global=$global"
             url += "&localtime=$localtime"
 
-            url += "&outputformat=json" // Spesifiserer at man ønsker json
+            url += "&outputformat=json" // Specifies that you want JSON
 
-            Log.i("TestDRcalc", "Prøver å hente data fra $url")
+            Log.i("TestDRcalc", "Trying to get data from $url")
             return APIClient.client.get(url).body()
         } catch (e: Exception) {
-            Log.e("TestDRcalc", "Error i Datasource: msg; ${e.message}")
+            Log.e("TestDRcalc", "Error in Datasource: message: ${e.message}")
             return null
         }
 

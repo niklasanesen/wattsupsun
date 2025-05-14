@@ -1,35 +1,22 @@
 package no.uio.ifi.in2000.team_43.monitorInternet
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-
-
-import androidx.compose.foundation.layout.Column
-
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.SnackbarDuration
-import androidx.compose.material.SnackbarHostState
-import androidx.compose.material.TextButton
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.LineHeightStyle
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-
-
 import androidx.compose.ui.unit.dp
 import no.uio.ifi.in2000.team_43.R
 
@@ -39,17 +26,17 @@ fun AppRoot(
     content: @Composable () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-        // Innholdet vises bak varselet
+        // Content is shown behind the warning
         content()
 
-        // Vis varsel øverst dersom det ikke er internett
+        // Show warning on top of the screen if there is no internet
         if (networkStatus != NetworkStatus.Available) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.Red)
                     .padding(35.dp)
-                    .align(Alignment.TopCenter) // Nå er dette inni en BoxScope
+                    .align(Alignment.TopCenter) // Now this is in a BoxScope
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -71,17 +58,17 @@ fun AppRoot(
 }
 
 
-// SJEKKE UI
+// CHECK UI
 @Composable
 fun NoInternetBannerPreviewWrapper() {
     Box(modifier = Modifier.fillMaxSize()) {
-        // Legg inn herifra
+        // Insert from here
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.Red)
                 .padding(35.dp)
-                .align(Alignment.TopCenter) // Nå er dette inni en BoxScope
+                .align(Alignment.TopCenter) // Now this is in a BoxScope
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(

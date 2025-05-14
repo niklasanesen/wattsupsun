@@ -17,7 +17,6 @@ import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import java.time.Instant
-import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
 class MetRepositoryTest{
@@ -33,7 +32,7 @@ class MetRepositoryTest{
     fun metRepositoryTestGlobalRadiation() = runTest {
 
         // Arrange
-        val station = WeatherStation(id = "SN18700", name = "Oslo")
+        val station = WeatherStation(id = "SN18700", name = "OSLO - BLINDERN", distance = 8.17602469651)
         val validYears = ValidYears(
             validTo = Instant.parse("2025-01-01T00:00:00Z"),
             validFrom = Instant.parse("2024-01-01T00:00:00.00Z"),
@@ -46,6 +45,11 @@ class MetRepositoryTest{
             17.32, 20.0, 12.21, 11.77, 9.66, 0.69, -0.83, -0.81, -0.79, -0.75,
             -0.75, -0.74, -0.81, -0.81
         )
+
+        val correctValues: List<Double> = mockApiResponse.map { value ->
+            val doubleValue = value.toDouble()
+            if (doubleValue < 0.0) 0.0 else doubleValue
+        }
 
         val mockWeatherList = WeatherList(
             dataList = mockApiResponse.mapIndexed { index, value ->
@@ -78,9 +82,9 @@ class MetRepositoryTest{
 
         // Assert
         assertNotNull(result)
-        assertEquals(1, result!!.dataList.size)
+        assertEquals(366, result!!.dataList.size)
         assertEquals(result.dataList[0].timeMeasured, Instant.parse("2024-01-01T00:00:00Z"))
-        val dailyAverage = mockApiResponse.average()
+        val dailyAverage = correctValues.sum()
         assertEquals(dailyAverage, result.dataList[0].value, 0.0001)
         assertEquals("W/m2", result.dataList[0].unit)
         assertEquals(

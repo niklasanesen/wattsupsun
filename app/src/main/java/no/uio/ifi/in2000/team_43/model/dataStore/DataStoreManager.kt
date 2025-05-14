@@ -5,7 +5,7 @@ import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
+import no.uio.ifi.in2000.team_43.model.input.SavedAddress
 import java.util.UUID
 
 
@@ -13,7 +13,7 @@ val Context.dataStore by preferencesDataStore(name = "addresses")
 
 class DataStoreManager(private val context: Context) {
 
-    private val ADDRESSES_KEY = stringSetPreferencesKey("addresses")
+    private val addressesKey = stringSetPreferencesKey("addresses")
 
     companion object {
         val FIRSTNAME = stringPreferencesKey("firstname")
@@ -21,91 +21,118 @@ class DataStoreManager(private val context: Context) {
         val PROFILE_PHOTO_URI = stringPreferencesKey("profile_photo_uri")
     }
 
-    // Lagre en adresse
-// Lagre en adresse
-    suspend fun saveAddress(adresse: LagreAdresse) {
+    // Save an address
+    suspend fun saveAddress(address: SavedAddress) {
         context.dataStore.edit { preferences ->
-            val currentList = preferences[ADDRESSES_KEY]?.toMutableSet() ?: mutableSetOf()
+            val currentList = preferences[addressesKey]?.toMutableSet() ?: mutableSetOf()
 
-            // Generer en unik ID (UUID) for hver adresse
+            // Generates a unique ID (UUID) for each address
             val uniqueId = UUID.randomUUID().toString()
 
-            // Lag en addressString med alle adresseparametrene
-            val addressString = "lat:${adresse.latitude}, long:${adresse.longitude}, height:${adresse.height}, width:${adresse.width}, angle:${adresse.angle}, direction:${adresse.direction}, addr:${adresse.addressString}, name:${adresse.lagretNavn}, numPanel:${adresse.numPanel}, totalPanelAreal:${adresse.totalPanelAreal}, kwp:${adresse.kwp}, pris:${adresse.pris}, moneySaved:${adresse.MoneySaved}"
+            // Make an addressString with all the address parameters
+            val addressString =
+                "lat:${address.latitude}," +
+                " long:${address.longitude}, " +
+                "height:${address.height}, " +
+                "width:${address.width}, " +
+                "angle:${address.angle}, " +
+                "direction:${address.direction}, " +
+                "address:${address.addressString}, " +
+                "name:${address.savedName}, " +
+                "numPanel:${address.numPanel}, " +
+                "totalPanelAreal:${address.totalPanelAreal}, " +
+                "kwp:${address.kwp}, " +
+                "price:${address.price}, " +
+                "moneySaved:${address.moneySaved}, " +
+                "totalPanelPrice:${address.totalPanelPrice}"
 
-            // Kombinerer UUID med addressString
+            // Combining UUID with addressString
             val addressWithId = "$uniqueId|$addressString"
 
-            // Legg til den nye adressen med UUID i listen
+            // Add new address with UUID in the list
             currentList.add(addressWithId)
 
-            // Lagre den oppdaterte listen tilbake til DataStore
-            preferences[ADDRESSES_KEY] = currentList
+            // Save the updated list back to DataStore
+            preferences[addressesKey] = currentList
         }
     }
 
 
-    // Hent lagrede adresser
-    val addresses: Flow<List<LagreAdresse>> = context.dataStore.data
+    // Get saved addresses
+    val addresses: Flow<List<SavedAddress>> = context.dataStore.data
         .map { preferences ->
-            preferences[ADDRESSES_KEY]?.mapNotNull { addressString ->
+            preferences[addressesKey]?.mapNotNull { addressString ->
                 try {
-                    // Split addressString i uniqueId og adresseinformasjon
+                    // Split addressString into uniqueId and address information
                     val parts = addressString.split("|")
-                    val uniqueId = parts[0]  // Dette er UUID
-                    val addressDetails = parts[1]  // Dette er selve adresseinformasjonen
+                    val uniqueId = parts[0]  // This is UUID
+                    val addressDetails = parts[1]  // This is the address information itself
 
-                    // Del opp adresseinformasjonen
+                    // Partition address information
                     val addressParts = addressDetails.split(", ")
                         .associate { part -> part.substringBefore(":") to part.substringAfter(":") }
 
-                    LagreAdresse(
+                    SavedAddress(
                         latitude = addressParts["lat"]?.toDoubleOrNull() ?: return@mapNotNull null,
                         longitude = addressParts["long"]?.toDoubleOrNull() ?: return@mapNotNull null,
                         height = addressParts["height"]?.toDoubleOrNull() ?: return@mapNotNull null,
                         width = addressParts["width"]?.toDoubleOrNull() ?: return@mapNotNull null,
                         angle = addressParts["angle"]?.toDoubleOrNull() ?: return@mapNotNull null,
                         direction = addressParts["direction"]?.toDoubleOrNull() ?: return@mapNotNull null,
-                        addressString = addressParts["addr"] ?: "",
-                        lagretNavn = addressParts["name"] ?: "",
+                        addressString = addressParts["address"] ?: "",
+                        savedName = addressParts["name"] ?: "",
                         numPanel = addressParts["numPanel"]?.toIntOrNull() ?: 0,
                         totalPanelAreal = addressParts["totalPanelAreal"]?.toDoubleOrNull() ?: 0.0,
                         kwp = addressParts["kwp"]?.toIntOrNull() ?: 0,
-                        pris = addressParts["pris"]?.toIntOrNull() ?: 0,
-                        MoneySaved = addressParts["moneySaved"]?.toFloatOrNull() ?: 0f,
-                        uniqueId = uniqueId  // Legg til uniqueId i objet
+                        price = addressParts["price"]?.toIntOrNull() ?: 0,
+                        moneySaved = addressParts["moneySaved"]?.toFloatOrNull() ?: 0f,
+                        totalPanelPrice = addressParts["totalPanelPrice"]?.toIntOrNull() ?: 0,
+                        uniqueId = uniqueId  // Add uniqueId in object
                     )
                 } catch (e: Exception) {
-                    null // Hopper over ugyldige adresser
+                    e.printStackTrace()
+                    null // Skip invalid addresses
                 }
             } ?: emptyList()
         }
 
-
-
-    suspend fun deleteAddress(address: LagreAdresse) {
+    suspend fun deleteAddress(address: SavedAddress) {
         context.dataStore.edit { preferences ->
-            val currentList = preferences[ADDRESSES_KEY]?.toMutableSet() ?: mutableSetOf()
+            val currentList = preferences[addressesKey]?.toMutableSet() ?: mutableSetOf()
 
-            // Lag en addressString med alle adresseparametrene
-            val addressString = "lat:${address.latitude}, long:${address.longitude}, height:${address.height}, width:${address.width}, angle:${address.angle}, direction:${address.direction}, addr:${address.addressString}, name:${address.lagretNavn}, numPanel:${address.numPanel}, totalPanelAreal:${address.totalPanelAreal}, kwp:${address.kwp}, pris:${address.pris}, moneySaved:${address.MoneySaved}"
+            // Make an addressString with all the address parameters
+            val addressString =
+                "lat:${address.latitude}, " +
+                "long:${address.longitude}, " +
+                "height:${address.height}, " +
+                "width:${address.width}, " +
+                "angle:${address.angle}, " +
+                "direction:${address.direction}, " +
+                "address:${address.addressString}, " +
+                "name:${address.savedName}, " +
+                "numPanel:${address.numPanel}, " +
+                "totalPanelAreal:${address.totalPanelAreal}, " +
+                "kwp:${address.kwp}, " +
+                "price:${address.price}, " +
+                "moneySaved:${address.moneySaved}, " +
+                "totalPanelPrice:${address.totalPanelPrice}"
 
-            // Kombiner UUID med addressString
+            // Combine UUID with addressString
             val addressWithId = "${address.uniqueId}|$addressString"
 
-            // Sjekk om adressen finnes i listen og fjern den
+            // Check if address exists in the list and remove it
             currentList.remove(addressWithId)
 
-            // Lagre den oppdaterte listen tilbake til DataStore
-            preferences[ADDRESSES_KEY] = currentList
+            // Save the updated list back to DataStore
+            preferences[addressesKey] = currentList
         }
     }
 
 
-    // Slett alle adresser
+    // Delete all addresses
     suspend fun deleteAllAddresses() {
         context.dataStore.edit { preferences ->
-            preferences.remove(ADDRESSES_KEY)
+            preferences.remove(addressesKey)
         }
     }
 

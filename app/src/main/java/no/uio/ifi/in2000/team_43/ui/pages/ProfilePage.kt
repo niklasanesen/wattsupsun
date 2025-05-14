@@ -37,11 +37,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import no.uio.ifi.in2000.team_43.ui.theme.Purple40
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -70,7 +71,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
-import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
+import no.uio.ifi.in2000.team_43.model.input.SavedAddress
 import no.uio.ifi.in2000.team_43.ui.info.AddressDetailPage
 import java.io.File
 import androidx.core.net.toUri
@@ -80,7 +81,6 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.rememberCoroutineScope
 import no.uio.ifi.in2000.team_43.ui.theme.Cerulean
-import no.uio.ifi.in2000.team_43.ui.theme.ErrorColor
 import no.uio.ifi.in2000.team_43.ui.theme.MutedError
 import no.uio.ifi.in2000.team_43.ui.theme.TopBarColor
 
@@ -105,7 +105,7 @@ fun ProfilePage(modifier: Modifier = Modifier) {
             arguments = listOf(navArgument("addressJson") { type = NavType.StringType })
         ) { backStackEntry ->
             val json = backStackEntry.arguments?.getString("addressJson")
-            val address = Gson().fromJson(json, LagreAdresse::class.java)
+            val address = Gson().fromJson(json, SavedAddress::class.java)
             AddressDetailPage(
                 address = address,
                 navController = navController,
@@ -126,7 +126,7 @@ fun ProfilePage(modifier: Modifier = Modifier) {
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
-    onCardClick: (LagreAdresse) -> Unit = {},
+    onCardClick: (SavedAddress) -> Unit = {},
     navController: NavController
 ){
     val context = LocalContext.current
@@ -210,7 +210,8 @@ fun ProfileScreen(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(top = padding.calculateTopPadding(), bottom = 12.dp),
+                .padding(top = padding.calculateTopPadding(), bottom = 12.dp)
+                .verticalScroll(rememberScrollState()),  // Added verticalScroll modifier
             // verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -266,7 +267,7 @@ fun ProfileScreen(
 
                         Spacer(modifier = Modifier.padding(12.dp))
 
-                        Column() {
+                        Column {
                             Box(modifier = Modifier.clickable { showDialog = true }) {
                                 Text(
                                     text = if (firstname.isBlank() && lastname.isBlank()) "Fornavn Etternavn" else "$firstname $lastname",
@@ -320,26 +321,10 @@ fun ProfileScreen(
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    Button(
-                        onClick = {},
-                        enabled = true,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xff3b7d9c)
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(44.dp)
-                    ) {
-                        Text("Innstillinger")
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    // Personvernerklæringsknapp
+                    // Privacy policy button
                     Button(
                         onClick = {
-                            // Når knappen trykkes, vis personvernerklæringen i en popup
+                            // When the button is pressed, show privacy policy in a popup
                             showPrivacyDialog = true
                         },
                         enabled = true,
@@ -356,14 +341,10 @@ fun ProfileScreen(
                 }
             }
 
-            // Spacer(modifier = Modifier.height(8.dp))
-
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
                 thickness = 1.dp,
             )
-            //Spacer(modifier = Modifier.height(16.dp))
-
             
             Card (
                 modifier = Modifier.padding(horizontal = 12.dp),
@@ -432,7 +413,6 @@ fun ProfileScreen(
 
                 Column (
                     modifier = Modifier.fillMaxSize(),
-                    //verticalArrangement = Arrangement.SpaceBetween,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (addresses.isEmpty()) {
@@ -472,16 +452,14 @@ fun ProfileScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp),
-                            //.padding(top = 8.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             items(addresses) { address ->
-                                // For å legge til padding over (så skyggene blir riktig)
+                                // To add padding over(so the shadows are correct)
                                 if (address == addresses[0]) {
                                     Spacer(modifier = Modifier.height(8.dp))
                                 }
-
 
                                 AddressCard(
                                     address = address,
@@ -492,7 +470,7 @@ fun ProfileScreen(
                                         }
                                     }
                                 )
-                                // For å legge til padding under (så skyggene blir riktig)
+
                                 if (address == addresses[addresses.size - 1]) {
                                     Spacer(modifier = Modifier.height(16.dp))
                                 }
@@ -502,10 +480,7 @@ fun ProfileScreen(
                 }
             }
 
-
-
-
-            // Popup for personvernerklæring
+            // Popup for privacy policy
             if (showPrivacyDialog) {
                 AlertDialog(
                     onDismissRequest = { showPrivacyDialog = false },
@@ -557,7 +532,7 @@ fun ProfileScreen(
                 )
             }
 
-            // Dialog for å redigere navn
+            // Dialog to edit name
             if (showDialog) {
                 AlertDialog(
                     title = {
@@ -619,12 +594,11 @@ fun ProfileScreen(
     }
 }
 
-
 @Composable
 fun AddressCard(
-    address: LagreAdresse,
+    address: SavedAddress,
     onClick: () -> Unit,
-    onDelete: (LagreAdresse) -> Unit
+    onDelete: (SavedAddress) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -642,7 +616,7 @@ fun AddressCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = address.lagretNavn,
+                        text = address.savedName,
                         style = MaterialTheme.typography.titleLarge,
                         color = Cerulean
                     )
@@ -683,7 +657,6 @@ fun AddressCard(
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

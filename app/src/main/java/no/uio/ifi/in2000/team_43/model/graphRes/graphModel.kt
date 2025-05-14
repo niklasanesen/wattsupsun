@@ -1,14 +1,11 @@
-package no.uio.ifi.in2000.team_43.model.garfStuff
+package no.uio.ifi.in2000.team_43.model.graphRes
 
 
 import com.github.mikephil.charting.formatter.ValueFormatter
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 
-
-// Data-klasse for verdiene
-data class GrafMeasurement(val time: Float, val value: Float)
+// Data-class for the values
+data class GraphMeasurement(val time: Float, val value: Float)
 
 fun getMonthName(month: Int): String {
     return when (month) {
@@ -24,12 +21,12 @@ fun getMonthName(month: Int): String {
         10 -> "Oktober"
         11 -> "November"
         12 -> "Desember"
-        else -> "Ugyldig måned" // Hvis måneden er utenfor intervallet 1-12
+        else -> "Ugyldig måned" // If month is outside of the interval 1-12
     }
 }
 
 
-// Formatter for X-aksen (viser månedene)
+// Formats for the X-axis (shows the months)
 class MonthValueFormatter : ValueFormatter() {
     private val months = listOf(
         "Jan", "Feb", "Mar", "Apr", "Mai", "Jun",

@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import java.util.UUID
 
 @Serializable
-data class LagreAdresse(
+data class SavedAddress(
     val latitude: Double,
     val longitude: Double,
     val height: Double,
@@ -12,11 +12,12 @@ data class LagreAdresse(
     val angle: Double,
     val direction: Double,
     val addressString: String,
-    val lagretNavn: String,
+    val savedName: String,
     val numPanel: Int,
     val totalPanelAreal: Double,
     val kwp: Int,
-    val pris: Int,
-    val MoneySaved: Float,
-    val uniqueId: String = UUID.randomUUID().toString()  // Genererer UUID hvis det ikke blir spesifisert
+    val price: Int,
+    val moneySaved: Float,
+    val totalPanelPrice: Int,
+    val uniqueId: String = UUID.randomUUID().toString()  // Generates UUID if it is not specified
 )

@@ -1,6 +1,7 @@
-package no.uio.ifi.in2000.team_43.model.stromdistrikt
+package no.uio.ifi.in2000.team_43.model.electricityDistrict
 
-enum class Fylker {
+@Suppress("NonAsciiCharacters", "EnumEntryName")
+enum class Counties {
     OSLO,
     AKERSHUS,
     ØSTFOLD,

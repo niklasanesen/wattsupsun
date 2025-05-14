@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -13,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -21,9 +23,11 @@ fun AddressNamePopup(
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
-    var input by remember { mutableStateOf("") }
-
     if (showDialog) {
+        var input by remember { mutableStateOf("") }
+        val maxLength = 15
+        val showLimitWarning = input.length >= maxLength
+
         AlertDialog(
             onDismissRequest = { onDismiss() },
             title = { Text("Navngi adresse") },
@@ -33,10 +37,23 @@ fun AddressNamePopup(
                     Spacer(modifier = Modifier.height(8.dp))
                     TextField(
                         value = input,
-                        onValueChange = { input = it },
+                        onValueChange = { newValue ->
+                            // Filter out non-alphanumeric + space and limit to maxLength
+                            val filtered = newValue.filter { it.isLetterOrDigit() || it.isWhitespace() }
+                            if (filtered.length <= maxLength) {
+                                input = filtered
+                            }
+                        },
                         placeholder = { Text("F.eks. Hjem, Hytta, Jobb...") },
                         singleLine = true
                     )
+                    if (showLimitWarning) {
+                        Text(
+                            text = "Maksimalt 15 tegn tillatt",
+                            color = Color.Red,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 }
             },
             confirmButton = {

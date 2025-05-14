@@ -1,3 +1,5 @@
+@file:Suppress("PackageName")
+
 package no.uio.ifi.in2000.team_43.model.DRcalcRes
 
 import com.google.gson.annotations.SerializedName
@@ -10,9 +12,9 @@ data class DRcalcRes(
 
 data class Inputs(
     val location: Location,
-    val meteo_data: MeteoData,
+    val meteoData: MeteoData,
     val plane: Plane,
-    val time_format: String
+    val timeFormat: String
 )
 
 data class Location(
@@ -22,12 +24,12 @@ data class Location(
 )
 
 data class MeteoData(
-    val radiation_db: String,
-    val meteo_db: String,
-    val year_min: Int,
-    val year_max: Int,
-    val use_horizon: Boolean,
-    val horizon_db: String
+    val radiationDb: String,
+    val meteoDb: String,
+    val yearMin: Int,
+    val yearMax: Int,
+    val useHorizon: Boolean,
+    val horizonDb: String
 )
 
 data class Plane(
@@ -45,15 +47,15 @@ data class Angle(
 )
 
 data class Outputs(
-    val daily_profile: List<DailyProfile>
+    val dailyProfile: List<DailyProfile>
 )
 
 data class DailyProfile(
     val month: Int,
     val time: String,
-    @SerializedName("G(i)") val G_i: Double,   // Tidligere `G(i)`
-    @SerializedName("Gb(i)") val Gb_i: Double,  // Tidligere `Gb(i)`
-    @SerializedName("Gd(i)") val Gd_i: Double   // Tidligere `Gd(i)`
+    @SerializedName("G(i)") val gI: Double,
+    @SerializedName("Gb(i)") val gbI: Double,
+    @SerializedName("Gd(i)") val gdI: Double
 )
 
 data class Meta(
@@ -63,9 +65,9 @@ data class Meta(
 
 data class MetaInputs(
     val location: MetaLocation,
-    val meteo_data: MetaMeteoData,
+    val meteoData: MetaMeteoData,
     val plane: MetaPlane,
-    val time_format: List<MetaDescription>
+    val timeFormat: List<MetaDescription>
 )
 
 data class MetaLocation(
@@ -90,12 +92,12 @@ data class MetaMeteoData(
 )
 
 data class MeteoVariables(
-    val radiation_db: MetaVariable,
-    val meteo_db: MetaVariable,
-    val year_min: MetaVariable,
-    val year_max: MetaVariable,
-    val use_horizon: MetaVariable,
-    val horizon_db: MetaVariable
+    val radiationDb: MetaVariable,
+    val meteoDb: MetaVariable,
+    val yearMin: MetaVariable,
+    val yearMax: MetaVariable,
+    val useHorizon: MetaVariable,
+    val horizonDb: MetaVariable
 )
 
 data class MetaPlane(
@@ -109,7 +111,7 @@ data class PlaneFields(
 )
 
 data class MetaOutputs(
-    val daily_profile: DailyProfileMeta
+    val dailyProfile: DailyProfileMeta
 )
 
 data class DailyProfileMeta(
@@ -119,9 +121,9 @@ data class DailyProfileMeta(
 )
 
 data class ProfileVariables(
-    val G_i: MetaVariable,   // Renamed from `G(i)`
-    val Gb_i: MetaVariable,  // Renamed from `Gb(i)`
-    val Gd_i: MetaVariable   // Renamed from `Gd(i)`
+    val gI: MetaVariable,
+    val gbI: MetaVariable,
+    val gdI: MetaVariable
 )
 
 data class MetaDescription(

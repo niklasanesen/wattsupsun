@@ -1,14 +1,15 @@
 package no.uio.ifi.in2000.team_43.model.ctx
 
 import com.mapbox.geojson.Point
-import no.uio.ifi.in2000.team_43.model.areal.Areal
+import no.uio.ifi.in2000.team_43.model.area.Area
 import no.uio.ifi.in2000.team_43.model.input.Input
-import no.uio.ifi.in2000.team_43.model.stromdistrikt.StromDistrikt
+import no.uio.ifi.in2000.team_43.model.electricityDistrict.ElectricityDistrict
+
 
 data class Ctx(
-    val coords: Point?,
+    val coordinates: Point?,
     val input: Input?,
-    var areal: Areal?,
+    var area: Area?,
     var address: String?,
-    var stromdistrikt: StromDistrikt?,
+    var electricityDistrict: ElectricityDistrict?,
 )

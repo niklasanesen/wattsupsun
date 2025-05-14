@@ -1,3 +1,5 @@
+@file:Suppress("PackageName")
+
 package no.uio.ifi.in2000.team_43.data.PVGIS
 
 import android.util.Log
@@ -7,24 +9,24 @@ import no.uio.ifi.in2000.team_43.model.met.Coordinates
 
 
 class PVGISRepository (private val pvgisDatasource: PVGISDatasource) {
-    suspend fun getPVGISdata(coordinates: Coordinates): PVGISRes? {
-        Log.i("TestPVGIS", "Henter data via funksjon i PVGIS Repository")
+    suspend fun getPVGISData(coordinates: Coordinates): PVGISRes? {
+        Log.i("TestPVGIS", "Getting data via function in PVGIS Repository")
         return pvgisDatasource.getPVGISData(coordinates)
     }
 
-    // returnerer en liste med data, gjennomsnittlig solinnstråling per time
+    // returns a list of data, average solar insolation each hour
     suspend fun getDRcalcData(): List<DailyProfile>? {
-        Log.i("TestDRcalc", "Henter DRcalc data via funksjon i PVGIS Repository")
-        return pvgisDatasource.getDRcalcData()?.outputs?.daily_profile
+        Log.i("TestDRcalc", "Getting DRcalc data via function in PVGIS Repository")
+        return pvgisDatasource.getDRcalcData()?.outputs?.dailyProfile
 
     }
 
-    // Utregner totalt sollinnstrpling per dag
+    // Calculates total solar insolation per dag
     suspend fun getDRcalcDataTotal(): Double {
-        val listeMedData: List<DailyProfile>?  = getDRcalcData()
+        val listWithData: List<DailyProfile>?  = getDRcalcData()
         var totalSum = 0.0
-        listeMedData?.forEach { data ->
-            totalSum += data.G_i
+        listWithData?.forEach { data ->
+            totalSum += data.gI
         }
         return totalSum
 
