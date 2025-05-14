@@ -2,15 +2,14 @@ package no.uio.ifi.in2000.team_43.ui.popUpHelper
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import no.uio.ifi.in2000.team_43.ui.theme.Cerulean
@@ -34,7 +33,10 @@ fun HelpOnMapScreen(onDismiss: () -> Unit) {
         confirmButton = {
             TextButton(
                 onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent, contentColor = Cerulean)
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Cerulean
+                )
             ) {
                 Text("Lukk")
             }
@@ -61,7 +63,10 @@ fun HelpOnInputScreen(onDismiss: () -> Unit) {
         confirmButton = {
             TextButton(
                 onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent, contentColor = Cerulean)
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Cerulean
+                )
             ) {
                 Text("Lukk")
             }
@@ -91,7 +96,10 @@ fun HelpOnInfoScreen(onDismiss: () -> Unit) {
         confirmButton = {
             TextButton(
                 onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent, contentColor = Cerulean)
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Cerulean
+                )
             ) {
                 Text("Lukk")
             }
@@ -101,7 +109,7 @@ fun HelpOnInfoScreen(onDismiss: () -> Unit) {
 
 
 @Composable
-fun HelpOnSateliteScreen(onDismiss: () -> Unit) {
+fun HelpOnSatelliteScreen(onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(16.dp),
@@ -123,11 +131,13 @@ fun HelpOnSateliteScreen(onDismiss: () -> Unit) {
         confirmButton = {
             TextButton(
                 onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent, contentColor = Cerulean)
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Cerulean
+                )
             ) {
                 Text("Lukk")
             }
         }
     )
 }
-

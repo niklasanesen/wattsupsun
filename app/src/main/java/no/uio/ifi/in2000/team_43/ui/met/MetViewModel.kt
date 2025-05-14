@@ -99,7 +99,7 @@ class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewM
     val dataSortedByDate: StateFlow<AggregatedData?> = _dataSortedByDate.asStateFlow()
 
     private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+    //private val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     private var nearestMaxCount = 1
     private val maxAttempts = 31 //the amount of stations that match the relevant elements in Norway
@@ -178,9 +178,12 @@ class MetViewModel(private val metRepo: MetRepository = MetRepository()) : ViewM
         //Group the weather data by date
         val groupedByDate = weatherDataList.groupBy { it.timeMeasured.truncatedTo(ChronoUnit.DAYS) }
 
+        /*
         groupedByDate.forEach { date ->
             println("groupCheck Given date: ${date.key} which has amount of values: ${date.value.size}")
         }
+         */
+
         // Map the grouped data to a list of pairs
         return groupedByDate.map { (date, weatherDataForDay) ->
             val temp = weatherDataForDay.find { it.elementId == "mean(air_temperature P1D)" }

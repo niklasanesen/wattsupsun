@@ -181,7 +181,7 @@ fun TopAppBar(
             HomeScreen.Start -> HelpOnMapScreen { showHelp = false }
             HomeScreen.Input -> HelpOnInputScreen { showHelp = false }
             HomeScreen.Info -> HelpOnInfoScreen { showHelp = false }
-            HomeScreen.Satellite -> HelpOnSateliteScreen { showHelp = false }
+            HomeScreen.Satellite -> HelpOnSatelliteScreen { showHelp = false }
         }
     }
 }
