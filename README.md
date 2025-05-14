@@ -39,16 +39,16 @@ Korrekt og oppdatert data er essensielt for å få mest mulig nøyaktig beregnin
 
 For å få mest mulig ut av appen og all funksjoneliteten den tilbyr, må appen ha tilgang til visse systemfunksjoner som er står definert i `AndroidManifest.xml` filen:
 
-- `INTERNET`. Som nevnt tidligere henter appen data fra diverse datakilder, og trenger naturligvis internett-tilgang for å gjøre det.
-- `CAMERA` og `READ_MEDIA_IMAGES`. Lar bruker legge til et profilbilde, enten med kameraet eller fra galleriet.
-- `READ_EXTERNAL_STORAGE` og `WRITE_EXTERNAL_STORAGE`. Gjør at appen kan lagre informasjon lokalt på brukerens enhet, som gjøres blant annet med profil- og adressedata.
+- `INTERNET`: som nevnt tidligere henter appen data fra diverse datakilder, og trenger naturligvis internett-tilgang for å gjøre det.
+- `CAMERA` og `READ_MEDIA_IMAGES`: lar bruker legge til et profilbilde, enten med kameraet eller fra galleriet.
+- `READ_EXTERNAL_STORAGE` og `WRITE_EXTERNAL_STORAGE`: gjør at appen kan lagre informasjon lokalt på brukerens enhet, som gjøres blant annet med profil- og adressedata.
 
 ## Biblioteker
 
 Slik moderne utvikling har blitt til er det stort fokus på biblioteker for å unngå “_reinventing the wheel_”. Vi har ikke gjort noe annerledes, og bruker blant annet biblioteker fra forelesningene og obligene: [Jetpack Compose](https://developer.android.com/compose), [Ktor](https://ktor.io), [Navigation Compose](https://developer.android.com/develop/ui/compose/navigation), [Material3](https://developer.android.com/develop/ui/compose/designsystems/material3), [Coil](https://coil-kt.github.io/coil), og en del mer niche biblioteker:
 
-- [Mapbox](https://mapbox.com): alt av kartfunksjoner, søk og autocomplete.
-- [Turf](https://docs.mapbox.com/android/java/guides/turf): for å kunne tegne på kartet.
+- [Mapbox](https://mapbox.com): kart, koordinater og søk/autocomplete av adresse.
+- [Turf](https://docs.mapbox.com/android/java/guides/turf): for å kunne markere tak på kartet.
 - [MPAndroidChart](https://github.com/PhilJay/MPAndroidChart): graf til visualisering av solstrålingsdata.
 - [DataStore](https://developer.android.com/topic/libraries/architecture/datastore): persistent lagring av data lokalt på enheten.
 - [JUnit](https://junit.org/junit5), [Mockk](https://mockk.io), [Mockito](https://site.mockito.org), [Turbine](https://github.com/cashapp/turbine) og [Robolectric](https://robolectric.org): testing og mocking av alt fra UI til API.
