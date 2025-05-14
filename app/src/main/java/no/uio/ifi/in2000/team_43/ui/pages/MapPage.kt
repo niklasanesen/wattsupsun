@@ -25,7 +25,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import no.uio.ifi.in2000.team_43.ui.PVGIS.PVGISViewModel
 import no.uio.ifi.in2000.team_43.ui.home.HomeViewModel
-import no.uio.ifi.in2000.team_43.ui.home.MapScreen
+import no.uio.ifi.in2000.team_43.ui.map.MapScreen
 import no.uio.ifi.in2000.team_43.ui.info.InfoScreen
 import no.uio.ifi.in2000.team_43.ui.input.InputScreen
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
@@ -34,13 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import no.uio.ifi.in2000.team_43.ui.popUpHelper.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
-import no.uio.ifi.in2000.team_43.ui.theme.Blue
-import no.uio.ifi.in2000.team_43.ui.theme.BottomBarColor
-import no.uio.ifi.in2000.team_43.ui.theme.Cerulean
 import no.uio.ifi.in2000.team_43.ui.theme.DarkSlate
 import no.uio.ifi.in2000.team_43.ui.theme.TopBarColor
 
@@ -92,16 +86,16 @@ fun MapPage(
             composable(route = HomeScreen.Start.name) {
                 viewModel.resetCtx()
                 MapScreen(
-                    onInputBtnClicked = { coords, address, stromdistrikt ->
-                        viewModel.setCoords(coords)
+                    onInputBtnClicked = { coordinates, address, electricityDistrict ->
+                        viewModel.setCoordinates(coordinates)
                         viewModel.setAddress(address)
-                        viewModel.setStromdistrikt(stromdistrikt)
+                        viewModel.setElectricityDistrict(electricityDistrict)
                         navController.navigate(HomeScreen.Input.name)
                     },
-                    onSatelliteBtnClicked = { coords, address, stromdistrikt ->
-                        viewModel.setCoords(coords)
+                    onSatelliteBtnClicked = { coordinates, address, electricityDistrict ->
+                        viewModel.setCoordinates(coordinates)
                         viewModel.setAddress(address)
-                        viewModel.setStromdistrikt(stromdistrikt)
+                        viewModel.setElectricityDistrict(electricityDistrict)
                         navController.navigate(HomeScreen.Satellite.name)
                     }
                 )

@@ -49,7 +49,8 @@ class MetViewModelTest {
 
         val station = WeatherStation(
             id = "SN18700",
-            name = "OSLO - BLINDERN"
+            name = "OSLO - BLINDERN",
+            distance = 8.17602469651
         )
 
         val validYears = ValidYears(
@@ -93,10 +94,12 @@ class MetViewModelTest {
         coEvery { metRepo.getWeatherStation(coordinates, any()) } returns station
 
         coEvery { metRepo.getValidTime(any()) } returns validYears
+        coEvery { metRepo.getValidTimeOneObject(any(), any(), any(), any()) } returns validYears
 
         coEvery { metRepo.getDataSet(any(), any()) } returns mockWeatherList
         coEvery { metRepo.getSnowThickness(any(), any()) } returns mockWeatherList
         coEvery { metRepo.getGlobalRadiationData(any(), any()) } returns mockWeatherList
+
 
         // Act
         metViewModel.fetchWeatherData(coordinates)

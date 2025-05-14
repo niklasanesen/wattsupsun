@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -39,7 +38,7 @@ import com.mapbox.maps.extension.compose.annotation.generated.PolygonAnnotation
 import com.mapbox.maps.extension.compose.style.MapStyle
 import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import no.uio.ifi.in2000.team_43.R
-import no.uio.ifi.in2000.team_43.model.areal.Areal
+import no.uio.ifi.in2000.team_43.model.area.Area
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.ui.theme.Cerulean
 import no.uio.ifi.in2000.team_43.ui.theme.DarkSlate
@@ -52,7 +51,7 @@ fun SatelliteScreen(
     modifier: Modifier = Modifier,
     ctx: Ctx,
     satelliteViewModel: SatelliteViewModel = remember { SatelliteViewModel() },
-    onNextBtnClicked: (areal: Areal) -> (Unit)
+    onNextBtnClicked: (area: Area) -> (Unit)
 ) {
     val areaInSquareMeters by satelliteViewModel.areaInSquareMeters.collectAsState()
     val length by satelliteViewModel.length.collectAsState()
@@ -77,7 +76,7 @@ fun SatelliteScreen(
     val mapViewportState = rememberMapViewportState {
         setCameraOptions {
             zoom(19.0)
-            center(ctx.coords ?: Point.fromLngLat(12.30778, 63.99056))
+            center(ctx.coordinates ?: Point.fromLngLat(12.30778, 63.99056))
         }
     }
 
@@ -180,7 +179,7 @@ fun SatelliteScreen(
                         Button(
                             onClick = {
                                 onNextBtnClicked(
-                                    Areal(
+                                    Area(
                                         areaInSquareMeters,
                                         floor(length),
                                         floor(width)

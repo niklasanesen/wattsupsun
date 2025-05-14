@@ -43,7 +43,6 @@ class MetDataSource(private val client: HttpClient) {
                 null
             } else {
                 val json = response.bodyAsText()
-                println("API Response: $json")  // Debugging line
                 val jsonObject = JsonParser.parseString(json).asJsonObject
 
                 if (!jsonObject.has("data") || jsonObject.getAsJsonArray("data").size() == 0) {
@@ -87,7 +86,6 @@ class MetDataSource(private val client: HttpClient) {
                 null
             } else {
                 val json = response.bodyAsText()
-                println("API Response: $json")  // Debugging line
                 val jsonObject = JsonParser.parseString(json).asJsonObject
                 val times = jsonObject.getAsJsonArray("data")
                 val allValidYears = times
@@ -115,6 +113,7 @@ class MetDataSource(private val client: HttpClient) {
 
     suspend fun getWeatherData(station: WeatherStation, elementId: String, startDate: String, endDate: String): WeatherList? {
 
+        //Debugging sent years
         println("The years used are: $startDate, $endDate")
         var url = "https://frost.met.no/observations/v0.jsonld?"
         url += "sources=${station.id}&"
@@ -137,7 +136,6 @@ class MetDataSource(private val client: HttpClient) {
                 null
             } else {
                 val json = response.bodyAsText()
-                println("API Response: $json")  // Debugging line
                 val jsonObject = JsonParser.parseString(json).asJsonObject
                 val dataArray = jsonObject.getAsJsonArray("data")
                 val weatherList = dataArray

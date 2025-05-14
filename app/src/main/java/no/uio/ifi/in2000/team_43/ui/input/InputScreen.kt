@@ -45,7 +45,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -60,7 +59,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import no.uio.ifi.in2000.team_43.R
 import no.uio.ifi.in2000.team_43.data.CoordinateCache
-import no.uio.ifi.in2000.team_43.model.areal.Areal
+import no.uio.ifi.in2000.team_43.model.area.Area
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
 import no.uio.ifi.in2000.team_43.model.input.Direction
 import no.uio.ifi.in2000.team_43.model.input.Input
@@ -71,7 +70,6 @@ import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.DirectionCard
 import no.uio.ifi.in2000.team_43.ui.met.MetViewModel
 import no.uio.ifi.in2000.team_43.ui.pages.HomeScreen
 import no.uio.ifi.in2000.team_43.ui.pages.TopAppBar
-import no.uio.ifi.in2000.team_43.ui.theme.Blue
 import no.uio.ifi.in2000.team_43.ui.theme.BottomBarColor
 import no.uio.ifi.in2000.team_43.ui.theme.Cerulean
 import no.uio.ifi.in2000.team_43.ui.theme.ErrorColor
@@ -92,13 +90,13 @@ fun InputScreen(
         backStackEntry?.destination?.route ?: HomeScreen.Input.name
     )
 
-    Log.d("InputScreen", "ctx.coords = ${ctx.coords} and lastCoordinates = ${CoordinateCache.lastCoordinates}")
-    if (ctx.coords != null && ctx.coords != CoordinateCache.lastCoordinates) {
-        LaunchedEffect(ctx.coords) {
-            CoordinateCache.lastCoordinates = ctx.coords
-            Log.d("InputScreen", "the lastcoords are: ${CoordinateCache.lastCoordinates}")
-            metViewModel?.fetchWeatherData(Coordinates(ctx.coords.latitude(), ctx.coords.longitude()))
-            pvgisViewModel?.fetchPVGISData(Coordinates(ctx.coords.latitude(), ctx.coords.longitude()))
+    Log.d("InputScreen", "ctx.coordinates = ${ctx.coordinates} and lastCoordinates = ${CoordinateCache.lastCoordinates}")
+    if (ctx.coordinates != null && ctx.coordinates != CoordinateCache.lastCoordinates) {
+        LaunchedEffect(ctx.coordinates) {
+            CoordinateCache.lastCoordinates = ctx.coordinates
+            Log.d("InputScreen", "the last coordinates are: ${CoordinateCache.lastCoordinates}")
+            metViewModel?.fetchWeatherData(Coordinates(ctx.coordinates.latitude(), ctx.coordinates.longitude()))
+            pvgisViewModel?.fetchPVGISData(Coordinates(ctx.coordinates.latitude(), ctx.coordinates.longitude()))
         }
     }
 
@@ -116,7 +114,8 @@ fun InputScreen(
         InputForm(
             ctx = ctx,
             onNextButtonClicked = onNextBtnClicked,
-            modifier = modifier,
+            modifier = modifier
+                .padding(bottom = innerPadding.calculateBottomPadding()),
             inputViewModel = inputViewModel
         )
     }
@@ -145,10 +144,10 @@ fun InputForm(
     var directionChange: Boolean by remember { mutableStateOf(false) }
 
 
-    fun updateDimensionsFromContext(areal: Areal) {
+    fun updateDimensionsFromContext(area: Area) {
         if (length.isEmpty() && width.isEmpty()) {
-            inputViewModel.length = areal.length.toInt().toString()
-            inputViewModel.width = areal.width.toInt().toString()
+            inputViewModel.length = area.length.toInt().toString()
+            inputViewModel.width = area.width.toInt().toString()
         }
     }
 
@@ -179,7 +178,7 @@ fun InputForm(
         }
     }
 
-    ctx.areal?.let { updateDimensionsFromContext(it) }
+    ctx.area?.let { updateDimensionsFromContext(it) }
 
     LazyColumn(
         modifier = modifier
@@ -292,7 +291,7 @@ fun InputForm(
             if (!expanded) {
                 when(direction){
                     Direction.NORTH -> {
-                        DirectionCard("Obs! Nordvendte paneler er ikke veldig lønnsomt i Norge.", color = LightRed, textcolor = ErrorColor)
+                        DirectionCard("Obs! Nordvendte paneler er ikke veldig lønnsomt i Norge.", color = LightRed, textColor = ErrorColor)
                     }
                     Direction.EAST -> {
                         DirectionCard("Østvendte paneler gir mest strømproduksjon tidlig på dagen.")
@@ -354,7 +353,6 @@ fun InputForm(
     }
 }
 
-
 @Composable
 fun InputField(
     modifier: Modifier = Modifier,
@@ -403,19 +401,17 @@ fun validateAngle(angle: String): String =
         else -> ""
     }
 
-
-
 @Composable
 fun PanelSelector(
     selectedPanel: SunPanel?,
     onPanelSelected: (SunPanel?) -> Unit
 ) {
-    val paneler = listOf(
-        SunPanel("Sunwind 405W", pris = 3000, effekt = 405, bildeResId = R.drawable.sunwind405w_panel, len = 1.72, width = 1.12),
-        SunPanel("Economy", pris = 3730, effekt = 455, bildeResId = R.drawable.economy_panel, len = 1.85, width = 1.0),
-        SunPanel("Performance", pris = 2906, effekt = 435, bildeResId = R.drawable.performance_panel, len = 1.90, width = 1.35),
-        SunPanel("Premium", pris = 2547, effekt = 405, bildeResId = R.drawable.premium_panel, len = 1.78, width = 1.15),
-        SunPanel("Sunwind 380W", pris = 3190, effekt = 380, bildeResId = R.drawable.sunwind380w_panel, len = 1.75, width = 1.0),
+    val panels = listOf(
+        SunPanel("Sunwind 405W", price = 3000, effect = 405, pictureResId = R.drawable.sunwind405w_panel, len = 1.72, width = 1.12),
+        SunPanel("Economy", price = 3730, effect = 455, pictureResId = R.drawable.economy_panel, len = 1.85, width = 1.0),
+        SunPanel("Performance", price = 2906, effect = 435, pictureResId = R.drawable.performance_panel, len = 1.90, width = 1.35),
+        SunPanel("Premium", price = 2547, effect = 405, pictureResId = R.drawable.premium_panel, len = 1.78, width = 1.15),
+        SunPanel("Sunwind 380W", price = 3190, effect = 380, pictureResId = R.drawable.sunwind380w_panel, len = 1.75, width = 1.0),
     )
 
     LazyRow(
@@ -424,7 +420,7 @@ fun PanelSelector(
         modifier = Modifier.fillMaxWidth()
     ) {
         // Using itemsIndexed instead of items
-        itemsIndexed(paneler) { index, panel ->
+        itemsIndexed(panels) { index, panel ->
             val isSelected = selectedPanel == panel
 
             // Card for each panel
@@ -449,8 +445,8 @@ fun PanelSelector(
                 ) {
                     // Image of the panel
                     Image(
-                        painter = painterResource(id = panel.bildeResId),
-                        contentDescription = panel.navn,
+                        painter = painterResource(id = panel.pictureResId),
+                        contentDescription = panel.name,
                         modifier = Modifier
                             .size(100.dp)
                             .clip(RoundedCornerShape(8.dp))
@@ -462,15 +458,15 @@ fun PanelSelector(
 
                     // Panel name
                     Text(
-                        text = panel.navn,
+                        text = panel.name,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
 
                     // Panel specifications (effect and price)
-                    Text("• Effekt: ${panel.effekt} W", style = MaterialTheme.typography.bodySmall)
-                    Text("• Pris: ${panel.pris} kr", style = MaterialTheme.typography.bodySmall)
+                    Text("• Effekt: ${panel.effect} W", style = MaterialTheme.typography.bodySmall)
+                    Text("• Pris: ${panel.price} kr", style = MaterialTheme.typography.bodySmall)
                 }
             }
         }

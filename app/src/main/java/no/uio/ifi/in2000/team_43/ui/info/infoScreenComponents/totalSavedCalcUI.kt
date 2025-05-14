@@ -24,13 +24,14 @@ import java.text.NumberFormat
 import java.util.Locale
 
 
-// Logic for the UI thing:
+// Logic for the UI:
 @Composable
 fun TotalSavedLogic(totalMoneySaved: Float, isLoading: Boolean) {
     if (isLoading) {
         CalculatingCardBox("Teller mynter - snart klart!")
     } else {
-        // Soory for this bad code
+
+        // Sorry for this bad code
         val show = totalSavedAnimated(totalMoneySaved.toDouble() )
         if((show < 0) && (totalMoneySaved == 0.0.toFloat())) {
             CalculatingCardBox("Teller mynter - snart klart!")
@@ -39,7 +40,7 @@ fun TotalSavedLogic(totalMoneySaved: Float, isLoading: Boolean) {
 }
 
 
-// The actual animation UI thing:
+// The actual animation UI:
 @Composable
 fun totalSavedAnimated(supportAmount: Double): Int {
     var flipped by remember { mutableStateOf(false) }
@@ -47,21 +48,16 @@ fun totalSavedAnimated(supportAmount: Double): Int {
 
     val readableSupportAmount = NumberFormat.getInstance(Locale("no", "NO")).format(supportAmount.toInt())
 
-    // This is really really not optimal but it is what it is
     LaunchedEffect(supportAmount) {
         showContent = false
         delay(2000)
         showContent = true
     }
 
-    // pls dont touch this, weird things happen when this is not there
     if (!showContent && supportAmount == 0.0) {
         return -1
-        //CalculatingCardBox("Teller mynter - snart klart!")
     }
 
-
-    // This is great ngl
     val rotation by animateFloatAsState(
         targetValue = if (flipped) 180f else 0f,
         animationSpec = tween(durationMillis = 700),

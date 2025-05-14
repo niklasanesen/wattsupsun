@@ -43,22 +43,21 @@ import java.text.NumberFormat
 import java.util.Locale
 
 
-// Logic for how to show the UI thing:
+// Logic for how to show the UI:
 @Composable
 fun TotalCostLogic(numPanel: Int, totalPanelPrice: Int, isLoading: Boolean) {
     if (isLoading) {
         CalculatingCardBox("Teller mynter - snart klart!")
     } else {
-        // Soory for this bad code
-        // pls ask before touching this, might break easly
-        val haaland = totalCostAnimated(numPanel, totalPanelPrice)
-        if(haaland < 0) {
+
+        val totalCost = totalCostAnimated(numPanel, totalPanelPrice)
+        if(totalCost < 0) {
             CalculatingCardBox("Teller mynter - snart klart!")
         }
     }
 }
 
-// The UI componenet:
+// The UI component:
 @Composable
 fun totalCostAnimated(numPanel: Int, totalPanelPrice: Int): Int {
     var flipped by remember { mutableStateOf(false) }
@@ -68,21 +67,16 @@ fun totalCostAnimated(numPanel: Int, totalPanelPrice: Int): Int {
         totalPanelPrice
     )
 
-    // This is really really not optimal but it is what it is
     LaunchedEffect(totalPanelPrice) {
         showContent = false
         delay(2000)
         showContent = true
     }
 
-    // pls dont touch this, weird things happen when this is not there
     if (!showContent && totalPanelPrice == 0) {
         return -1
-        //CalculatingCardBox("Teller mynter - snart klart!")
     }
 
-
-    // This is great ngl
     val rotation by animateFloatAsState(
         targetValue = if (flipped) 180f else 0f,
         animationSpec = tween(durationMillis = 700),

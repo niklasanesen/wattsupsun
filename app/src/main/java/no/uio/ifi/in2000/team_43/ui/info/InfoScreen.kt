@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
+import androidx.compose.material3.Card
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
@@ -19,15 +19,15 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Instant
 
-// --- Prosjekt-spesifikke imports ---
+// --- Project-specific imports ---
 import no.uio.ifi.in2000.team_43.model.ctx.Ctx
-import no.uio.ifi.in2000.team_43.model.input.LagreAdresse
+import no.uio.ifi.in2000.team_43.model.input.SavedAddress
 import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
-import no.uio.ifi.in2000.team_43.model.garfStuff.getMonthName
+import no.uio.ifi.in2000.team_43.model.graphRes.getMonthName
 import no.uio.ifi.in2000.team_43.ui.PVGIS.*
 import no.uio.ifi.in2000.team_43.ui.met.*
-import no.uio.ifi.in2000.team_43.ui.strompris.StromprisViewModel
-import no.uio.ifi.in2000.team_43.ui.info.grafStuff.*
+import no.uio.ifi.in2000.team_43.ui.electricityPrice.ElectricityPriceViewModel
+import no.uio.ifi.in2000.team_43.ui.info.graphComponents.*
 import no.uio.ifi.in2000.team_43.ui.info.infoScreenComponents.*
 import no.uio.ifi.in2000.team_43.utils.helperfuctions.calculations.*
 
@@ -36,12 +36,12 @@ fun InfoScreen(
     modifier: Modifier = Modifier,
     metViewModel: MetViewModel,
     pvgisViewModel: PVGISViewModel = viewModel(),
-    stromprisViewModel: StromprisViewModel = viewModel(),
+    electricityPriceViewModel: ElectricityPriceViewModel = viewModel(),
     ctx: Ctx
 ) {
     val weatherList by metViewModel.dataSortedByDate.collectAsState()
     val pvgisSolData by pvgisViewModel.productionData.collectAsState()
-    val stromprisDataPerMnd by stromprisViewModel.dataPerMnd.collectAsState()
+    val electricityPriceDataPerMonth by electricityPriceViewModel.dataPerMnd.collectAsState()
     val scrollState = rememberScrollState()
     val context = LocalContext.current
     val dataStoreManager = remember { DataStoreManager(context) }
@@ -52,15 +52,15 @@ fun InfoScreen(
     var selectedMonth by remember { mutableStateOf<String?>(null) }
     var selectedKwh by remember { mutableStateOf<String?>(null) }
 
-    val address = if (ctx.address != null) ctx.address else "adresse er ukjent"
+    val address = if (ctx.address != null) ctx.address else "address is unknown"
     val roofLength = ctx.input?.length?.toDouble()
     val roofWidth = ctx.input?.width?.toDouble()
     val panelLength = ctx.input?.panel?.len
     val panelWidth = ctx.input?.panel?.width
-    val panelArel = if (panelLength != null && panelWidth != null) panelLength * panelWidth else 0.0
+    val panelArea = if (panelLength != null && panelWidth != null) panelLength * panelWidth else 0.0
     val numPanel = calculateNumPanels(roofLength, roofWidth, panelLength, panelWidth)
-    val totalPanelAreal = numPanel * panelArel
-    val panelPrice = ctx.input?.panel?.pris ?: 0
+    val totalPanelAreal = numPanel * panelArea
+    val panelPrice = ctx.input?.panel?.price ?: 0
     val totalPanelPrice = numPanel * panelPrice
 
     val calculatedMetData = remember(weatherList, ctx.input) {
@@ -69,26 +69,26 @@ fun InfoScreen(
         val dir = ctx.input?.direction
 
         weatherList?.dailyObservation?.forEach { (date, weatherDataList) ->
-            var temperatur: Double? = null
-            var solinnstraling: Double? = null
+            var temperature: Double? = null
+            var solarInsolation: Double? = null
 
             weatherDataList.dataList.forEach { weatherData ->
                 when (weatherData.elementId) {
-                    "mean(air_temperature P1D)" -> temperatur = weatherData.value
-                    "mean(solar_irradiance P1D)" -> solinnstraling = weatherData.value
+                    "mean(air_temperature P1D)" -> temperature = weatherData.value
+                    "mean(solar_irradiance P1D)" -> solarInsolation = weatherData.value
                 }
             }
 
-            if (temperatur != null && solinnstraling != null && angle != null && dir != null) {
+            if (temperature != null && solarInsolation != null && angle != null && dir != null) {
                 isLoading = false
-                val produksjon = beregnStromproduksjon(
+                val production = calculateElectricityProduction(
                     areal = totalPanelAreal,
-                    vinkel = angle,
-                    temperatur = temperatur,
-                    solinnstraling = solinnstraling,
+                    angle = angle,
+                    temperature = temperature,
+                    solarInsolation = solarInsolation,
                     direction = dir
                 )
-                result.add(Pair(date, produksjon))
+                result.add(Pair(date, production))
             }
         }
         result
@@ -99,19 +99,19 @@ fun InfoScreen(
         val angle = ctx.input?.angle ?: 35
         val weatherEntries = weatherList?.dailyObservation ?: emptyList()
 
-        pvgisSolData.forEachIndexed { index, solinnstraaling ->
-            val temperatur = weatherEntries.getOrNull(index * 30)?.second?.dataList
+        pvgisSolData.forEachIndexed { index, solarInsolation ->
+            val temperature = weatherEntries.getOrNull(index * 30)?.second?.dataList
                 ?.firstOrNull { it.elementId == "mean(air_temperature P1D)" }?.value ?: 25.0
 
-            val beregnet = ProductionCalc(
-                panelLengde = ctx.input?.length ?: 0,
-                panelBredde = ctx.input?.width ?: 0,
-                panelVinkel = angle,
-                luftTemperatur = temperatur,
-                solinnstraling = solinnstraaling
+            val calculated = productionCalc(
+                panelLength = ctx.input?.length ?: 0,
+                panelWidth = ctx.input?.width ?: 0,
+                panelAngle = angle,
+                airTemperature = temperature,
+                solarInsolation = solarInsolation
             )
 
-            result.add(BigDecimal(beregnet).setScale(2, RoundingMode.HALF_UP).toDouble())
+            result.add(BigDecimal(calculated).setScale(2, RoundingMode.HALF_UP).toDouble())
         }
         result
     }
@@ -125,18 +125,19 @@ fun InfoScreen(
 
     val displayedData = if (isMetSelected) metData else pvgisData
     val direction = ctx.input?.direction ?: 0
-    val moneySavedList = calcMoneySaved(direction, stromprisDataPerMnd, displayedData)
+    val moneySavedList = calcMoneySaved(direction, electricityPriceDataPerMonth, displayedData)
     val totalMoneySaved = moneySavedList.sum()
-    val totalProduksjon = calculatedMetData.sumOf { it.second }
+    Log.d("saveIssue", "moneysavedlist = $moneySavedList and totalMoneySaved = $totalMoneySaved")
+    val totalProduction = calculatedMetData.sumOf { it.second }
 
 
-    LaunchedEffect(ctx.stromdistrikt) {
-        stromprisViewModel.fetchStromData(ctx.stromdistrikt)
+    LaunchedEffect(ctx.electricityDistrict) {
+        electricityPriceViewModel.fetchElectricityData(ctx.electricityDistrict)
     }
 
-    // Testing if it works to fetch stromprisen per month
-    LaunchedEffect(stromprisDataPerMnd) {
-        stromprisDataPerMnd?.forEachIndexed { index, data ->
+    // Testing if it works to fetch electricity price per month
+    LaunchedEffect(electricityPriceDataPerMonth) {
+        electricityPriceDataPerMonth?.forEachIndexed { index, data ->
         }
     }
 
@@ -149,7 +150,7 @@ fun InfoScreen(
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 26.sp,
-                color = MaterialTheme.colorScheme.onBackground // Sørger for god kontrast
+                color = MaterialTheme.colorScheme.onBackground
             ),
             modifier = Modifier
                 .padding(top = 16.dp, bottom = 8.dp)
@@ -157,13 +158,13 @@ fun InfoScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Takflate-verdier boks
+        // Rooftop values box
         Card(
             modifier = Modifier
                 .fillMaxWidth(),
-            elevation = 8.dp,
+            elevation = CardDefaults.cardElevation(8.dp),
             shape = RoundedCornerShape(16.dp),
-            backgroundColor = Color.White
+            colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
@@ -212,11 +213,11 @@ fun InfoScreen(
 
         // Coffee card on screen
         Spacer(modifier = Modifier.height(16.dp))
-        CoffeeCard(calculateCoffe(totalProduksjon) )
-        Log.i("testcoffee", "coffedata: ${calculateCoffe(totalProduksjon)}")
+        CoffeeCard(calculateCoffee(totalProduction) )
+        Log.i("testCoffee", "CoffeeData: ${calculateCoffee(totalProduction)}")
 
-        // Enova on infoscreen:
-        val wPerPanel = ctx.input?.panel?.effekt?.toDouble()
+        // Enova on info screen:
+        val wPerPanel = ctx.input?.panel?.effect?.toDouble()
         val kwpPerPanel = ((wPerPanel ?: 1.0) / 1000.0)
         Spacer(modifier = Modifier.height(16.dp))
         EnovaCard(calculateEnova(kwpPerPanel, numPanel))
@@ -230,10 +231,10 @@ fun InfoScreen(
         // total price for panels
         // Pls ask before touching this
         Spacer(modifier = Modifier.height(16.dp))
-        TotalCostLogic(numPanel, totalPanelPrice, isLoading)
+        TotalCostLogic(numPanel = numPanel, totalPanelPrice = totalPanelPrice, isLoading = false) // It does not need to load, since data is already ready, and therefore sends with false
 
 
-        // ---- graf + switch + saved money for each month ----
+        // ---- graph + switch + saved money for each month ----
         Spacer(modifier = Modifier.height(32.dp))
         Column {
             when {
@@ -327,7 +328,7 @@ fun InfoScreen(
             }
         }
 
-        // ---- Button for saving adress ----
+        // ---- Button for saving address ----
         Button(
             onClick = {
                 showDialog = true
@@ -337,29 +338,31 @@ fun InfoScreen(
             Text("Lagre adresse")
         }
 
-        // ---- popUp for saved adress ----
+        // ---- popUp for saved address ----
         AddressNamePopup(
             showDialog = showDialog,
             onDismiss = { showDialog = false },
             onConfirm = { userGivenName ->
-                val adresse = LagreAdresse(
-                    latitude = ctx.coords?.latitude() ?: 0.0,
-                    longitude = ctx.coords?.longitude() ?: 0.0,
+                val address = SavedAddress(
+                    latitude = ctx.coordinates?.latitude() ?: 0.0,
+                    longitude = ctx.coordinates?.longitude() ?: 0.0,
                     height = ctx.input?.length?.toDouble() ?: 0.0,
                     width = ctx.input?.width?.toDouble() ?: 0.0,
                     angle = ctx.input?.angle?.toDouble() ?: 0.0,
                     direction = ctx.input?.direction?.toDouble() ?: 0.0,
                     addressString = ctx.address ?: "Ukjent adresse",
-                    lagretNavn = userGivenName,
+                    savedName = userGivenName,
                     numPanel = numPanel,
                     totalPanelAreal = totalPanelAreal,
-                    kwp = ctx.input?.panel?.effekt?: 0,
-                    pris = ctx.input?.panel?.pris?: 0,
-                    MoneySaved = totalMoneySaved
+                    kwp = ctx.input?.panel?.effect?: 0,
+                    price = ctx.input?.panel?.price?: 0,
+                    moneySaved = totalMoneySaved,
+                    totalPanelPrice = totalPanelPrice
                 )
 
+
                 CoroutineScope(Dispatchers.IO).launch {
-                    dataStoreManager.saveAddress(adresse)
+                    dataStoreManager.saveAddress(address)
                 }
             }
         )

@@ -1,4 +1,4 @@
-package no.uio.ifi.in2000.team_43.ui.info.grafStuff
+package no.uio.ifi.in2000.team_43.ui.info.graphComponents
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
