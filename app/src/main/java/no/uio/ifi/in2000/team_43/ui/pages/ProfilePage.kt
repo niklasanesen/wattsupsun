@@ -210,8 +210,7 @@ fun ProfileScreen(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(top = padding.calculateTopPadding(), bottom = 12.dp)
-                .verticalScroll(rememberScrollState()),  // Added verticalScroll modifier
+                .padding(top = padding.calculateTopPadding(), bottom = 12.dp),
             // verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
