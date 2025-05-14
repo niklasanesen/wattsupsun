@@ -45,13 +45,13 @@ For å få mest mulig ut av appen og all funksjoneliteten den tilbyr, må appen 
 
 ## Biblioteker
 
-Slik moderne utvikling har blitt til er det stort fokus på biblioteker for å unngå “_reinventing the wheel_”. Vi har ikke gjort noe annerledes, og bruker blant annet biblioteker fra forelesningene og obligene: `Jetpack Compose`, `Ktor`, `Navigation Compose`, `Material3`, `Coil`, og en del mer niche biblioteker:
+Slik moderne utvikling har blitt til er det stort fokus på biblioteker for å unngå “_reinventing the wheel_”. Vi har ikke gjort noe annerledes, og bruker blant annet biblioteker fra forelesningene og obligene: [Jetpack Compose](https://developer.android.com/compose), [Ktor](https://ktor.io), [Navigation Compose](https://developer.android.com/develop/ui/compose/navigation), [Material3](https://developer.android.com/develop/ui/compose/designsystems/material3), [Coil](https://coil-kt.github.io/coil), og en del mer niche biblioteker:
 
-- `Mapbox`: alt av kartfunksjoner, søk og autocomplete.
-- `Turf`: for å kunne tegne på kartet.
-- `MPAndroidChart`: graf til visualisering av solstrålingsdata.
-- `DataStore`: persistent lagring av data lokalt på enheten.
-- `JUnit`, `Mockk`, `Mockito`, `Turbine` og `Robolectric`: testing og mocking av alt fra UI til API.
+- [Mapbox](https://mapbox.com): alt av kartfunksjoner, søk og autocomplete.
+- [Turf](https://docs.mapbox.com/android/java/guides/turf): for å kunne tegne på kartet.
+- [MPAndroidChart](https://github.com/PhilJay/MPAndroidChart): graf til visualisering av solstrålingsdata.
+- [DataStore](https://developer.android.com/topic/libraries/architecture/datastore): persistent lagring av data lokalt på enheten.
+- [JUnit](https://junit.org/junit5), [Mockk](https://mockk.io), [Mockito](https://site.mockito.org), [Turbine](https://github.com/cashapp/turbine) og [Robolectric](https://robolectric.org): testing og mocking av alt fra UI til API.
 
 ## Credits
 
