@@ -7,7 +7,11 @@
     <i>~ Laget av Kristin, Niklas, Jonatan, Danial, Affaq og Kavin ~</i>
 </p>
 
-WattsUpSun er en digital løsning utviklet for huseiere som ønsker å vurdere lønnsomheten av solcellepaneler. Appen lar huseier raskt og enkelt slå opp egen adresse, markere takflate, legge inn tak- areal/vinkel/retning og type solcellepanel. Basert på disse nøkkelfaktorene beregnes et estimat på kostnader, inntjening og effekt av solcellepaneler, før huseier i det hele tatt har installert dem. Dette gjør veien til investering i solenergi lettere, noe som kan gi mer forutsigbar og bærekraftig inntekt på sikt.
+WattsUpSun er en digital løsning utviklet for huseiere som ønsker å vurdere lønnsomheten av solcellepaneler.
+
+Appen lar huseier raskt og enkelt slå opp egen adresse, markere takflate, legge inn tak- areal/vinkel/retning og type solcellepanel. Basert på disse nøkkelfaktorene beregnes et estimat på kostnader, inntjening og effekt av solcellepaneler, før huseier i det hele tatt har installert dem.
+
+Dette gjør veien til investering i solenergi lettere, noe som kan gi mer forutsigbar og bærekraftig inntekt på sikt.
 
 <img src="app/src/main/res/drawable/mockup.png" alt="mockup">
 
