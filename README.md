@@ -6,9 +6,15 @@
 <p align="center">
     <i>~ Laget av Kristin, Niklas, Jonatan, Danial, Affaq og Kavin ~</i>
 </p>
-<br/>
+<br />
 
-WattsUpSun er en app designet for huseiere som ønsker å vurdere lønnsomheten av solcellepaneler. Appen lar huseier enkelt slå opp adresse, tegne takflate og legge inn areal/vinkel/retning for å beregne forventet strømproduksjon.
+WattsUpSun er en digital løsning utviklet for huseiere som ønsker å vurdere lønnsomheten av solcellepaneler.
+
+Appen lar huseier enkelt slå opp egen adresse, markere takflate, legge inn tak- areal/vinkel/retning og type solcellepanel. Basert på disse nøkkelfaktorene beregnes et estimat på utgifter og innsparing av solcellepaneler, før huseier i det hele tatt har installert dem.
+
+Dette gjør veien til investering i solenergi lettere, noe som kan bidra mer forutsigbar og bærekraftig inntekt på sikt.
+
+<img src="app/src/main/res/drawable/mockup.png" alt="mockup">
 
 ## Installasjon
 
@@ -33,20 +39,21 @@ Korrekt og oppdatert data er essensielt for å få mest mulig nøyaktig beregnin
 
 For å få mest mulig ut av appen og all funksjoneliteten den tilbyr, må appen ha tilgang til visse systemfunksjoner som er står definert i `AndroidManifest.xml` filen:
 
-- `INTERNET`. Som nevnt tidligere henter appen data fra diverse datakilder, og trenger naturligvis internett-tilgang for å gjøre det.
-- `CAMERA` og `READ_MEDIA_IMAGES`. Lar bruker legge til et profilbilde, enten med kameraet eller fra galleriet.
-- `READ_EXTERNAL_STORAGE` og `WRITE_EXTERNAL_STORAGE`. Gjør at appen kan lagre informasjon lokalt på brukerens enhet, som gjøres blant annet med profil- og adressedata.
+- `INTERNET`: som nevnt tidligere henter appen data fra diverse datakilder, og trenger naturligvis internett-tilgang for å gjøre det.
+- `CAMERA` og `READ_MEDIA_IMAGES`: lar bruker legge til et profilbilde, enten med kameraet eller fra galleriet.
+- `READ_EXTERNAL_STORAGE` og `WRITE_EXTERNAL_STORAGE`: gjør at appen kan lagre informasjon lokalt på brukerens enhet, som gjøres blant annet med profil- og adressedata.
 
 ## Biblioteker
 
-Slik moderne utvikling har blitt til er det stort fokus på biblioteker for å unngå “_reinventing the wheel_”. Vi har ikke gjort noe annerledes, og bruker blant annet biblioteker fra forelesningene og obligene: `Jetpack Compose`, `Ktor`, `Navigation Compose`, `Material3`, `Coil`, og en del mer niche biblioteker:
+Slik moderne utvikling har blitt til er det stort fokus på biblioteker for å unngå “_reinventing the wheel_”. Vi har ikke gjort noe annerledes, og bruker blant annet biblioteker fra forelesningene og obligene: [Jetpack Compose](https://developer.android.com/compose), [Ktor](https://ktor.io), [Navigation Compose](https://developer.android.com/develop/ui/compose/navigation), [Material3](https://developer.android.com/develop/ui/compose/designsystems/material3), [Coil](https://coil-kt.github.io/coil), og en del mer niche biblioteker:
 
-- `Mapbox`: alt av kartfunksjoner, søk og autocomplete.
-- `Turf`: for å kunne tegne på kartet.
-- `MPAndroidChart`: graf til visualisering av solstrålingsdata.
-- `DataStore`: persistent lagring av data lokalt på enheten.
-- `JUnit`, `Mockk`, `Mockito`, `Turbine` og `Robolectric`: testing og mocking av alt fra UI til API.
+- [Mapbox](https://mapbox.com): kart, koordinater og søk/autocomplete av adresse.
+- [Turf](https://docs.mapbox.com/android/java/guides/turf): for å kunne markere tak på kartet.
+- [MPAndroidChart](https://github.com/PhilJay/MPAndroidChart): graf til visualisering av solstrålingsdata.
+- [DataStore](https://developer.android.com/topic/libraries/architecture/datastore): persistent lagring av data lokalt på enheten.
+- [JUnit](https://junit.org/junit5), [Mockk](https://mockk.io), [Mockito](https://site.mockito.org), [Turbine](https://github.com/cashapp/turbine) og [Robolectric](https://robolectric.org): testing og mocking av alt fra UI til API.
 
 ## Credits
 
-Takk til Fredrik Løvoll som hjalp oss med `reverseGeocode` koden.
+- Takk til Fredrik Løvoll som hjalp oss med `reverseGeocode` koden.
+- Design av README er inspirert av [Stripe Android SDK](https://github.com/stripe/stripe-android) og [Spacedrive](https://github.com/spacedriveapp/spacedrive).

@@ -1,5 +1,6 @@
 package no.uio.ifi.in2000.team_43.ui.pages
 
+
 import android.content.Context
 import android.net.Uri
 import android.widget.Toast
@@ -18,48 +19,53 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
+import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -72,17 +78,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.uio.ifi.in2000.team_43.model.dataStore.DataStoreManager
 import no.uio.ifi.in2000.team_43.model.input.SavedAddress
-import no.uio.ifi.in2000.team_43.ui.info.AddressDetailPage
-import java.io.File
-import androidx.core.net.toUri
-import androidx.navigation.NavController
 import no.uio.ifi.in2000.team_43.ui.home.WelcomeScreen
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.*
-import androidx.compose.runtime.rememberCoroutineScope
+import no.uio.ifi.in2000.team_43.ui.info.AddressDetailPage
 import no.uio.ifi.in2000.team_43.ui.theme.Cerulean
 import no.uio.ifi.in2000.team_43.ui.theme.MutedError
 import no.uio.ifi.in2000.team_43.ui.theme.TopBarColor
+import java.io.File
 
 
 @Composable
@@ -128,12 +129,11 @@ fun ProfileScreen(
     modifier: Modifier = Modifier,
     onCardClick: (SavedAddress) -> Unit = {},
     navController: NavController
-){
+) {
     val context = LocalContext.current
     val dataStoreManager = remember { DataStoreManager(context) }
     val addresses by dataStoreManager.addresses.collectAsState(initial = emptyList())
     val coroutineScope = rememberCoroutineScope()
-
 
     val firstname by dataStoreManager.firstnameFlow.collectAsState(initial = "")
     val lastname by dataStoreManager.lastnameFlow.collectAsState(initial = "")
@@ -169,22 +169,11 @@ fun ProfileScreen(
 
     fun getTempFileUri(context: Context): Uri {
         val cacheDir = context.cacheDir
-        if (!cacheDir.exists()) {
-            cacheDir.mkdirs()
-        }
-
+        if (!cacheDir.exists()) cacheDir.mkdirs()
         val imageDir = File(cacheDir, "camera_photos")
-        if (!imageDir.exists()) {
-            imageDir.mkdirs()
-        }
-
+        if (!imageDir.exists()) imageDir.mkdirs()
         val tempFile = File(imageDir, "profile_photo_${System.currentTimeMillis()}.jpg")
-
-        return FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            tempFile
-        )
+        return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", tempFile)
     }
 
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
@@ -195,45 +184,34 @@ fun ProfileScreen(
             tempUri = newUri
             cameraLauncher.launch(newUri)
         } else {
-            Toast.makeText(
-                context,
-                "Trenger kamera-tillatelse for å ta profilbilde",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(context, "Trenger kamera-tillatelse for å ta profilbilde", Toast.LENGTH_SHORT).show()
         }
     }
 
-    // Content on the screen
-    Scaffold (
+    Scaffold(
         topBar = { TopAppBarProfile() }
     ) { padding ->
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(top = padding.calculateTopPadding(), bottom = 12.dp),
-            // verticalArrangement = Arrangement.Center,
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            Card (
+            Card(
                 modifier = Modifier.padding(horizontal = 12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFA8CFE5)
-                )
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFA8CFE5))
             ) {
                 Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFF304745),
-                    ),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF304745)),
                     shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.cardElevation(
-                        defaultElevation = 20.dp
-                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 20.dp),
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .fillMaxWidth()
-                        //.padding(horizontal = 12.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -279,7 +257,6 @@ fun ProfileScreen(
                                     imageVector = Icons.Default.Edit,
                                     contentDescription = "edit name",
                                     tint = Color.White,
-                                    //tint = Purple40,
                                     modifier = Modifier
                                         .size(16.dp)
                                         .align(Alignment.TopEnd)
@@ -297,19 +274,13 @@ fun ProfileScreen(
                     }
                 }
 
-                // Spacer(modifier = Modifier.height(16.dp))
-
-
-                Column (
+                Column(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
                     Button(
                         onClick = { navController.navigate("appinfo") },
-                        enabled = true,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xff3b7d9c)
-                        ),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xff3b7d9c)),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -318,18 +289,14 @@ fun ProfileScreen(
                         Text("Info om appen")
                     }
 
+
+
+
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    // Privacy policy button
                     Button(
-                        onClick = {
-                            // When the button is pressed, show privacy policy in a popup
-                            showPrivacyDialog = true
-                        },
-                        enabled = true,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xff3b7d9c)
-                        ),
+                        onClick = { showPrivacyDialog = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xff3b7d9c)),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -344,14 +311,12 @@ fun ProfileScreen(
                 modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
                 thickness = 1.dp,
             )
-            
-            Card (
+
+            Card(
                 modifier = Modifier.padding(horizontal = 12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFEEF0F1)
-                )
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFEEF0F1))
             ) {
-                Row (
+                Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -363,27 +328,25 @@ fun ProfileScreen(
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
-                            //.padding(8.dp)
                             .padding(horizontal = 12.dp)
                             .padding(top = 12.dp)
                     )
+
                     if (addresses.isNotEmpty()) {
-                        var showDialog by remember { mutableStateOf(false) }
-                        val coroutineScope = rememberCoroutineScope()
+                        var showDialogForAddress by remember { mutableStateOf(false) }
 
                         Column {
                             Button(
-                                onClick = { showDialog = true },
-                                enabled = true,
+                                onClick = { showDialogForAddress = true },
                                 modifier = Modifier.width(112.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = MutedError)
                             ) {
                                 Text("Slett alle", color = MaterialTheme.colorScheme.onError)
                             }
 
-                            if (showDialog) {
+                            if (showDialogForAddress) {
                                 AlertDialog(
-                                    onDismissRequest = { showDialog = false },
+                                    onDismissRequest = { showDialogForAddress = false },
                                     title = { Text("Bekreft sletting") },
                                     text = { Text("Er du sikker på at du vil slette alle adresser?") },
                                     confirmButton = {
@@ -392,104 +355,85 @@ fun ProfileScreen(
                                                 coroutineScope.launch {
                                                     dataStoreManager.deleteAllAddresses()
                                                 }
-                                                showDialog = false
+                                                showDialogForAddress = false
                                             }
                                         ) {
                                             Text("Ja", color = MaterialTheme.colorScheme.error)
                                         }
                                     },
                                     dismissButton = {
-                                        TextButton(onClick = { showDialog = false }) {
+                                        TextButton(onClick = { showDialogForAddress = false }) {
                                             Text("Avbryt")
                                         }
                                     }
                                 )
                             }
                         }
-
                     }
                 }
 
-                Column (
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    if (addresses.isEmpty()) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 16.dp)
-                                .padding(top = 12.dp),
-                            verticalArrangement = Arrangement.Top
+                if (addresses.isEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .padding(top = 12.dp)
+                    ) {
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = Color(0xffe8ca89))
                         ) {
-                            Card(
-                                colors = CardDefaults.cardColors(
-                                    containerColor = Color(0xffe8ca89),
-                                ),
+                            Text(
+                                text = "Ingen adresser lagret enda.",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xff9c2d17),
                                 modifier = Modifier
-                            ) {
-                                Text(
-                                    text = "Ingen adresser lagret enda.",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xff9c2d17),
-                                    modifier = Modifier
-                                        .paddingFromBaseline(top = 40.dp)
-                                        .padding(horizontal = 20.dp),
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(
-                                    text = "Gå til kart, velg adresse og registrer takflate for å lagre en adresse!",
-                                    modifier = Modifier
-                                        .paddingFromBaseline(bottom = 24.dp)
-                                        .padding(horizontal = 20.dp),
-                                )
-                            }
+                                    .paddingFromBaseline(top = 40.dp)
+                                    .padding(horizontal = 20.dp),
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Gå til kart, velg adresse og registrer takflate for å lagre en adresse!",
+                                modifier = Modifier
+                                    .paddingFromBaseline(bottom = 24.dp)
+                                    .padding(horizontal = 20.dp),
+                            )
                         }
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            items(addresses) { address ->
-                                // To add padding over(so the shadows are correct)
-                                if (address == addresses[0]) {
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                }
+                    }
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        addresses.forEachIndexed { index, address ->
+                            if (index == 0) Spacer(modifier = Modifier.height(8.dp))
 
-                                AddressCard(
-                                    address = address,
-                                    onClick = { onCardClick(address) },
-                                    onDelete = { addressToDelete ->
-                                        coroutineScope.launch {
-                                            dataStoreManager.deleteAddress(addressToDelete)
-                                        }
+                            AddressCard(
+                                address = address,
+                                onClick = { onCardClick(address) },
+                                onDelete = { toDelete ->
+                                    coroutineScope.launch {
+                                        dataStoreManager.deleteAddress(toDelete)
                                     }
-                                )
-
-                                if (address == addresses[addresses.size - 1]) {
-                                    Spacer(modifier = Modifier.height(16.dp))
                                 }
-                            }
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            if (index == addresses.lastIndex) Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
                 }
             }
 
-            // Popup for privacy policy
             if (showPrivacyDialog) {
                 AlertDialog(
                     onDismissRequest = { showPrivacyDialog = false },
-                    title = {
-                        Text("Personvernerklæring")
-                    },
+                    title = { Text("Personvernerklæring") },
                     text = {
                         Text(
-                            "Vi samler ikke inn noen informasjon om deg. " +
-                                    "All data du legger inn lagres kun lokalt på mobilen din og deles ikke.",
+                            "Vi samler ikke inn noen informasjon om deg. All data du legger inn lagres kun lokalt på mobilen din og deles ikke.",
                             lineHeight = 20.sp
                         )
                     },
@@ -531,12 +475,9 @@ fun ProfileScreen(
                 )
             }
 
-            // Dialog to edit name
             if (showDialog) {
                 AlertDialog(
-                    title = {
-                        Text(text = "Rediger navn")
-                    },
+                    title = { Text("Rediger navn") },
                     text = {
                         Column {
                             OutlinedTextField(
@@ -580,9 +521,7 @@ fun ProfileScreen(
                                 tempFirstname = ""
                                 tempLastname = ""
                             },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.LightGray
-                            )
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
                         ) {
                             Text("Avbryt")
                         }
@@ -592,6 +531,8 @@ fun ProfileScreen(
         }
     }
 }
+
+
 
 @Composable
 fun AddressCard(
@@ -656,6 +597,7 @@ fun AddressCard(
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
