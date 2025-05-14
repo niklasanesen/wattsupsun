@@ -7,7 +7,7 @@
     <i>~ Laget av Kristin, Niklas, Jonatan, Danial, Affaq og Kavin ~</i>
 </p>
 
-WattsUpSun er en digital løsning utviklet for huseiere som ønsker å vurdere lønnsomheten av solcellepaneler, skrevet i [Kotlin](https://kotlinlang.org).
+WattsUpSun er en digital løsning utviklet for huseiere som ønsker å vurdere lønnsomheten av solcellepaneler.
 
 Appen lar huseier enkelt slå opp egen adresse, markere takflate, legge inn tak- areal/vinkel/retning og type solcellepanel. Basert på disse nøkkelfaktorene beregnes et estimat på kostnader, inntjening og effekt av solcellepaneler, før huseier i det hele tatt har installert dem.
 
