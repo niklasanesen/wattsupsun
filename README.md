@@ -56,4 +56,4 @@ Slik moderne utvikling har blitt til er det stort fokus på biblioteker for å u
 ## Credits
 
 - Takk til Fredrik Løvoll som hjalp oss med `reverseGeocode` koden.
-- Design av `README` er inspirert av [Stripe Android SDK](https://github.com/stripe/stripe-android) og [Spacedrive](https://github.com/spacedriveapp/spacedrive).
+- Design av README er inspirert av [Stripe Android SDK](https://github.com/stripe/stripe-android) og [Spacedrive](https://github.com/spacedriveapp/spacedrive).
