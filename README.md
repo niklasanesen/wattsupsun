@@ -6,6 +6,7 @@
 <p align="center">
     <i>~ Laget av Kristin, Niklas, Jonatan, Danial, Affaq og Kavin ~</i>
 </p>
+<br />
 
 WattsUpSun er en digital løsning utviklet for huseiere som ønsker å vurdere lønnsomheten av solcellepaneler.
 
