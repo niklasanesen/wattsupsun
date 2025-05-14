@@ -63,6 +63,7 @@ fun InfoScreen(
     val panelPrice = ctx.input?.panel?.price ?: 0
     val totalPanelPrice = numPanel * panelPrice
 
+    Log.d("sui", "$weatherList")
     val calculatedMetData = remember(weatherList, ctx.input) {
         val result = mutableListOf<Pair<Instant, Double>>()
         val angle = ctx.input?.angle
@@ -231,7 +232,7 @@ fun InfoScreen(
         // total price for panels
         // Pls ask before touching this
         Spacer(modifier = Modifier.height(16.dp))
-        TotalCostLogic(numPanel, totalPanelPrice, isLoading)
+        TotalCostLogic(numPanel = numPanel, totalPanelPrice = totalPanelPrice, isLoading = false) // It does not need to load, since data is already ready, therefor send with false
 
 
         // ---- graph + switch + saved money for each month ----
