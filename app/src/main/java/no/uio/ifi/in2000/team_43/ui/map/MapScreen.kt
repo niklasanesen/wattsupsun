@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -46,6 +47,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -53,6 +55,7 @@ import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
+import com.mapbox.maps.extension.style.expressions.dsl.generated.max
 import no.uio.ifi.in2000.team_43.model.electricityDistrict.ElectricityDistrict
 import no.uio.ifi.in2000.team_43.ui.theme.Cerulean
 import no.uio.ifi.in2000.team_43.ui.theme.ErrorColor
@@ -215,7 +218,7 @@ fun MapScreen(
                             bottomEnd = 0.dp
                         ),
                         modifier = Modifier
-                            .weight(0.275f)
+                            .wrapContentWidth()
                             .fillMaxHeight(),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = LightRed,
@@ -225,6 +228,8 @@ fun MapScreen(
                         Text(
                             "Avbryt",
                             fontSize = 16.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                     Button(
@@ -237,14 +242,16 @@ fun MapScreen(
                             bottomEnd = 28.dp
                         ),
                         modifier = Modifier
-                            .weight(0.725f)
+                            .weight(1f)
                             .fillMaxHeight(),
                         colors = ButtonDefaults.buttonColors(containerColor = Cerulean)
                     ) {
                         Text(
                             "Bekreft adresse",
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }

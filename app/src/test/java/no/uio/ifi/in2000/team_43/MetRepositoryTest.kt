@@ -46,6 +46,11 @@ class MetRepositoryTest{
             -0.75, -0.74, -0.81, -0.81
         )
 
+        val correctValues: List<Double> = mockApiResponse.map { value ->
+            val doubleValue = value.toDouble()
+            if (doubleValue < 0.0) 0.0 else doubleValue
+        }
+
         val mockWeatherList = WeatherList(
             dataList = mockApiResponse.mapIndexed { index, value ->
                 WeatherData(
@@ -77,9 +82,9 @@ class MetRepositoryTest{
 
         // Assert
         assertNotNull(result)
-        assertEquals(1, result!!.dataList.size)
+        assertEquals(366, result!!.dataList.size)
         assertEquals(result.dataList[0].timeMeasured, Instant.parse("2024-01-01T00:00:00Z"))
-        val dailyAverage = mockApiResponse.average()
+        val dailyAverage = correctValues.sum()
         assertEquals(dailyAverage, result.dataList[0].value, 0.0001)
         assertEquals("W/m2", result.dataList[0].unit)
         assertEquals(

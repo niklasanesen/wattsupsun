@@ -48,14 +48,12 @@ fun totalSavedAnimated(supportAmount: Double): Int {
 
     val readableSupportAmount = NumberFormat.getInstance(Locale("no", "NO")).format(supportAmount.toInt())
 
-    // This is really really not optimal but it is what it is
     LaunchedEffect(supportAmount) {
         showContent = false
         delay(2000)
         showContent = true
     }
 
-    // pls don't touch this, weird things happen when this is not there
     if (!showContent && supportAmount == 0.0) {
         return -1
     }

@@ -50,10 +50,8 @@ fun TotalCostLogic(numPanel: Int, totalPanelPrice: Int, isLoading: Boolean) {
         CalculatingCardBox("Teller mynter - snart klart!")
     } else {
 
-        // Soory for this bad code
-        // pls ask before touching this, might break easly
-        val haaland = totalCostAnimated(numPanel, totalPanelPrice)
-        if(haaland < 0) {
+        val totalCost = totalCostAnimated(numPanel, totalPanelPrice)
+        if(totalCost < 0) {
             CalculatingCardBox("Teller mynter - snart klart!")
         }
     }
@@ -69,14 +67,12 @@ fun totalCostAnimated(numPanel: Int, totalPanelPrice: Int): Int {
         totalPanelPrice
     )
 
-    // This is really really not optimal but it is what it is
     LaunchedEffect(totalPanelPrice) {
         showContent = false
         delay(2000)
         showContent = true
     }
 
-    // pls dont touch this, weird things happen when this is not there
     if (!showContent && totalPanelPrice == 0) {
         return -1
     }
