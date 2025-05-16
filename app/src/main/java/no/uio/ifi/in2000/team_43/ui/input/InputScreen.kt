@@ -146,7 +146,7 @@ fun InputForm(
 
     fun isValidNumber(input: String): Boolean {
         if (input.isEmpty()) return true
-        return input.matches(Regex("^\\d{1,3}\$")) && input.toIntOrNull() != null
+        return input.matches(Regex("^\\d{1,3}$")) && input.toIntOrNull() != null
     }
 
     fun updateDimensionsFromContext(area: Area) {
@@ -214,7 +214,7 @@ fun InputForm(
                     InputField(
                         modifier = Modifier.weight(1f),
                         value = length,
-                        onValueChange = { if (isValidNumber(it)) inputViewModel.length = it },
+                        onValueChange = { if (isValidNumber(it) && it != "0") inputViewModel.length = it },
                         label = "Lengde i m",
                         keyboardController = keyboardController
                     )
@@ -224,7 +224,7 @@ fun InputForm(
                     InputField(
                         modifier = Modifier.weight(1f),
                         value = width,
-                        onValueChange = { if (isValidNumber(it)) inputViewModel.width = it },
+                        onValueChange = { if (isValidNumber(it) && it != "0") inputViewModel.width = it },
                         label = "Bredde i m",
                         keyboardController = keyboardController
                     )
@@ -413,9 +413,9 @@ fun PanelSelector(
 ) {
     val panels = listOf(
         SunPanel("Sunwind 405W", price = 3000, effect = 405, pictureResId = R.drawable.sunwind405w_panel, len = 1.72, width = 1.12),
-        SunPanel("Economy", price = 3730, effect = 455, pictureResId = R.drawable.economy_panel, len = 1.85, width = 1.0),
+        SunPanel("Economy", price = 3730, effect = 455, pictureResId = R.drawable.economy_panel, len = 1.99, width = 1.74),
         SunPanel("Performance", price = 2906, effect = 435, pictureResId = R.drawable.performance_panel, len = 1.90, width = 1.35),
-        SunPanel("Premium", price = 2547, effect = 405, pictureResId = R.drawable.premium_panel, len = 1.78, width = 1.15),
+        SunPanel("Premium", price = 2547, effect = 405, pictureResId = R.drawable.premium_panel, len = 1.53, width = 1.07),
         SunPanel("Sunwind 380W", price = 3190, effect = 380, pictureResId = R.drawable.sunwind380w_panel, len = 1.75, width = 1.0),
     )
 
@@ -472,6 +472,8 @@ fun PanelSelector(
                     // Panel specifications (effect and price)
                     Text("• Effekt: ${panel.effect} W", style = MaterialTheme.typography.bodySmall)
                     Text("• Pris: ${panel.price} kr", style = MaterialTheme.typography.bodySmall)
+                    Text("• Lengde: ${panel.len} m", style = MaterialTheme.typography.bodySmall)
+                    Text("• Bredde: ${panel.width} m", style = MaterialTheme.typography.bodySmall)
                 }
             }
         }

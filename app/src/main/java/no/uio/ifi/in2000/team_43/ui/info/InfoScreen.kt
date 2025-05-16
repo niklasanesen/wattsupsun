@@ -145,6 +145,7 @@ fun InfoScreen(
         .padding(20.dp)
         .verticalScroll(scrollState))
     {
+
         Text(
             text = "$address",
             style = MaterialTheme.typography.headlineMedium.copy(
@@ -155,6 +156,18 @@ fun InfoScreen(
             modifier = Modifier
                 .padding(top = 16.dp, bottom = 8.dp)
         )
+
+        if (numPanel == 0) {
+            Text(
+                text = "Du har ikke plass til noen paneler, taket må være minst 2 meter langt og bredt",
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                ),
+                modifier = Modifier
+                    .padding(top = 16.dp, bottom = 8.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 

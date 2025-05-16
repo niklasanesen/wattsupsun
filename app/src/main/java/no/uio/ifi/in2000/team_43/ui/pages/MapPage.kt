@@ -45,7 +45,8 @@ enum class HomeScreen(val route: String) {
     Start("Kart"),
     Input("Registrer takflate"),
     Info("Info"),
-    Satellite("Tegn takflate")
+    Satellite("Tegn takflate"),
+    Address("Din adresse")
 }
 
 @Composable
@@ -182,6 +183,7 @@ fun TopAppBar(
             HomeScreen.Input -> HelpOnInputScreen { showHelp = false }
             HomeScreen.Info -> HelpOnInfoScreen { showHelp = false }
             HomeScreen.Satellite -> HelpOnSatelliteScreen { showHelp = false }
+            HomeScreen.Address -> HelpOnAddressScreen { showHelp = false }
         }
     }
 }
