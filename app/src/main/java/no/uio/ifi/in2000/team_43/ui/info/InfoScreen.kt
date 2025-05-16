@@ -243,6 +243,16 @@ fun InfoScreen(
                 }
 
                 else -> {
+                    Text(
+                        text = "Penger spart per måned: ",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
+                            color = MaterialTheme.colorScheme.onBackground
+                        ),
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
                     MonthlySavingsDisplay(savingsPerMonth = moneySavedList)
                 }
             }
