@@ -70,7 +70,6 @@ fun WelcomeScreen(
         buttonText = "Lukk"
     }
 
-
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -220,6 +219,8 @@ fun WelcomeScreen(
                         )
                     )
                 }
+
+                Spacer(modifier = Modifier.height(100.dp))
             }
         }
 

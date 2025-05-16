@@ -141,3 +141,33 @@ fun HelpOnSatelliteScreen(onDismiss: () -> Unit) {
         }
     )
 }
+
+@Composable
+fun HelpOnAddressScreen (onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(16.dp),
+        title = { Text(
+            text = "Om denne siden",
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = DarkSlate,
+                fontSize = 18.sp
+            ),
+            modifier = Modifier.padding(bottom = 16.dp)
+        ) },
+        text = { Text("Her har du din lagrede informasjon om din takflate. " +
+                "\n\n Den eneste forskjellen fra da du lagret takflaten er at grafen viser forventet strømproduksjon for alle dager i en måned." +
+                "\n Dermed er 'slideren' der du velger måneden du vil sjekke daglig strømproduksjon for.")},
+        confirmButton = {
+            TextButton(
+                onClick = onDismiss,
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Cerulean
+                )
+            ) {
+                Text("Lukk")
+            }
+        }
+    )
+}

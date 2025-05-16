@@ -12,13 +12,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -58,6 +61,10 @@ fun SatelliteScreen(
     val width by satelliteViewModel.width.collectAsState()
     val points by satelliteViewModel.points.collectAsState()
     val savedPolygons by satelliteViewModel.savedPolygons.collectAsState()
+
+    var showDialog by remember { mutableStateOf(false) }
+    var lengthError by remember { mutableStateOf(false) }
+    var widthError by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val bitmap = remember {
@@ -178,13 +185,20 @@ fun SatelliteScreen(
 
                         Button(
                             onClick = {
-                                onNextBtnClicked(
-                                    Area(
-                                        areaInSquareMeters,
-                                        floor(length),
-                                        floor(width)
+                                lengthError = floor(length) > 999.0 || floor(length) == 0.0
+                                widthError = floor(width) > 999.0 || floor(width) == 0.0
+
+                                if (!lengthError && !widthError) {
+                                    onNextBtnClicked(
+                                        Area(
+                                            areaInSquareMeters,
+                                            floor(length),
+                                            floor(width)
+                                        )
                                     )
-                                )
+                                } else {
+                                    showDialog = true
+                                }
                             }
                         ) {
                             Text("Neste")
@@ -192,6 +206,27 @@ fun SatelliteScreen(
                     }
                 }
             }
+        }
+
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = { Text("Ugyldig takflate") },
+                text = {
+                    val lengthTooSmallOrBig = if(floor(length) > 999.0) "Lengden på taket ditt er over 999 meter!" else "Lengden på taket ditt er 0 meter!"
+                    val widthTooSmallOrBig = if(floor(width) > 999.0) "Bredden på taket ditt er over 999 meter!" else "Bredden på taket ditt er 0 meter!"
+                    val lengthMessage = if (lengthError) lengthTooSmallOrBig else ""
+                    val widthMsg = if (widthError) widthTooSmallOrBig else ""
+
+                    Text("$lengthMessage ${if (lengthMessage.isNotEmpty() && widthMsg.isNotEmpty()) "\n" else ""}$widthMsg" +
+                            "\n\nTaket ditt sine dimensjoner stemmer ikke, vennligst lag en ny takflate")
+                },
+                confirmButton = {
+                    Button(onClick = { showDialog = false }) {
+                        Text("OK")
+                    }
+                }
+            )
         }
     }
 }

@@ -374,8 +374,7 @@ fun ProfileScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .padding(top = 12.dp)
+                            .padding(16.dp)
                     ) {
                         Card(
                             colors = CardDefaults.cardColors(containerColor = Color(0xffe8ca89))

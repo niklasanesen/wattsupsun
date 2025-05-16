@@ -127,7 +127,7 @@ fun AddressDetailPage(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                currentScreen = currentScreen,
+                currentScreen = HomeScreen.Address,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() }
             )
