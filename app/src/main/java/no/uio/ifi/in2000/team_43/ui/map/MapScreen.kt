@@ -207,7 +207,7 @@ fun MapScreen(
             }
 
             // For debug: !addressIsSelected to deactivate searchbar
-            if (!addressIsSelected) {
+            if (addressIsSelected) {
                 Row(modifier = Modifier.fillMaxWidth().height(56.dp)) {
                     Button(
                         onClick = { addressIsSelected = false },
