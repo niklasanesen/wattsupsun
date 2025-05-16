@@ -156,8 +156,8 @@ fun HelpOnAddressScreen (onDismiss: () -> Unit) {
             modifier = Modifier.padding(bottom = 16.dp)
         ) },
         text = { Text("Her har du din lagrede informasjon om din takflate. " +
-                "\n\n Den eneste forskjellen fra da du lagret takflaten er at grafen viser forventet strømproduksjon for alle dager i en måned." +
-                "\n Dermed er 'slideren' der du velger måneden du vil sjekke daglig strømproduksjon for.")},
+                "\n\nDen eneste forskjellen fra da du lagret takflaten er at grafen viser forventet strømproduksjon for alle dager i en måned." +
+                "\nDermed er 'slideren' der du velger måneden du vil sjekke daglig strømproduksjon for.")},
         confirmButton = {
             TextButton(
                 onClick = onDismiss,
