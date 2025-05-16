@@ -144,6 +144,11 @@ fun InputForm(
     var directionChange: Boolean by remember { mutableStateOf(false) }
 
 
+    fun isValidNumber(input: String): Boolean {
+        if (input.isEmpty()) return true
+        return input.matches(Regex("^\\d{1,3}\$")) && input.toIntOrNull() != null
+    }
+
     fun updateDimensionsFromContext(area: Area) {
         if (length.isEmpty() && width.isEmpty()) {
             inputViewModel.length = area.length.toInt().toString()
@@ -209,7 +214,7 @@ fun InputForm(
                     InputField(
                         modifier = Modifier.weight(1f),
                         value = length,
-                        onValueChange = { inputViewModel.length = it },
+                        onValueChange = { if (isValidNumber(it)) inputViewModel.length = it },
                         label = "Lengde i m",
                         keyboardController = keyboardController
                     )
@@ -219,7 +224,7 @@ fun InputForm(
                     InputField(
                         modifier = Modifier.weight(1f),
                         value = width,
-                        onValueChange = { inputViewModel.width = it },
+                        onValueChange = { if (isValidNumber(it)) inputViewModel.width = it },
                         label = "Bredde i m",
                         keyboardController = keyboardController
                     )
